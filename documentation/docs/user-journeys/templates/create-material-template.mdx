@@ -1,0 +1,75 @@
+---
+title: Material Template — Create a template
+sidebar_label: Create material template
+---
+
+# Material Template: Create a template
+
+**Who:** [Manager](../../concepts/roles)  **Where:** Web
+
+A **Material Template** is a task-linked, multi-tab spec for applying material(s): the products, their rates and mix methods, the target problems, and the spray application setup. Tank-mix work orders consume material templates.
+
+## Before you start
+
+- Sign in with a **Manager** role. See [Roles](../../concepts/roles).
+- You need **Material Template** View/Create/Update permission.
+- Know the **Task** you're creating the template for and the product(s), rates, and problems involved.
+
+:::note Single save flow
+Material templates have no Draft/Published or enable/clone behavior — there is a single **Save** flow. A template can hold multiple materials and multiple problems.
+:::
+
+## Steps
+
+Open **Template Management → Material Template** tile to reach the **Material Templates** list (columns **Name**, **Task**, **Actions**; shows "No Record Found" when empty; has **Filter** and refresh). Click **Create New Material Template**. The wizard has four tabs across the top: **Basic Details → View Details → Problem Details → Application Details**.
+
+### 1. Basic Details
+
+1. Enter the **Material Title\*** (text).
+2. Choose the **Task\*** from the dropdown.
+3. Optionally add **Additional Comments**.
+4. Move to the next tab.
+
+### 2. View Details
+
+1. **Select Product** (searchable, e.g. "Allzcor Insecticide (279-9607) (00001)").
+2. Choose the **Mix Method** — **Per Area** or **Per Volume**.
+3. Enter the **Rate**, **Rate Unit** (e.g. fl. oz), and **Per** (e.g. acre).
+4. Optionally expand **Withholding Period** and set **Re-entry (REI) Hours**.
+5. Use **Save & Add New** to add more materials, or **Delete** to remove one.
+
+:::warning Mix Method rule
+"If the material rate is given per acre then this should be **Per Area**, if rate is per gal or per 100 gal then mix method should be **Per Volume**."
+:::
+
+### 3. Problem Details
+
+1. **Select Problem** from the dropdown (e.g. Cutworm).
+2. Enter the **Infestation** value (e.g. 10) and **Infestation Unit** (e.g. %).
+3. Add a **Description**.
+4. Click **Save**. Repeat to add more problems.
+
+### 4. Application Details
+
+In the **Liquid Application** section:
+
+1. Choose **Application Method**, **Nozzle Type**, and **Droplet Size** (dropdowns).
+2. Enter **Total Application Rate** (gal/ha), **Tank Size** (Gal), and **Preharvest (PHI)** (days).
+3. Click **Save**.
+
+Example: Air-blast Sprayer, Total 70, Tank 500, Twin Flat nozzle, Fine droplet size.
+
+## Result
+
+After you save, "The material template will be successfully saved." The template appears in the **Material Templates** list. The right **Summary** panel groups your entries under **General** (Title, Location, Task), **Materials**, **Problems**, and **Additional Information** (Application Type, Application Measurement Size, Application Method, Total Application Rate, Tank Size, Nozzle Type, Droplet Size).
+
+## Notes & gotchas
+
+- **Material Title\*** and **Task\*** are the required fields.
+- Add several materials (via **Save & Add New** on **View Details**) and several problems (via **Save** on **Problem Details**) within one template.
+- Material templates feed into [Create a tank-mix work order](../work-orders/create-tank-mix-work-order).
+- For inspection forms instead of material specs, see [Create an inspection template](./create-inspection-template).
+
+:::tip
+Double-check the **Mix Method** against the rate's unit — mismatching Per Area vs Per Volume is the most common setup error.
+:::

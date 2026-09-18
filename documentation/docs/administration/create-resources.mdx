@@ -1,0 +1,45 @@
+---
+title: Resources — Create a Resource (D365)
+sidebar_label: Create resources
+---
+
+# Resources: Create a Resource (D365)
+
+**Who:** System / D365 administrator  **Where:** Dynamics 365 Finance & Operations (D365 F&O)
+
+A **Resource** in D365 F&O represents a single human or machinery unit — one own worker or one machine — with its own cost per unit, calendar, and project category. Resources record the actual labor and machinery cost of operations and are later linked to VannBrosPhaseTwo Farm Web App users (see [Set up users, roles & groups](./set-up-users-roles-groups)). Create resources here before you can map them to users.
+
+:::warning Prerequisite
+The **Worker** must already exist in the system before you create the resource. You select the worker while creating the resource, so the worker record must be set up first.
+:::
+
+## Before you start
+- You can reach **Organization administration > Resources > Resources** in D365 F&O.
+- The **Worker** to attach to this resource already exists.
+- You know the **Project category** (e.g. CONTRACT LABOR), **Calendar** (e.g. STD 8H), and the **Resource group** this resource belongs to.
+
+:::note Resource vs Resource Group
+A **Resource** is a single human/machinery unit. A **Resource Group** is a grouping of resources tied to a Site (used to track operations). Create the group first if you intend to assign this resource into one — see [Create resource groups](./create-resource-groups).
+:::
+
+## Steps
+1. In D365 F&O, go to **Organization administration > Resources > Resources**.
+2. On the toolbar, select **+ New**.
+3. In the header, enter the **Resource** number*.
+4. Enter a **Description**.
+5. Set the **Type** (**Human resources** or **Machinery**).
+6. Under **General / Resource**, select the **Worker** (the **Worker name** populates from the selected worker; set **Vendor** if applicable).
+7. Under **Operation > Cost**, enter **Cost per unit** and the **Usage UOM** (e.g. `hr`).
+8. Select the **Project Category** (e.g. CONTRACT LABOR).
+9. In the **Calendars** sub-grid, assign a **Calendar** (e.g. STD 8H) and set **Expiration** (e.g. Never).
+10. In the **Resource groups** sub-grid, select the relevant **resource group**.
+11. Select **Save**.
+
+## Result
+The resource is created and appears in the **Resources** list. It can now be assigned to a Farm Web App user via **Edit user → Resource** during user setup.
+
+## Notes & gotchas
+- The **D365 Resource must exist before** it can be assigned to a Farm App user.
+- Toolbar actions: **Save**, **+ New**, **Delete**, **Resource**, **Options**.
+- The **Resources** node also holds Gantt charts, Resource capabilities, and Resource groups.
+- Next step in user setup: [Set up users, roles & groups](./set-up-users-roles-groups).

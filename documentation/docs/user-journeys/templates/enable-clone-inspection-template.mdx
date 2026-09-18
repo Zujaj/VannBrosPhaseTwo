@@ -1,0 +1,60 @@
+---
+title: Inspection Template — Enable, disable & clone
+sidebar_label: Enable & clone template
+---
+
+# Inspection Template: Enable, disable & clone
+
+**Who:** [Manager](../../concepts/roles)  **Where:** Web
+
+After you [create an inspection template](./create-inspection-template), use **Template Status** to control whether it appears in work orders, and use **Clone** to start a new template from an existing one. This page covers both.
+
+## Before you start
+
+- Sign in with a **Manager** role. See [Roles](../../concepts/roles).
+- You need **Inspection Template** View/Update/Publish permission.
+- At least one inspection template must already exist. Open **Template Management → Inspection Template** to reach the **Inspection Templates** list.
+
+## Enable a template
+
+1. On the **Inspection Templates** list, find your template.
+2. Toggle the **Template Status** switch **On** — it reads **Enabled**.
+
+:::note
+"Once enabled, the template will be visible in the workorder when creating the inspection workorder." It appears in **Work Orders → Inspection tab → Create → Inspection Template** dropdown (for example, "DEMO INSPECTION").
+:::
+
+## Disable a template
+
+1. Toggle the **Template Status** switch **Off**.
+2. A confirmation dialog appears:
+   - Title: **`Disable Template Status`**
+   - Body: **`Are you sure you want to change the Template Status`**
+   - Buttons: **Cancel** / **OK**
+3. Click **OK** to confirm. The template now reads **Disabled** and no longer appears in the WO inspection-template dropdown. Click **Cancel** to keep it enabled.
+
+:::warning Enabling gates work-order visibility
+Only **Enabled** (and **Published**) templates appear in the Inspection Work Order's **Inspection Template** dropdown. Disabling immediately removes a template from that dropdown for new work orders.
+:::
+
+## Clone a template
+
+1. On the **Inspection Templates** list, in the **Action** column, click the **Clone template** icon for the template you want to copy.
+2. The **Name** is auto-generated as **`Copy of <name>`** (for example, "Copy of testing inspection"). Edit it if you like.
+3. The original's **Selected Attributes** are copied automatically. Add more by dragging from **Available Attributes** into **Selected Attributes**.
+4. Click **Save & Publish** to finish.
+
+## Result
+
+- **Enable/Disable:** the **Template Status** column updates to **Enabled** or **Disabled**.
+- **Clone:** the new template appears in the **Inspection Templates** list and you'll see the toast **`Template created successfully`**.
+
+## Notes & gotchas
+
+- **Status** (Draft/Published) and **Template Status** (Enabled/Disabled) are independent — see [Create an inspection template](./create-inspection-template) for the distinction.
+- Cloning is the fastest way to spin up a near-identical form; you only need to adjust the differences.
+- Enabled, published templates are consumed by [Create an inspection work order](../work-orders/create-inspection-work-order).
+
+:::tip
+Disable old templates instead of deleting them — they stay available for cloning while staying out of the work-order dropdown.
+:::

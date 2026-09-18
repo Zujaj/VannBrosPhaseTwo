@@ -1,0 +1,10 @@
+# Node Modules
+node_modules/
+
+# Playwright MCP
+.playwright-mcp/
+# Plaintext QA account credentials. Never commit.
+# Import into the gitignored .auth/credentials.json with
+# `pnpm creds:import` (playwright/), then move this file out of the repo.
+creds.txt
+*credentials*.txt

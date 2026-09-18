@@ -1,0 +1,47 @@
+{
+  "admin": {
+    "workbookLabel": "Admin / Manager (Grower)",
+    "description": "Full rights including Sync Console, Settings, Delete Work Order, Review/Approve.",
+    "bootstrappable": true
+  },
+  "supervisor": {
+    "workbookLabel": "Supervisor",
+    "description": "Can start/end work orders and jobs, pick resources and assets, no create rights on web.",
+    "bootstrappable": true
+  },
+  "responsible": {
+    "workbookLabel": "Responsible",
+    "description": "Assigned as responsible on at least two work orders.",
+    "bootstrappable": true
+  },
+  "operator": {
+    "workbookLabel": "Machine Operator",
+    "description": "Mapped to a machine resource with implements.",
+    "bootstrappable": true
+  },
+  "farmhand": {
+    "workbookLabel": "FarmHand / Crew",
+    "description": "Minimum permissions - used for negative permission checks.",
+    "bootstrappable": true
+  },
+  "multiGrower": {
+    "workbookLabel": "Multi-grower user",
+    "description": "Mapped to two growers with different location sets, for hierarchy checks.",
+    "bootstrappable": true
+  },
+  "restrictedLocation": {
+    "workbookLabel": "Restricted-location user",
+    "description": "Rights to one location only, for isolation checks.",
+    "bootstrappable": true
+  },
+  "bypassAttendance": {
+    "workbookLabel": "Bypass-attendance group member",
+    "description": "Member of a user group with Bypass Attendance enabled.",
+    "bootstrappable": true
+  },
+  "inactive": {
+    "workbookLabel": "Inactive user",
+    "description": "A user deactivated in Settings, for login-refusal checks.",
+    "bootstrappable": false
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "n/a",
+    "note": "Session context every request in the create flow is scoped to."
+  },
+  "baseUrl": "https://agrierp-vann-qa.folio3.site",
+  "apiBaseUrl": "https://agrierp-authgateway-qa-api.folio3.site/api",
+  "routes": {
+    "workOrderList": "/workorders",
+    "workOrderDetail": "/workorders/{workOrderId}"
+  },
+  "context": {
+    "locationId": 2,
+    "locationName": "Colusa",
+    "seasonId": 13,
+    "seasonName": "Crop Year 2026",
+    "growerName": "Vann Brothers",
+    "farmId": 2,
+    "farmCode": "VBSF",
+    "farmName": "Vann Farm"
+  },
+  "tabs": [
+    {
+      "key": "workOrders",
+      "label": "Work Orders",
+      "category": 1,
+      "operationType": 1,
+      "isInspectionType": false,
+      "workOrderType": 1
+    },
+    {
+      "key": "inspection",
+      "label": "Inspection Work Orders",
+      "category": 1,
+      "operationType": 3,
+      "isInspectionType": true,
+      "workOrderType": 1
+    },
+    {
+      "key": "harvest",
+      "label": "Harvest Work Orders",
+      "category": 2,
+      "operationType": 1,
+      "isInspectionType": false,
+      "workOrderType": 1
+    },
+    {
+      "key": "observations",
+      "label": "Observations",
+      "excluded": true,
+      "note": "Out of scope. On the Inspection tab this fourth tab is labelled \"Point Of Interests\"."
+    }
+  ],
+  "statusFilters": [
+    {
+      "label": "All",
+      "statusId": null
+    },
+    {
+      "label": "Queue"
+    },
+    {
+      "label": "Draft"
+    },
+    {
+      "label": "To Do"
+    },
+    {
+      "label": "In Progress",
+      "statusId": 3
+    },
+    {
+      "label": "Review"
+    },
+    {
+      "label": "Done"
+    }
+  ],
+  "pageSizes": [
+    10,
+    20,
+    50,
+    100
+  ],
+  "recordCounts": {
+    "workOrders": 813,
+    "inspectionWorkOrders": 45,
+    "harvestWorkOrders": 7,
+    "plots": 99,
+    "materials": 236,
+    "assets": 557,
+    "resources": 108,
+    "growers": 433
+  }
+}

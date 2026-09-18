@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/Farms?locationId={locationId}",
+    "count": 1
+  },
+  "items": [
+    {
+      "id": 2,
+      "code": "VBSF",
+      "name": "Vann Farm",
+      "label": "Vann Farm (VBSF)",
+      "locationId": 2
+    }
+  ]
+}

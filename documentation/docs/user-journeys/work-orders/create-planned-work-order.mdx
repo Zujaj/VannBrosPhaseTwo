@@ -1,0 +1,82 @@
+---
+title: Work Orders — Create a Planned Work Order
+sidebar_label: Create Planned WO
+---
+
+# Work Orders: Create a Planned Work Order
+
+**Who:** Supervisor / Manager (a [role](../../concepts/roles) with work-order authoring rights)  **Where:** Web (authored & submitted on web; executed on mobile)
+
+A **Planned (standard) Work Order** is the unit of planned field work for any operation that is **not** a tank-mix operation. It binds a task/operation to a farm and plots over a date range, and adds **Materials** (rate per acre), **Resources**, and **Assets**. You author and submit it on web; field crews execute it on mobile; a [Manager approves it](./approve-work-order) to reach `Done`.
+
+```mermaid
+flowchart LR
+  H["Header + Operation"] --> B["+ Add Block (plots)"] --> M["Materials (Rate/acre)"] --> R["Resources"] --> A["Assets"] --> S["Supervisor (last)"] --> Sub["Submit → Save"]
+```
+
+## Before you start
+
+:::note Prerequisites
+- A user account with permission to create work orders.
+- The **Task/Operation** you intend to use must **not** be a tank-mix operation. If you need a tank mix, use [Create a Tank Mix Work Order](./create-tank-mix-work-order) instead.
+- The farm, plots, materials, resources, and assets you want to assign already exist in VannBrosPhaseTwo.
+:::
+
+The Work Orders list lives at `https://vannbrosphasetwo-<client>-<env>.folio3.site/workorders`.
+
+## Steps
+
+1. Log in to VannBrosPhaseTwo web and go to the **Work Orders** tab.
+2. Click **Create New Work Orders** (top-right). The form opens with the title **Create New Work Order** and a green **Planned** chip.
+3. Fill in the header fields:
+   - **Work Order Name\***
+   - **WO Start Date\*** and **WO End Date\***
+   - **Priority\*** — `Low`, `Medium` (default), `High`, or `Urgent`
+   - **Farm\***
+   - **Operation Type\*** — `Planned`
+   - **Operation\*** — the specific operation (e.g. *Almond Preparation (1290)*); it must **not** be a tank-mix operation
+   - **Supervisor\*** — the resource who manages the WO. **Select this last** (see the gotcha below); for now, skip it.
+   - **Responsible** — optional; a single responsible person
+   - **Notes** — optional
+
+   :::note Field labels drift
+   The two operation fields are labelled **`Operation Type` / `Operation`** in some renders and **`Task Type` / `Task`** in others (the read-only Approval detail uses `Work Order Type` / `Task Type` / `Task`). They are the same fields.
+   :::
+4. Add plots under **Select Plot\***: click the **`+ Add Block`** button to open the **Select Blocks / Plots** modal (columns `Select`, `Crop`, `Plot`, `Customer Name`, `Plot Area`, `Operational Area`, `Task Start Date`), check the plots, then click **Save**.
+   :::warning Use `+ Add Block`, not `Select Range`
+   The **`Select Range`** control beside it is a date-range filter (`Operation Date Range`), **not** the plot picker — with no plot schedule in range it shows a dead calendar. There is also an **`Add Block Using Map`** (map icon) for map-based plot selection. The `+ Add Block` button is enabled once **Farm + Operation** are set; **Add Material / Resources / Asset** stay inert until a plot is also selected.
+   :::
+5. Add materials under **Select Materials**: click **+** to open the **Select Materials** modal. Search by `Material Name`, `Chemical Groups`, or `Chemical Type` (use **Apply** / **Reset**), check the materials, then click **Save**. In the grid (`Material`, `Rate`, `Usage Unit`, `Action`) enter the **Rate**.
+   :::warning Rate is per acre
+   In a Planned WO the **Rate** you enter is applied **per acre** (e.g. in `gal`).
+   :::
+6. Add resources under **Select Resources**: click **+** to open the **Select Resources** modal, pick from the **Resource Group** dropdown (e.g. *Machine Operators*, *Farm Hands*), then click **Save**. The grid shows `Resource Name`, `Resource Type`, `Company Name`, `Action`. (A `By Resource` toggle is available.)
+7. Add assets under **Select Assets**: click **+** to open the **Select Assets** modal (filter by `Resource Group`, search by `Asset Name`), select the machine and implement, then click **Save**. The grid shows `Asset Name`, `Asset Type`, `Resource Group`, `Action`.
+8. Now select the **Supervisor\*** (the field you skipped in step 3), then click **Submit**.
+9. In the **Create Work Order** confirm dialog (`Are You Sure You Want To Save The Work Order`), click **Save**.
+
+:::warning Submit is not Save — and pick Supervisor last
+Clicking **Submit** only opens the confirm dialog; the dialog's **`Save`** is what actually persists the WO. Also, a section save (plots/materials/resources/assets) re-renders the form and **wipes an early Supervisor selection**, leaving **Submit** disabled — so choose the Supervisor **last**, just before submitting.
+:::
+
+:::tip Save a draft instead
+Use **Save As** (the dropdown in the form header) to save the WO as a `Draft` and finish it later. **Submit** (then **Save**) moves it into the queue and makes it visible on mobile.
+:::
+
+## Result
+
+You'll see a success toast (title **`Success`**) like **`Work Order WO-640 | Almond Prep 06/08/2026-1 Saved Successfully`**. After you confirm with **Save**, the WO leaves `Draft`, enters the **Queue / To Do** state, and becomes visible on the mobile app. After field execution it progresses `In Progress → Review`, and a Manager must [approve it](./approve-work-order) for it to reach `Done`.
+
+See the [create flow diagram](../../diagrams/work-order-create-flow) for the full picture.
+
+## Notes & gotchas
+
+:::warning Enable Tank Mixing toggle
+An **Enable Tank Mixing** toggle sits on this Planned form too. Leave it **OFF** for a standard WO: the Materials grid then shows `Rate` + `Usage Unit`. Turning it **ON** surfaces the `Mix Method` / `Per` / `Unit` columns and hides `Usage Unit` — for that, use [Create a Tank Mix Work Order](./create-tank-mix-work-order) instead.
+:::
+
+- Use the collapsible right-hand **Summary** panel (`General`, `Plots`, `Materials`, `Resources`, `Assets`) to review your entries before submitting.
+- Empty states you may see: *No Record Found* (plots), *No materials found*, *No resource found*, *No assets found*.
+- Only **one Responsible Person** can be set per WO at a time.
+- A work order created on web is visible on the mobile screen.
+- See the [Work Order Lifecycle](../../concepts/work-order-lifecycle) for the full `Draft → Queue → To Do → In Progress → Review → Done` flow.

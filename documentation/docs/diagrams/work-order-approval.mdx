@@ -1,0 +1,25 @@
+---
+title: Approval Sequence
+sidebar_label: Approval Sequence
+---
+
+# Approval sequence
+
+After a WO is completed in the field on mobile it lands in **Review**. A Manager opens it on web, marks it completed, and approves it. Approval moves it to **Done** and posts material & machine consumption to Dynamics 365.
+
+```mermaid
+sequenceDiagram
+  actor M as Manager (Web)
+  participant WO as Work Orders list
+  participant D as Approve dialog
+  participant ERP as Dynamics 365
+  M->>WO: Filter by Review, click eye icon (View)
+  WO-->>M: Read-only detail (General / Plots / Materials / Resources)
+  M->>WO: Click "Work Order Completed"
+  WO->>D: Open "Approve this Work Order"
+  M->>D: Enter Description, click Approve
+  D-->>WO: Status → Done
+  WO->>ERP: Post material & machine consumption
+```
+
+Related: [Approve a Work Order](../user-journeys/work-orders/approve-work-order) · [Review Postings](../finance/review-postings).

@@ -1,0 +1,33 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "allowJs": false,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "paths": {
+            "@shared/*": ["./shared/*"]
+        },
+        "types": [
+            "node"
+        ]
+    },
+    "include": [
+        "playwright.config.ts",
+        "api",
+        "scripts",
+        "tests"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "playwright-report",
+        "test-results"
+    ]
+}

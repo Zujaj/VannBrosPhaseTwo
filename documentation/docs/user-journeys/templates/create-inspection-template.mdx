@@ -1,0 +1,52 @@
+---
+title: Inspection Template — Create a template
+sidebar_label: Create inspection template
+---
+
+# Inspection Template: Create a template
+
+**Who:** [Manager](../../concepts/roles)  **Where:** Web
+
+An **Inspection Template** is a named, reusable inspection form. You assemble it by dragging [attributes](./create-attribute-template) into the form and setting a default-location count. When the template is **Enabled** and **Published**, it appears in the Inspection Work Order's **Inspection Template** dropdown.
+
+## Before you start
+
+- Sign in with a **Manager** role. Field roles cannot author templates. See [Roles](../../concepts/roles).
+- Your role needs **Inspection Template** View/Create/Update/Publish permission.
+- Create the [attributes](./create-attribute-template) you want first — only attributes that exist appear under **Available Attributes**.
+
+## Steps
+
+1. Go to **Template Management** in the top navigation, then click the **Inspection Template** tile.
+2. The **Inspection Templates** list opens (tabs **All | Draft | Published**, with **Filter** and refresh). Click **Create**.
+3. The **Create New Template** side panel opens (with a **Normal** badge and the **Enter Title & Select Attributes** section).
+4. Under **General**, enter the **Name\*** and **Default Locations\*** (numeric, defaults to 1).
+5. Under **Select Attribute\***, drag attributes from **Available Attributes** into **Selected Attributes**. Both panes are searchable via "Type & Enter".
+6. Set **Template Status\*** using the **Enable** toggle (controls availability — see Notes).
+7. Save the template:
+   - Click **Save & Publish** to set **Status** to **Published**.
+   - Click **Save as Draft** to set **Status** to **Draft**.
+
+:::note Required fields
+**Name\***, **Default Locations\***, **Template Status\***, and **Select Attribute\*** are all required.
+:::
+
+## Result
+
+You'll see the toast **`Template created successfully`**. The template appears in the **Inspection Templates** list with columns including **Name**, **Status**, **Type**, **Attribute Count**, **Default Location**, **Created By**, **Created At**, and **Template Status**.
+
+## Notes & gotchas
+
+:::warning Two independent status dimensions
+- **Status** (lifecycle): **Draft** (from *Save as Draft*) or **Published** (from *Save & Publish*).
+- **Template Status** (availability): **Enabled** or **Disabled** — this gates whether the template appears in work orders.
+
+A template must be both **Published** and **Enabled** to show up in the Inspection Work Order's **Inspection Template** dropdown. Setting the **Status** to Published alone is not enough.
+:::
+
+- To control availability after creation — or to copy an existing template — see [Enable, disable, and clone an inspection template](./enable-clone-inspection-template).
+- Enabled, published templates feed into [Create an inspection work order](../work-orders/create-inspection-work-order).
+
+:::tip
+Use **Save as Draft** while you're still adding attributes, then return and **Save & Publish** once the form is complete.
+:::

@@ -1,0 +1,261 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "note": "Every request the create flow fires, in order, captured by wrapping XMLHttpRequest on the live app. Paths are relative to apiBaseUrl. Metadata calls carry a cache-busting DateTime param, so match with a glob."
+  },
+  "auth": {
+    "scheme": "Bearer",
+    "note": "Token is attached per request by the app; it is not the graphApiToken in localStorage."
+  },
+  "phases": [
+    {
+      "phase": "workOrderList",
+      "trigger": "open /workorders or switch tab",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/metadata/Growers",
+          "query": [
+            "page",
+            "limit",
+            "DateTime"
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/location"
+        },
+        {
+          "method": "GET",
+          "path": "/season"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/WorkOrderStatus",
+          "query": [
+            "page",
+            "limit",
+            "DateTime"
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/workOrder",
+          "query": [
+            "page",
+            "limit",
+            "locationId",
+            "seasonId",
+            "Category",
+            "operationType",
+            "statusId",
+            "selectedTab",
+            "isInspectionType",
+            "status"
+          ],
+          "examples": {
+            "workOrders": "/workOrder?page=1&limit=50&locationId=2&seasonId=13&Category=1&isInspectionType=false",
+            "inspection": "/workOrder?page=1&limit=50&locationId=2&seasonId=13&Category=1&operationType=3&isInspectionType=true",
+            "harvest": "/workOrder?page=1&limit=50&locationId=2&seasonId=13&Category=2&operationType=1&isInspectionType=false"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "openCreateModal",
+      "trigger": "click \"Create New Work Orders\"",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/metadata/ResourceGroupTypeHierarchy",
+          "fixture": "resourceGroupTypes.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/locations",
+          "fixture": "growers.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/seasons",
+          "fixture": "seasons.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/operationTypes",
+          "query": [
+            "WorkOrderType"
+          ],
+          "fixture": "taskTypes.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/MaterialProductUnitType",
+          "fixture": "units.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/Farms",
+          "query": [
+            "locationId"
+          ],
+          "fixture": "farms.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/MixMethods",
+          "fixture": "mixMethods.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/WorkOrderPriority",
+          "fixture": "priorities.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/inspectionTemplates",
+          "query": [
+            "inspectionType"
+          ],
+          "fixture": "inspectionTemplates.json"
+        },
+        {
+          "method": "GET",
+          "path": "/resource/GetPaginatedResources",
+          "query": [
+            "page",
+            "limit",
+            "locationId",
+            "OrderByFieldName",
+            "IsASC"
+          ],
+          "fixture": "resources.json"
+        },
+        {
+          "method": "GET",
+          "path": "/metadata/ParentOperations",
+          "query": [
+            "workOrderType",
+            "operationType",
+            "Category",
+            "DateTime"
+          ],
+          "fixture": "tasks.json"
+        }
+      ]
+    },
+    {
+      "phase": "selectTask",
+      "trigger": "pick a Task",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/metadata/inspectionTemplates",
+          "query": [
+            "inspectionType"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "openPlotPicker",
+      "trigger": "click + beside Select Plot",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/activity/blocks",
+          "query": [
+            "page",
+            "limit",
+            "locationId",
+            "seasonId",
+            "farmId",
+            "operationId",
+            "startDate",
+            "endDate"
+          ],
+          "fixture": "plots.json",
+          "note": "Requires Farm and Task to be set first, otherwise the app raises \"Please select a farm and its corresponding task\"."
+        }
+      ]
+    },
+    {
+      "phase": "openMaterialPicker",
+      "trigger": "click + beside Select Materials",
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/Material/GetPaginatedMaterials",
+          "requestBody": {
+            "page": 1,
+            "limit": 50,
+            "locationId": 2,
+            "productAttributeIds": [],
+            "isBlocked": false
+          },
+          "fixture": "materials.json"
+        }
+      ]
+    },
+    {
+      "phase": "openResourcePicker",
+      "trigger": "click + beside Select Resources",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/metadata/resourceGroups",
+          "query": [
+            "locationId",
+            "resourceGroupTypes",
+            "DateTime"
+          ],
+          "note": "resourceGroupTypes is 1,4,5 on the standard flow and 2,3 on inspection. Returns [] in this QA data."
+        },
+        {
+          "method": "GET",
+          "path": "/resource/GetPaginatedResources",
+          "query": [
+            "page",
+            "limit",
+            "locationId",
+            "OrderByFieldName",
+            "IsASC",
+            "IsDummy"
+          ],
+          "note": "Re-queried with IsDummy=false; 104 of the 108 resources come back."
+        }
+      ]
+    },
+    {
+      "phase": "openAssetPicker",
+      "trigger": "click + beside Select Assets",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/asset",
+          "query": [
+            "page",
+            "limit",
+            "isBlocked",
+            "locationId",
+            "isDummy",
+            "startDate",
+            "endDate"
+          ],
+          "fixture": "assets.json"
+        }
+      ]
+    },
+    {
+      "phase": "submit",
+      "trigger": "Submit, then Save in the confirm dialog",
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/workOrder",
+          "fixture": "workOrderPayloads.json"
+        }
+      ]
+    }
+  ]
+}

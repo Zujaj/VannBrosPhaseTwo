@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/operationTypes?WorkOrderType=1",
+    "count": 2,
+    "note": "Rendered as \"Task Type\". Always disabled in the create modal - the tab decides it."
+  },
+  "items": [
+    {
+      "id": 1,
+      "name": "Planned",
+      "sequence": 1
+    },
+    {
+      "id": 3,
+      "name": "Inspection",
+      "sequence": 2
+    }
+  ]
+}

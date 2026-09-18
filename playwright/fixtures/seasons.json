@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/seasons",
+    "count": 2
+  },
+  "default": {
+    "id": 13,
+    "name": "Crop Year 2026"
+  },
+  "items": [
+    {
+      "id": 12,
+      "name": "Crop Year 2025"
+    },
+    {
+      "id": 13,
+      "name": "Crop Year 2026"
+    }
+  ]
+}

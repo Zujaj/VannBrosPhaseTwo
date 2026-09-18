@@ -1,0 +1,53 @@
+---
+title: Attribute Template — Create an attribute
+sidebar_label: Create attribute
+---
+
+# Attribute Template: Create an attribute
+
+**Who:** [Manager](../../concepts/roles)  **Where:** Web
+
+An **Attribute Template** (or simply *attribute*) is a single typed data-capture field — the reusable building block you later drag into an [inspection template](./create-inspection-template). Create the attributes you need first, then assemble them into a form.
+
+## Before you start
+
+- You must sign in with a **Manager** role. Field roles cannot author templates.
+- Your role needs **Attribute Inspection Template** View/Create/Update permission. See [Roles](../../concepts/roles).
+- Decide the attribute **type** before you start — the type determines how data is captured on the form.
+
+:::note The 8 attribute types
+| Label | Captures |
+| --- | --- |
+| **Comment Box** | Free-text comment |
+| **Custom Slider** | Slider with custom range/steps |
+| **Date Time Picker** | A date and/or time |
+| **List Picker** | One option from a defined list |
+| **Number Pad** | A typed numeric value |
+| **Number Slider** | A numeric value via slider |
+| **Switch** | An on/off toggle |
+| **Key Value** | Labeled values (e.g. Small = 2, Medium = 4, Large = 8) |
+:::
+
+## Steps
+
+1. Go to **Template Management** in the top navigation. You land on the **Template Attribute Management** screen.
+2. Click the **Attribute Template** tile. The **Attributes** screen opens — a card grid where each card has an **Enable** toggle and a **Normal** badge. Use the **Search Attributes** box to find existing attributes.
+3. Click **Create**. The **Add New Attribute** panel opens as a two-step wizard: **Select Attribute → Attribute Details**.
+4. On **Select Attribute**, pick one of the 8 types, then click **Next**.
+5. On **Attribute Details**, enter the **Name\*** (required). Configure any type-specific options (for example, the option list for **List Picker**, or the key/value pairs for **Key Value**).
+6. Confirm **Attribute Status\*** — the **Enable** toggle controls whether the attribute is available for use.
+7. Click **Save** to finish, or **Save & Add New** to save and immediately create another. Use **Back** to return a step or **X** to close.
+
+## Result
+
+You'll see the toast **`Attribute created successfully`**. The new attribute appears as a card on the **Attributes** screen and becomes selectable under **Available Attributes** when you build an [inspection template](./create-inspection-template).
+
+## Notes & gotchas
+
+- Each attribute card can be independently **Enabled** or **Disabled** from the grid without deleting it.
+- The **Name\*** field is required; the wizard will not save without it.
+- Attributes are the building blocks for inspection forms — see [Create an inspection template](./create-inspection-template) for assembling them, and [Create an inspection work order](../work-orders/create-inspection-work-order) for where published templates get used.
+
+:::tip
+Name attributes clearly and consistently (e.g. "Fruit Size", "Melon deceases"), because you'll be searching for them by name when assembling inspection templates.
+:::

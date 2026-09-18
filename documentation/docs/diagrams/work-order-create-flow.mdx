@@ -1,0 +1,40 @@
+---
+title: Create Flow & Type Decision
+sidebar_label: Create Flow
+---
+
+# Create flow & type decision
+
+## Which work-order type?
+
+All three types are created from the **Work Orders** screen and differ only by the **Operation / Task** you choose (and, for tank mix, the **Enable Tank Mixing** toggle).
+
+```mermaid
+flowchart TD
+  Q1{"Is the operation an inspection task?"}
+  Q1 -->|Yes| Insp["Inspection WO<br/>needs an Enabled Inspection Template<br/>plots + resources only"]
+  Q1 -->|No| Q2{"Tank-mix operation, or Enable Tank Mixing toggle ON?"}
+  Q2 -->|Yes| Tank["Tank Mix WO<br/>Unit / Mix Method / Per<br/>+ Liquid Application params"]
+  Q2 -->|No| Plan["Planned WO<br/>Materials (Rate/acre)<br/>+ Resources + Assets"]
+```
+
+## Create steps
+
+The header and plot steps are common; the middle section differs by type. **Submit opens a confirm dialog — the dialog's `Save` is what persists the WO.** Select the **Supervisor last**: a section save re-renders the form and wipes an early Supervisor pick.
+
+```mermaid
+flowchart TD
+  Start["Create New Work Orders"] --> Hdr["Header: Name, Dates, Priority,<br/>Farm, Operation"]
+  Hdr --> Plots["Add plots via + Add Block"]
+  Plots --> Type{"Type?"}
+  Type -->|Planned| P["Materials (Rate/acre)<br/>→ Resources → Assets"]
+  Type -->|Tank Mix| T["Materials (Unit/Mix Method/Per)<br/>± Material Template<br/>→ Edit Tank Mixing Details<br/>→ Resources → Assets"]
+  Type -->|Inspection| I["Inspection Template*<br/>→ Resources only"]
+  P --> Sup["Select Supervisor LAST"]
+  T --> Sup
+  I --> Sup
+  Sup --> Sub["Submit → 'Are You Sure...' dialog → Save"]
+  Sub --> Q["Queue / To Do · visible on mobile"]
+```
+
+Related guides: [Planned](../user-journeys/work-orders/create-planned-work-order) · [Tank Mix](../user-journeys/work-orders/create-tank-mix-work-order) · [Inspection](../user-journeys/work-orders/create-inspection-work-order).

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "typescript": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/sdk",
+        "--stdio"
+      ]
+    }
+  }
+}

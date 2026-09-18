@@ -1,0 +1,66 @@
+---
+title: Work Orders — Create an Inspection Work Order
+sidebar_label: Create Inspection WO
+---
+
+# Work Orders: Create an Inspection Work Order
+
+**Who:** Supervisor / Manager (a [role](../../concepts/roles) with work-order authoring rights)  **Where:** Web (authored & submitted on web; executed on mobile)
+
+An **Inspection Work Order** schedules a field inspection against a farm and its plots. Its task is an **inspection operation** and it **requires an Inspection Template**. Unlike Planned and Tank Mix WOs, it captures **plot and resource information only** — no materials, no machines/assets, and no tank mixing. You author and submit it on web; crews execute it on mobile; a [Manager approves it](./approve-work-order) to reach `Done`.
+
+```mermaid
+flowchart LR
+  H["Header + inspection Operation"] --> IT["Inspection Template (Enabled)"] --> B["+ Add Block (plots)"] --> R["Assign Resources"] --> S["Supervisor (last)"] --> Sub["Submit → Save"]
+```
+
+## Before you start
+
+:::note Prerequisites
+- A user account with permission to create work orders.
+- An **Enabled** [Inspection Template](../templates/create-inspection-template). Disabled templates do **not** appear in the dropdown.
+:::
+
+Inspection WOs are created from the **Inspection Work Orders** sub-tab of the Work Orders list at `https://vannbrosphasetwo-<client>-<env>.folio3.site/workorders`.
+
+## Steps
+
+1. Log in to VannBrosPhaseTwo web and go to the **Work Orders** tab.
+2. Open the **Inspection Work Orders** sub-tab.
+3. Click **Create New Work Orders**.
+4. Fill in the header fields:
+   - **Work Order Name\***
+   - **WO Start Date\*** and **WO End Date\***
+   - **Priority\*** — `Low`, `Medium` (default), `High`, or `Urgent`
+   - **Farm\***
+   - **Operation\*** — an inspection task (e.g. *Soil Sampling & Testing (100006)*); labelled `Operation` / `Task` depending on render
+   - **Inspection Template\*** — e.g. *Growth Inspection 4 to 6 Weeks After…*; selectable only if the template is **Enabled**
+   - **Supervisor\*** — **select this last** (see gotcha); skip it for now
+   - **Responsible** — optional
+   - **Notes** — optional
+5. Add plots under **Select Plot\***: click **`+ Add Block`** → **Select Blocks / Plots** modal → check plots → **Save**. (Use `+ Add Block`, not the adjacent `Select Range` date filter.)
+6. Assign resources: click **+** under **Assign Resources**, pick from the **Resource Group** dropdown (resources can be *Farm Hand* or *Machine Operator*), then click **Save**.
+7. Now select the **Supervisor\*** (skipped in step 4), click **Submit**, then click **Save** in the **Create Work Order** confirm dialog (`Are You Sure You Want To Save The Work Order`).
+
+:::warning Submit is not Save — and pick Supervisor last
+**Submit** only opens the confirm dialog; its **`Save`** persists the WO. A section save re-renders the form and **wipes an early Supervisor pick** (leaving Submit disabled) — choose the Supervisor **last**.
+:::
+
+:::tip
+There is **no** materials, assets, or tank-mixing step for inspection WOs — plot and resource info only.
+:::
+
+## Result
+
+You'll see a success toast (title **`Success`**) like **`Work Order WO-000087 | Planned Inspection 02/01/2025-2 Saved Successfully`**. After you confirm with **Save**, the WO enters the **Queue / To Do** state and becomes visible on mobile. After mobile execution it reaches `Review`; a Manager then runs **Work Order Completed → Approve** to move it to `Done`. See [Approve a Work Order](./approve-work-order) and the [create flow diagram](../../diagrams/work-order-create-flow).
+
+## Notes & gotchas
+
+:::warning Inspection Template is required and must be enabled
+An inspection WO **requires** an Inspection Template. If the template you need is missing from the dropdown, it is likely **disabled** — enable it first (see [Create an Inspection Template](../templates/create-inspection-template)).
+:::
+
+- Inspection WOs differ from Planned/Tank Mix: **plot & resource info only — no machines/assets, no tank mixing, no material details.**
+- Only **one Responsible Person** can be set per WO at a time.
+- A work order created on web is visible on the mobile screen.
+- See the [Work Order Lifecycle](../../concepts/work-order-lifecycle) for the full status flow.

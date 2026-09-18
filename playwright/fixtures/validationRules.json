@@ -1,0 +1,67 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "note": "Behaviour observed by exercising the live form. Messages are verbatim."
+  },
+  "rules": [
+    {
+      "id": "farm-and-task-before-pickers",
+      "trigger": "Open Select Plot / Select Assets before Farm and Task are set",
+      "severity": "error",
+      "message": "Please select a farm and its corresponding task",
+      "verified": true
+    },
+    {
+      "id": "supervisor-not-in-resources",
+      "trigger": "Submit with the supervisor also listed under Select Resources",
+      "severity": "error",
+      "message": "Supervisor must not be included in resources",
+      "verified": true
+    },
+    {
+      "id": "cancel-confirm",
+      "trigger": "Close the create modal with data entered",
+      "severity": "confirm",
+      "dialog": {
+        "title": "Alert",
+        "body": "Are you sure you want to cancel the work order? All detail up till now will be lost.",
+        "buttons": [
+          "Cancel",
+          "Yes"
+        ]
+      },
+      "verified": true
+    },
+    {
+      "id": "submit-confirm",
+      "trigger": "Click Submit",
+      "severity": "confirm",
+      "dialog": {
+        "title": "Create Work Order",
+        "body": "Are You Sure You Want To Save The Work Order",
+        "buttons": [
+          "Cancel",
+          "Save"
+        ]
+      },
+      "verified": true
+    },
+    {
+      "id": "required-fields",
+      "trigger": "Submit with a starred field empty",
+      "severity": "error",
+      "fields": [
+        "workOrderName",
+        "startDate",
+        "endDate",
+        "priority",
+        "farm",
+        "taskType",
+        "task",
+        "supervisor"
+      ],
+      "verified": false,
+      "note": "Starred in the DOM; individual messages not captured."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+/* stylelint-disable docusaurus/copyright-header */
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* Brand Colors - from logo.svg */
+:root {
+  /* Primary green (#02B553) - main leaf in logo */
+  --ifm-color-primary: #02B553;
+  --ifm-color-primary-dark: #029A4A;
+  --ifm-color-primary-darker: #028842;
+  --ifm-color-primary-darkest: #026E35;
+  --ifm-color-primary-light: #03C35E;
+  --ifm-color-primary-lighter: #04D068;
+  --ifm-color-primary-lightest: #1AE07A;
+
+  /* Yellow accent (#E0E000) - secondary leaf in logo */
+  --brand-green: #02B553;
+  --brand-yellow: #E0E000;
+  --brand-yellow-dark: #C8C800;
+  --brand-yellow-light: #F0F033;
+  --brand-red: #D60010;
+
+  /* Legacy names kept for downstream refs */
+  --brand-lime: #E0E000;
+  --brand-lime-dark: #C8C800;
+  --brand-lime-light: #F0F033;
+
+  /* Additional brand colors from logo */
+  --brand-forest: #02B553;
+  --brand-white: #ffffff;
+  --brand-dark-bg: #1a1a1a;
+
+  /* Typography */
+  --ifm-code-font-size: 95%;
+
+  /* Code highlighting */
+  --docusaurus-highlighted-code-line-bg: rgba(2, 181, 83, 0.1);
+}
+
+/* Dark mode - optimized for brand */
+[data-theme='dark'] {
+  --ifm-color-primary: #02B553;
+  --ifm-color-primary-dark: #029A4A;
+  --ifm-color-primary-darker: #028842;
+  --ifm-color-primary-darkest: #026E35;
+  --ifm-color-primary-light: #03C35E;
+  --ifm-color-primary-lighter: #04D068;
+  --ifm-color-primary-lightest: #1AE07A;
+
+  /* Enhanced code highlighting for dark mode */
+  --docusaurus-highlighted-code-line-bg: rgba(2, 181, 83, 0.2);
+
+  /* Dark mode specific variables */
+  --brand-dark-text: #ffffff;
+  --brand-dark-bg-secondary: #2a2a2a;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #02B553;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #029A4A;
+}
+
+/* TODO: Adjust Logo Style (if needed) */
+/* .navbar__logo img {
+  height: 4.2em;
+  position: absolute;
+  bottom: -0.3em;
+  width: auto;
+} */

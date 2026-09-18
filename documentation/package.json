@@ -1,0 +1,58 @@
+{
+  "name": "vannbrosphasetwo-documentation",
+  "version": "0.1.0",
+  "description": "VannBrosPhaseTwo Documentation - Comprehensive documentation for the VannBrosPhaseTwo platform",
+  "scripts": {
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "clean": "rm -rf node_modules && pnpm install && docusaurus clear",
+    "serve": "docusaurus clear && pnpm build && docusaurus serve",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids",
+    "serve:build": "docusaurus serve --port 3000 --no-open",
+    "pdf": "pnpm build && start-server-and-test \"pnpm serve:build\" http://localhost:3000 \"pnpm compile:pdf\"",
+    "compile:pdf": "tsx scripts/generate-pdf.ts"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
+    "@docusaurus/theme-mermaid": "^3.10.2",
+    "@easyops-cn/docusaurus-search-local": "^0.55.1",
+    "@mdx-js/react": "^3.1.1",
+    "clsx": "^2.1.1",
+    "pdf-lib": "^1.17.1",
+    "pdf-merger-js": "^5.1.2",
+    "playwright": "^1.59.1",
+    "prism-react-renderer": "^2.4.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tsx": "^4.21.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^3.10.0",
+    "@docusaurus/tsconfig": "^3.10.0",
+    "@docusaurus/types": "^3.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "docusaurus-to-pdf": "^1.2.3",
+    "start-server-and-test": "^3.0.0",
+    "typescript": "^6.0.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0"
+  },
+  "license": "MIT"
+}

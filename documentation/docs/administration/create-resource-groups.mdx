@@ -1,0 +1,42 @@
+---
+title: Resource Groups — Create a Resource Group (D365)
+sidebar_label: Create resource groups
+---
+
+# Resource Groups: Create a Resource Group (D365)
+
+**Who:** System / D365 administrator  **Where:** Dynamics 365 Finance & Operations (D365 F&O)
+
+A **Resource Group** in D365 F&O groups multiple resources under a single **Site**, with group-level cost categories, capacity, and calendar. Resource groups are used to track operations (examples: Implement, Cult, FH (Farm Hand), MO (Machine Operator), tractor, Tractors). Create the group here, then assign individual resources to it — see [Create resources](./create-resources).
+
+:::warning Prerequisite
+The **Site** must be defined in the system first. You select the **Site** while creating the resource group, so the site must already exist.
+:::
+
+## Before you start
+- You can reach **Organization administration > Resources > Resource groups** in D365 F&O.
+- The **Site** for this group is already defined (e.g. `01`).
+- You know the **Resource Group type** (e.g. Implement), **Project category** (e.g. DIRECT LABOR), and **Calendar** for the group.
+
+:::note Resource vs Resource Group
+A **Resource Group** is a grouping of resources tied to a Site. A **Resource** is a single human/machinery unit that you assign into a group — see [Create resources](./create-resources).
+:::
+
+## Steps
+1. In D365 F&O, go to **Organization administration > Resources > Resource groups**.
+2. On the toolbar, select **+ New**.
+3. In the header, enter the **Resource group** name*.
+4. Enter a **Description**.
+5. Select the **Site** (e.g. `01`).
+6. Set the **Resource Type** / Resource Group type (e.g. Implement).
+7. Under **Operation > Cost categories**, set the **Setup category** and **Run time category**, then select the **Project Category** (e.g. DIRECT LABOR).
+8. Under **Capacity**, set the **Capacity unit**, **Capacity**, and **Batch capacity** as needed.
+9. In the **Calendars** sub-grid, select the **Calendar**.
+10. Select **Save**.
+
+## Result
+The resource group is created and appears in the **Resource groups** list. Individual resources can now be assigned to this group when you create them.
+
+## Notes & gotchas
+- Toolbar actions: **Save**, **+ New**, **Delete**, **Resource group**, **Options**.
+- After creating the group, create the resources that belong to it: [Create resources](./create-resources).

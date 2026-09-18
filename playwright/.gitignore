@@ -1,0 +1,20 @@
+# Playwright Dependencies
+node_modules/
+
+# Playwright Test results
+/test-results/
+
+# Playwright Test generated reports
+/playwright-report/
+
+# Playwright code coverage reports
+/blob-report/
+
+# Playwright test artifacts
+/.cache/
+
+# Playwright authentication state files
+/.auth/
+
+# playwright-cli scratch (snapshots, console logs from live browser driving)
+/.playwright-cli/

@@ -1,0 +1,125 @@
+name: Playwright
+
+# Two jobs, split by what they need.
+#
+#   verify  - typecheck, traceability and the guest specs. No credentials, runs on every PR.
+#   authed  - the authenticated suite. Needs QA credentials in repository secrets; skipped
+#             automatically when they are absent, so forks and outside PRs are unaffected.
+#
+# `auth.setup.ts` signs in unattended when a credential is present (verified against the QA
+# tenant 2026-08-31: app email -> "Choose Environment" -> Azure AD -> /maps, ~45s headless),
+# falling back to a human at the SSO prompt when it hits MFA or an unrecognised screen. CI has
+# no human, so `authed` runs only with credentials and `AUTH_HEADLESS=1`.
+#
+# `@mutating` specs are EXCLUDED here (`pnpm test:clean`). They create real work orders on the
+# shared QA environment and have no teardown, so running them on every push would fill the
+# tenant that the manual regression cycle is executed against.
+
+on:
+  push:
+    branches: [main]
+    paths: ['playwright/**', '.github/workflows/playwright.yml']
+  pull_request:
+    paths: ['playwright/**', '.github/workflows/playwright.yml']
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: playwright
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          # `scripts/coverage.mts` is run by node directly, relying on native type
+          # stripping - Node 22.6+ only.
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: playwright/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      # Fails when a spec's @TC tag matches no workbook case, or when one case is tagged both
+      # full and partial - i.e. when the traceability link to the regression suite is broken.
+      - run: pnpm coverage
+
+      # `.npmrc` sets ignore-scripts=true, so the browser download never runs on install.
+      - run: pnpm exec playwright install --with-deps chromium firefox
+
+      - run: pnpm test:public
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-guest
+          path: playwright/playwright-report/
+          retention-days: 14
+
+  authed:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Secrets are unavailable to fork PRs, so this would fail for reasons unrelated to the
+    # change. Gate on the secret being present rather than letting it run and go red.
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    defaults:
+      run:
+        working-directory: playwright
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: playwright/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Check QA credentials are configured
+        id: creds
+        run: |
+          if [ -n "${{ secrets.VANNBROSPHASETWO_ADMIN_USER || secrets.AGRIERP_ADMIN_USER }}" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::VANNBROSPHASETWO_ADMIN_USER is not set - skipping the authenticated suite."
+          fi
+
+      # `tests/helpers/credentials.ts` reads VANNBROSPHASETWO_<ROLE>_USER / _PASS, preferring them over
+      # the local .auth/credentials.json. Add more role pairs here as they are provisioned.
+      - name: Run authenticated suite (non-mutating)
+        if: steps.creds.outputs.present == 'true'
+        env:
+          AUTH_HEADLESS: '1'
+          # New secret names win; the pre-rename ones keep CI green until they are migrated.
+          VANNBROSPHASETWO_ADMIN_USER: ${{ secrets.VANNBROSPHASETWO_ADMIN_USER || secrets.AGRIERP_ADMIN_USER }}
+          VANNBROSPHASETWO_ADMIN_PASS: ${{ secrets.VANNBROSPHASETWO_ADMIN_PASS || secrets.AGRIERP_ADMIN_PASS }}
+          VANNBROSPHASETWO_FARMHAND_USER: ${{ secrets.VANNBROSPHASETWO_FARMHAND_USER || secrets.AGRIERP_FARMHAND_USER }}
+          VANNBROSPHASETWO_FARMHAND_PASS: ${{ secrets.VANNBROSPHASETWO_FARMHAND_PASS || secrets.AGRIERP_FARMHAND_PASS }}
+        run: pnpm test:clean --project=chromium
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.creds.outputs.present == 'true' }}
+        with:
+          name: playwright-report-authed
+          path: playwright/playwright-report/
+          retention-days: 14

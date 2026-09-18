@@ -1,0 +1,89 @@
+---
+description: VannBrosPhaseTwo monorepo — project structure, conventions, and domain context for QA automation and documentation work.
+globs:
+alwaysApply: true
+---
+
+# VannBrosPhaseTwo Monorepo
+
+This repository is the **QA + documentation workspace** for **VannBrosPhaseTwo**, the Folio3
+agriculture ERP (Dynamics 365 based). It does **not** contain the application source
+code — it contains the end-to-end tests, the documentation site, and the product
+reference manuals for that application. The live app under test runs at the QA
+environment `https://agrierp-vann-qa.folio3.site` (tenant: "Vann Brothers" / VBS).
+
+## Repository layout
+
+This is a loose monorepo of independent packages (no root `package.json`, no workspace
+tool). Each top-level directory installs and runs on its own.
+
+- **`playwright/`** — End-to-end UI tests (package name `vannbrosphasetwo`, pnpm, CommonJS).
+  - Stack: `@playwright/test` ^1.60, TypeScript, **Firefox** device profile.
+  - `playwright.config.ts` defines three projects:
+    - `setup` — runs `tests/auth.setup.ts` headed, logs in, writes session to
+      `.auth/auth-session.json`.
+    - `firefox` — authenticated specs under `tests/authenticated/`, depends on `setup`,
+      reuses the stored `storageState`.
+    - `firefox-guest` — public specs under `tests/public/` with empty storage state.
+  - Test tree: `tests/{public,authenticated,constants,helpers}`. Shared route
+    constants live in `tests/constants/routes.ts`; auth helpers in `tests/helpers/auth.ts`.
+  - `baseURL` is the QA env; `outputDir` → `test-results/`, HTML report → `playwright-report/`.
+- **`documentation/`** — Docusaurus 3.10 documentation site (package
+  `vannbrosphasetwo-documentation`, **pnpm**, React 19, TypeScript).
+  - Content under `docs/` (`concepts`, `user-journeys`, `administration`, `finance`,
+    `contributing`); navigation wired in `sidebars.ts`; site config in
+    `docusaurus.config.ts`. PDF export via `scripts/generate-pdf.ts`.
+- **`resources/`** — Authoritative product PDFs: `VBPhaseTwo Introduction.pdf` and
+  `user-manuals/*.pdf`. These manuals are the **source of truth** for exact UI labels,
+  steps, statuses, and flows. Mirror them — don't invent behavior.
+- **`.cursor/`** — `rules/` (this file), `commands/` (`/create-pr`, `/create-issue`),
+  `mcp.json` (Playwright + TypeScript MCP servers).
+- **`.claude/skills/`** — Project skills: `vannbrosphasetwo-knowledge` (product/domain reference),
+  `vannbrosphasetwo-docs`, `vannbrosphasetwo-playwright`, `vannbrosphasetwo-test-cases`. Consult `vannbrosphasetwo-knowledge`
+  for any product fact before authoring tests or docs.
+
+## Commands
+
+Run inside the relevant package directory.
+
+**`playwright/`** (pnpm):
+- `pnpm test` — run all tests (sets `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`).
+- `pnpm auth:qa` — run the `setup` project to (re)generate the auth session.
+- `pnpm test:authed` — authenticated specs only (`--project=firefox`).
+- `pnpm test:public` — guest specs only (`--project=firefox-guest`).
+- `pnpm test:ui` / `test:headed` / `test:debug` — interactive variants.
+
+**`documentation/`** (pnpm):
+- `pnpm start` — dev server. `pnpm build` — static build. `pnpm serve:build` — serve build.
+- `pnpm pdf` — build + export the docs PDF via `scripts/generate-pdf.ts`.
+
+`.npmrc` sets `ignore-scripts=true` for security; only `node_modules/` is gitignored.
+
+## Conventions
+
+- **Authenticated tests depend on a valid session.** If `firefox` specs fail at login,
+  regenerate it with `pnpm auth:qa`. Never commit `.auth/` or other secrets.
+- **Place specs by auth context:** public/unauthenticated → `tests/public/`, logged-in →
+  `tests/authenticated/`. Add shared URLs to `tests/constants/routes.ts`, not inline.
+- **Use the QA env and the VBS tenant** for all flows; pull exact UI labels, navigation
+  paths, entity statuses, and role permissions from the `resources/` manuals or the
+  `vannbrosphasetwo-knowledge` skill rather than guessing.
+- **Docs changes** go in `documentation/docs/*.md(x)` and must be registered in
+  `sidebars.ts`. Keep wording aligned with the user manuals.
+- Keep the two packages' dependencies and lockfiles independent; install per package.
+
+## Domain (VannBrosPhaseTwo)
+
+Agriculture ERP on Dynamics 365. Core areas the tests and docs cover:
+
+- **work orders** (planned, tank-mix, inspection — with submission/approval lifecycle) 
+- **template management** (inspection / material / attribute templates)
+- **users, roles & resource groups**
+- **journal & posting review** (transfer, return transfer, return item)
+- **observations / points of interest (POI)**
+- **communication center**
+- **attendance**
+- **maps**
+- **planning**
+
+When a task touches any of these, defer to the `vannbrosphasetwo-knowledge` skill and the matching manual in `resources/user-manuals/`.

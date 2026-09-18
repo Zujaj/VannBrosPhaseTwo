@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/WorkOrderPriority",
+    "count": 4,
+    "note": "Form defaults to Medium."
+  },
+  "default": {
+    "id": 2,
+    "name": "Medium"
+  },
+  "items": [
+    {
+      "id": 1,
+      "name": "Low"
+    },
+    {
+      "id": 2,
+      "name": "Medium"
+    },
+    {
+      "id": 3,
+      "name": "High"
+    },
+    {
+      "id": 4,
+      "name": "Urgent"
+    }
+  ]
+}

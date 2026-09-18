@@ -1,0 +1,171 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "note": "What the create modal renders per tab. Field labels are verbatim."
+  },
+  "header": {
+    "title": "Create New Work Order",
+    "badge": "Planned",
+    "actions": [
+      "Save As",
+      "Submit",
+      "Close"
+    ]
+  },
+  "commonFields": [
+    "Work Order Name*",
+    "WO Start Date*",
+    "WO End Date*",
+    "Priority*",
+    "Farm*",
+    "Task Type*",
+    "Task*",
+    "Notes"
+  ],
+  "byTab": {
+    "workOrders": {
+      "taskTypeValue": "Planned",
+      "taskTypeEnabled": false,
+      "extraFields": [
+        "Supervisor*",
+        "Responsible",
+        "Inspection Templates* (disabled)",
+        "Material Template",
+        "Enable Tank Mixing"
+      ],
+      "sections": [
+        "Select Plot",
+        "Select Materials",
+        "Select Resources",
+        "Select Assets"
+      ],
+      "supervisorEnabled": true
+    },
+    "inspection": {
+      "taskTypeValue": "Inspection",
+      "taskTypeEnabled": false,
+      "extraFields": [
+        "Supervisor* (disabled)",
+        "Responsible (disabled)",
+        "Inspection Templates*"
+      ],
+      "sections": [
+        "Select Plot",
+        "Select Resources"
+      ],
+      "supervisorEnabled": false,
+      "note": "No materials, assets, material template or tank mixing. Supervisor and Responsible stay disabled even though Supervisor is starred, and the posted payload carries no managerID."
+    },
+    "harvest": {
+      "taskTypeValue": "Planned",
+      "taskTypeEnabled": false,
+      "extraFields": [
+        "Supervisor*",
+        "Responsible"
+      ],
+      "sections": [
+        "Select Plot",
+        "Select Resources",
+        "Select Assets"
+      ],
+      "supervisorEnabled": true,
+      "note": "No inspection template, material template, tank mixing or materials section."
+    }
+  },
+  "defaults": {
+    "priority": "Medium",
+    "startDate": "today",
+    "endDate": "today + 10 days",
+    "dateFormat": "MM/DD/YYYY",
+    "materialRate": 1,
+    "tankMixing": false
+  },
+  "pickers": {
+    "plots": {
+      "title": "Select Plots",
+      "columns": [
+        "Select",
+        "Crop",
+        "Plot",
+        "Customer Name",
+        "Plot Area",
+        "Operational Area",
+        "Task Start Date"
+      ],
+      "buttons": [
+        "Reset",
+        "Search",
+        "Save"
+      ],
+      "emptyState": "No Record Found",
+      "note": "Selected rows show an ADHOC badge in the modal grid."
+    },
+    "materials": {
+      "title": "Select Materials",
+      "columns": [
+        "Select",
+        "Material"
+      ],
+      "buttons": [
+        "Reset",
+        "Apply",
+        "Save"
+      ],
+      "emptyState": "No materials found"
+    },
+    "resources": {
+      "title": "Select Resources",
+      "filters": [
+        "Resource Group",
+        "Search by Resource Name",
+        "Search by Company Name",
+        "Dummy Resource"
+      ],
+      "columns": [
+        "Select",
+        "Resource Name",
+        "Resource Type",
+        "Company Name"
+      ],
+      "buttons": [
+        "Reset",
+        "Apply",
+        "Save"
+      ],
+      "modeToggle": [
+        "By Resource",
+        "By Groups"
+      ],
+      "emptyState": "No resource found"
+    },
+    "assets": {
+      "title": "Select Assets",
+      "filters": [
+        "Resource Group",
+        "Search by Asset Name",
+        "Dummy Resource"
+      ],
+      "columns": [
+        "Select",
+        "Asset Name"
+      ],
+      "buttons": [
+        "Reset",
+        "Apply",
+        "Save"
+      ],
+      "emptyState": "No assets found"
+    }
+  },
+  "summaryPanel": {
+    "heading": "Summary",
+    "accordions": [
+      "General",
+      "Plots",
+      "Materials",
+      "Resources",
+      "Assets"
+    ],
+    "note": "Materials and Assets appear only once those sections have rows."
+  }
+}

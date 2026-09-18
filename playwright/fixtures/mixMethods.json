@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/MixMethods",
+    "count": 2,
+    "note": "Only used when Enable Tank Mixing is on."
+  },
+  "items": [
+    {
+      "id": 1,
+      "name": "Per Area"
+    },
+    {
+      "id": 2,
+      "name": "Per Volume"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+---
+title: Observations — Create a Work Order from an Observation
+sidebar_label: Create WO from Observation
+---
+
+# Observations: Create a Work Order from an Observation
+
+**Who:** Supervisor / Manager (a [role](../../concepts/roles) with work-order authoring rights)  **Where:** Web
+
+When a field condition has been logged as an observation, you can convert it directly into a work order on the **web**. The observation's farm, plot, and category context carries into the new work-order form, so you don't have to re-enter it.
+
+:::note Observations are created on mobile
+Observations / POIs are **created on mobile** (and, per the intro deck, are only viewable by the **manager** on mobile). The **web** is used to [configure POI categories](./configure-poi-categories) and to convert an existing observation into a work order, as described below.
+:::
+
+## Before you start
+
+:::note Prerequisites
+- At least one observation already exists (created on mobile).
+- A user account with permission to create work orders.
+- The relevant [POI category](./configure-poi-categories), farm, and plots already exist in VannBrosPhaseTwo.
+:::
+
+## Steps
+
+1. From the top menu, open **Work Orders**, then select the **Observations** tab. The list shows columns `Title`, `Farm`, `Plots`, `Category`, `Created Date`, `Created By`, and `Actions`.
+2. Click the observation row you want, then click the **eye icon** (View) in **Actions**. The Summary side panel opens with **General** and **Plots** sections.
+3. Click **Create Work Order** (top-right; it has a dropdown caret).
+4. Choose the work-order type:
+   - **Planned** — opens the ad-hoc Planned WO form. See [Create a Planned Work Order](../work-orders/create-planned-work-order).
+   - **Inspection** — opens the ad-hoc Inspection WO form. See [Create an Inspection Work Order](../work-orders/create-inspection-work-order).
+5. Complete the work-order form (the observation's farm / plot / category context is pre-filled) and submit it.
+
+## Result
+
+The matching work-order creation form opens carrying the observation's context. Once you submit, a new work order is created and follows the standard [Work Order Lifecycle](../../concepts/work-order-lifecycle).
+
+## Notes & gotchas
+
+- The **Create Work Order** dropdown determines which form opens — **Planned** for the standard ad-hoc WO flow, **Inspection** for the ad-hoc inspection WO flow.
+- The observation detail also includes **Attachment Detail** (**View Attachment(s)**), an **Observation Category** marker, a **Plot Details** table (`Plot`, `Comments`), and a **Map** section (Map / Satellite toggle) highlighting the plot.
+- To add a new category before converting, see [Configure POI Categories](./configure-poi-categories).

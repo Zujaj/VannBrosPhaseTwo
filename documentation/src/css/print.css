@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+:root {
+  --docusaurus-announcement-bar-height: 0 !important;
+  --ifm-navbar-height: 0 !important;
+  --ifm-font-family-base: "Inter", "system-ui", sans-serif !important;
+  /* PDF print theme colors - from logo.svg */
+  --brand-forest: #02B553;
+  --brand-lime: #E0E000;
+  --brand-red: #D60010;
+  --brand-grey: #333333;
+}
+
+nav.navbar,
+.sidebar,
+aside,
+.toc,
+footer.footer,
+.pagination-nav,
+.theme-doc-footer-edit-this-page,
+.theme-doc-footer-tags,
+.header-github-link,
+button {
+  display: none !important;
+}
+
+.hash-link {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 0.35 !important;
+  text-decoration: none !important;
+  margin-left: 8px !important;
+  color: var(--brand-forest) !important;
+}
+
+.breadcrumbs {
+  display: flex !important;
+  margin-bottom: 2rem !important;
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+body {
+  background-color: white !important;
+  color: var(--brand-grey) !important;
+  font-family: "Inter", sans-serif !important;
+  line-height: 1.6 !important;
+}
+
+h1 {
+  font-size: 3rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 2.5rem !important;
+  letter-spacing: -0.03em !important;
+  color: var(--brand-forest) !important;
+}
+
+h2 {
+  font-size: 2.1rem !important;
+  font-weight: 700 !important;
+  margin-top: 3rem !important;
+  border-bottom: 2px solid var(--brand-lime) !important;
+  padding-bottom: 0.6rem !important;
+  page-break-after: avoid;
+  color: var(--brand-grey) !important;
+}
+
+h3 {
+  color: var(--brand-forest) !important;
+  margin-top: 2rem !important;
+}
+
+a {
+  color: var(--brand-forest) !important;
+  text-decoration: none !important;
+}
+
+pre {
+  background: #f6f8fa !important;
+  border: 1px solid #e3e6e8 !important;
+  border-radius: 10px !important;
+  padding: 1.5rem !important;
+  font-size: 1rem !important;
+}
+
+img {
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 1rem 0 !important;
+  border-radius: 8px !important;
+}
+
+/* Only apply deep shadows and block-centering to images likely to be screenshots */
+img[alt*="Screenshot"],
+img[alt*="screenshot"],
+img[alt*="Dashboard"],
+img[alt*="Preview"],
+.screenshot {
+  display: block !important;
+  margin: 2.5rem auto !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid #eee !important;
+}
+
+/* Ensure small icons or logos stay inline and clean */
+img[src*="logo"],
+.logo-img {
+  box-shadow: none !important;
+  border: none !important;
+  margin: 0.5rem 0 !important;
+}
+
+/* Professional Video Fallback */
+video,
+iframe {
+  display: none !important;
+}
+
+.video-container,
+[class*="video"] {
+  position: relative;
+  display: block;
+  padding: 40px 20px;
+  background: #f8faff;
+  border: 2px dashed var(--brand-forest);
+  border-radius: 14px;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.video-container:after,
+[class*="video"]:after {
+  content: "🎥 Video Content: Scan QR or visit website to view the interactive version.";
+  color: var(--brand-forest);
+  font-weight: 600;
+  font-size: 1rem;
+}

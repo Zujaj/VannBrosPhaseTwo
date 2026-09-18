@@ -1,0 +1,77 @@
+---
+title: Documentation Guidelines
+sidebar_label: Guidelines
+---
+
+# Documentation Guidelines
+
+How to write and maintain these VannBrosPhaseTwo docs.
+
+## Source of truth
+
+The **live VannBrosPhaseTwo application is authoritative.** These pages are written from the product manuals; if a screen, label, or flow differs in the app, document the real behavior and update the page. Don't preserve outdated wording.
+
+## Structure
+
+| Content kind | Where it goes |
+|---|---|
+| Task-based how-to for a feature/flow | `docs/user-journeys/<module>/` |
+| Conceptual reference (roles, terminology, lifecycle) | `docs/concepts/` |
+| Access setup (users, roles, resources) | `docs/administration/` |
+| Journal/posting review in D365 | `docs/finance/` |
+| Contributing to the docs | `docs/contributing/` |
+
+Every new page must be added to `sidebars.ts` (by its doc `id`, the path under `docs/` without extension) or it won't appear in the nav.
+
+## Writing a how-to page
+
+Use this shape:
+
+```mdx
+---
+title: <Feature> — <Action>
+sidebar_label: <Short label>
+---
+
+# <Feature>: <Action>
+
+**Who:** <role(s)>  **Where:** <Web / Mobile / Dynamics 365>
+
+<One-paragraph purpose.>
+
+## Before you start
+- <prerequisites / permissions / feature toggles>
+
+## Steps
+1. Go to **<Nav > Path>**.
+2. Click **<Exact Button>**.
+3. Fill in **<Field\*>** (mark required fields with `*`).
+4. Click **<Submit/Save>**.
+
+## Result
+You'll see **<exact toast / status chip>**; the <entity> moves to **<status>**.
+
+## Notes & gotchas
+- <edge cases>
+```
+
+## Conventions
+
+- **Bold UI labels** and use the exact casing from the app (e.g. **Create New Work Orders**, **Work Order Completed**, toast `Template created successfully`). Wrong labels make a guide untrustworthy.
+- State **Who** (role) and **Where** (web / mobile / D365) at the top of every how-to. Remember the split: work orders are authored/approved on web, executed on mobile.
+- Mark required fields with `*` exactly as the app does.
+- Use Docusaurus admonitions — `:::note`, `:::tip`, `:::warning`, `:::caution` — for prerequisites and gotchas.
+- One task per page; link related pages with relative markdown links instead of duplicating steps.
+- Show URLs with the generic tenant pattern `https://vannbrosphasetwo-<client>-<env>.folio3.site/<route>`, not a real tenant.
+
+## Local development
+
+From `documentation/`:
+
+```bash
+yarn          # install
+yarn start    # dev server with hot reload
+yarn build    # production build (run before merging — catches broken links)
+```
+
+After adding or renaming pages, update `sidebars.ts` and run `yarn build` to confirm there are no broken links.

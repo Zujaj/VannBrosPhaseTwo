@@ -1,0 +1,44 @@
+---
+title: User Journeys
+sidebar_label: Overview
+---
+
+# User Journeys
+
+Step-by-step guides for the tasks VannBrosPhaseTwo users actually perform on the web app. Each guide states **who** does it and **where** (web / mobile / Dynamics 365), then walks the exact navigation, fields, and the success signal to expect.
+
+:::tip Before you start
+If you're new, read [User Roles](../concepts/roles), [Terminology](../concepts/terminology), and the [Work Order Lifecycle](../concepts/work-order-lifecycle) first — the journeys assume that vocabulary.
+:::
+
+## Work Orders
+
+The core of VannBrosPhaseTwo. Authored and approved on web, executed on mobile.
+
+- [Create a Planned Work Order](./work-orders/create-planned-work-order) — the standard flow with plots, materials, resources, and assets.
+- [Create a Tank Mix Work Order](./work-orders/create-tank-mix-work-order) — combine multiple products into one spray, via a material template or manually.
+- [Create an Inspection Work Order](./work-orders/create-inspection-work-order) — ad-hoc inspection tied to an inspection template.
+- [Approve a Work Order](./work-orders/approve-work-order) — review a completed WO and post consumption to the ERP.
+
+## Templates
+
+Reusable building blocks authored by a Manager under **Template Management**.
+
+- [Create an Attribute Template](./templates/create-attribute-template) — a single typed data-capture field.
+- [Create an Inspection Template](./templates/create-inspection-template) — assemble attributes into an inspection form.
+- [Enable & Clone an Inspection Template](./templates/enable-clone-inspection-template) — control work-order visibility and duplicate a template.
+- [Create a Material Template](./templates/create-material-template) — a task-linked material/mix/application spec for tank-mix work.
+
+## Observations & Maps
+
+- [Configure POI Categories](./observations/configure-poi-categories) — define observation categories on the map.
+- [Create a Work Order from an Observation](./observations/create-work-order-from-observation) — turn a field observation into planned or inspection work.
+
+## Communication
+
+- [Chat & Communications](./communication/chat-and-communications) — 1:1 and group messaging with photos, documents, and voice notes.
+
+## Related areas
+
+- **[Administration](../administration/set-up-users-roles-groups)** — set up users, roles, groups, and resources.
+- **[Finance & Journals](../finance/review-postings)** — review the postings VannBrosPhaseTwo syncs into Dynamics 365.

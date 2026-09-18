@@ -1,0 +1,231 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/ParentOperations?workOrderType=1&operationType={n}&Category={n}",
+    "note": "Rendered as \"Task\". The list depends on the tab: operationType=1&Category=1 standard, operationType=3&Category=1 inspection, operationType=1&Category=2 harvest."
+  },
+  "workOrder": [
+    {
+      "id": 25,
+      "code": "1290",
+      "name": "Almond Preparartion",
+      "label": "Almond Preparartion (1290)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 8,
+      "code": "1240",
+      "name": "Fertilization",
+      "label": "Fertilization (1240)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 23,
+      "code": "1210",
+      "name": "Insect/Disease/Pest Control",
+      "label": "Insect/Disease/Pest Control (1210)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 11,
+      "code": "1410",
+      "name": "Irrigation",
+      "label": "Irrigation (1410)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 3,
+      "code": "1130",
+      "name": "Land Preparation/Removal",
+      "label": "Land Preparation/Removal (1130)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 2,
+      "code": "1110",
+      "name": "Orchard Floor Maintenance",
+      "label": "Orchard Floor Maintenance (1110)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 4,
+      "code": "1140",
+      "name": "Planting/Replant",
+      "label": "Planting/Replant (1140)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 10,
+      "code": "1310",
+      "name": "Pollination",
+      "label": "Pollination (1310)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 5,
+      "code": "1150",
+      "name": "Pruning/Hedging",
+      "label": "Pruning/Hedging (1150)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 6,
+      "code": "1160",
+      "name": "Roads & Ditches/Drainage",
+      "label": "Roads & Ditches/Drainage (1160)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 9,
+      "code": "1250",
+      "name": "Soil Amending",
+      "label": "Soil Amending (1250)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 7,
+      "code": "1230",
+      "name": "Weed Control",
+      "label": "Weed Control (1230)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    }
+  ],
+  "inspection": [
+    {
+      "id": 24,
+      "code": "1510",
+      "name": "Sampling",
+      "label": "Sampling (1510)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        3,
+        1
+      ],
+      "isActivityTemplateRequired": null
+    }
+  ],
+  "harvest": [
+    {
+      "id": 27,
+      "code": "1640",
+      "name": "Conditioning",
+      "label": "Conditioning (1640)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 12,
+      "code": "1610",
+      "name": "Harvest",
+      "label": "Harvest (1610)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 13,
+      "code": "1620",
+      "name": "Hulling & Drying",
+      "label": "Hulling & Drying (1620)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 28,
+      "code": "1650",
+      "name": "Pickup",
+      "label": "Pickup (1650)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    },
+    {
+      "id": 26,
+      "code": "1630",
+      "name": "Shaking",
+      "label": "Shaking (1630)",
+      "inspectionType": 1,
+      "inspectionTypeName": "Normal",
+      "workOrderTypes": [
+        1
+      ],
+      "isActivityTemplateRequired": null
+    }
+  ]
+}

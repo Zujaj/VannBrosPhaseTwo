@@ -1,0 +1,301 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/MaterialProductUnitType",
+    "count": 58,
+    "note": "Usage Unit column on material rows."
+  },
+  "items": [
+    {
+      "id": 51,
+      "name": "\u00b0C",
+      "unitClass": "Temperature"
+    },
+    {
+      "id": 53,
+      "name": "\u00b0F",
+      "unitClass": "Temperature"
+    },
+    {
+      "id": 52,
+      "name": "\u00b0K",
+      "unitClass": "Temperature"
+    },
+    {
+      "id": 2,
+      "name": "1/2 cu. in",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 3,
+      "name": "1/2 in",
+      "unitClass": "Length"
+    },
+    {
+      "id": 4,
+      "name": "1/2 lb",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 5,
+      "name": "1/2 pt",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 6,
+      "name": "1/2 sq. in",
+      "unitClass": "Area"
+    },
+    {
+      "id": 7,
+      "name": "1/4 cu. in",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 8,
+      "name": "1/4 in",
+      "unitClass": "Length"
+    },
+    {
+      "id": 9,
+      "name": "1/4 lb",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 10,
+      "name": "1/4 sq. in",
+      "unitClass": "Area"
+    },
+    {
+      "id": 11,
+      "name": "1/8 cu. in",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 12,
+      "name": "1/8 in",
+      "unitClass": "Length"
+    },
+    {
+      "id": 13,
+      "name": "1/8 sq. in",
+      "unitClass": "Area"
+    },
+    {
+      "id": 49,
+      "name": "ac",
+      "unitClass": "Area"
+    },
+    {
+      "id": 14,
+      "name": "cl",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 15,
+      "name": "cm",
+      "unitClass": "Length"
+    },
+    {
+      "id": 16,
+      "name": "cm2",
+      "unitClass": "Area"
+    },
+    {
+      "id": 17,
+      "name": "cm3",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 18,
+      "name": "cu. ft",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 19,
+      "name": "cu. in.",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 20,
+      "name": "cu. yd",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 21,
+      "name": "dl",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 45,
+      "name": "Ea",
+      "unitClass": "Quantity"
+    },
+    {
+      "id": 57,
+      "name": "fl. oz",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 22,
+      "name": "ft",
+      "unitClass": "Length"
+    },
+    {
+      "id": 23,
+      "name": "g",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 24,
+      "name": "gal",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 56,
+      "name": "hp",
+      "unitClass": "Power"
+    },
+    {
+      "id": 50,
+      "name": "hr",
+      "unitClass": "Time"
+    },
+    {
+      "id": 54,
+      "name": "Hz",
+      "unitClass": "Quantity"
+    },
+    {
+      "id": 25,
+      "name": "in",
+      "unitClass": "Length"
+    },
+    {
+      "id": 26,
+      "name": "kg",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 55,
+      "name": "kHz",
+      "unitClass": "Quantity"
+    },
+    {
+      "id": 27,
+      "name": "km",
+      "unitClass": "Length"
+    },
+    {
+      "id": 28,
+      "name": "l",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 58,
+      "name": "lb",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 46,
+      "name": "LD",
+      "unitClass": "Quantity"
+    },
+    {
+      "id": 29,
+      "name": "m",
+      "unitClass": "Length"
+    },
+    {
+      "id": 30,
+      "name": "m2",
+      "unitClass": "Area"
+    },
+    {
+      "id": 31,
+      "name": "m3",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 32,
+      "name": "mg",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 33,
+      "name": "mi",
+      "unitClass": "Length"
+    },
+    {
+      "id": 34,
+      "name": "ml",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 35,
+      "name": "mm",
+      "unitClass": "Length"
+    },
+    {
+      "id": 36,
+      "name": "mm2",
+      "unitClass": "Area"
+    },
+    {
+      "id": 37,
+      "name": "mm3",
+      "unitClass": "Dry volume"
+    },
+    {
+      "id": 59,
+      "name": "oz",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 38,
+      "name": "pt",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 39,
+      "name": "qt",
+      "unitClass": "Liquid volume"
+    },
+    {
+      "id": 47,
+      "name": "Quantity",
+      "unitClass": "Quantity"
+    },
+    {
+      "id": 40,
+      "name": "sq. ft",
+      "unitClass": "Area"
+    },
+    {
+      "id": 41,
+      "name": "sq. in.",
+      "unitClass": "Area"
+    },
+    {
+      "id": 42,
+      "name": "sq. mi",
+      "unitClass": "Area"
+    },
+    {
+      "id": 43,
+      "name": "sq. yd",
+      "unitClass": "Area"
+    },
+    {
+      "id": 48,
+      "name": "t",
+      "unitClass": "Mass"
+    },
+    {
+      "id": 44,
+      "name": "yd",
+      "unitClass": "Length"
+    }
+  ]
+}

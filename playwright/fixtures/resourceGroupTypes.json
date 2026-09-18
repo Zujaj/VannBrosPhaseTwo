@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/ResourceGroupTypeHierarchy",
+    "count": 4,
+    "note": "Backs the \"By Groups\" mode in Select Resources. /metadata/resourceGroups returns [] in this QA data."
+  },
+  "items": [
+    {
+      "id": 1,
+      "resourceGroupType": 1,
+      "name": "Machine Operator",
+      "sequence": 1,
+      "isDummyResource": false
+    },
+    {
+      "id": 2,
+      "resourceGroupType": 4,
+      "name": "Farm Hand",
+      "sequence": 2,
+      "isDummyResource": false
+    },
+    {
+      "id": 3,
+      "resourceGroupType": 7,
+      "name": "Picker",
+      "sequence": 3,
+      "isDummyResource": false
+    },
+    {
+      "id": 4,
+      "resourceGroupType": 4,
+      "name": "Farm Hand",
+      "sequence": 2,
+      "isDummyResource": false
+    }
+  ]
+}

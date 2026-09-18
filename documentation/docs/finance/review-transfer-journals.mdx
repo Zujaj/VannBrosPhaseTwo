@@ -1,0 +1,64 @@
+---
+title: Transfer Journals — Review Dispatch & Return
+sidebar_label: Review transfer journals
+---
+
+# Transfer Journals: Review Dispatch & Return
+
+**Who:** Finance / Inventory reviewer  **Where:** Dynamics 365 Finance & Operations
+
+This page explains how to verify the **Transfer** journals that move inventory between locations in **Dynamics 365 Finance & Operations** (company context **VBS | VANN BROTHERS**): the **dispatch** transfer (**INV-ISSUE**) and the **Return Transfer** (**INV-RECV**).
+
+## Background
+
+When inventory is dispatched from the VannBrosPhaseTwo inventory app, the VannBrosPhaseTwo → D365 **batch job** **posts** a **Transfer journal** that moves stock out of the source shed. When leftover stock is returned, the batch job posts a **Return Transfer** journal in the reverse direction. Both live on the same **Transfer** screen under **Inventory Management** and are distinguished only by their journal **Name**.
+
+:::note Review-only flow
+You do not enter or post these journals. The VannBrosPhaseTwo → D365 batch job posts them when inventory is dispatched or returned. Your job here is to **verify** what the integration already posted.
+:::
+
+## Identifiers at a glance
+
+| Journal | Name | Direction |
+|---|---|---|
+| **Transfer (dispatch)** | **INV-ISSUE** | Moves stock OUT of the shed: `CHMCLSHED` → `Staging` |
+| **Return Transfer** | **INV-RECV** | Reverse direction: `Staging` → `CHMCLSHED` |
+
+## Steps
+
+1. Go to **Inventory Management > Journal entries > Items > Transfer**.
+2. Filter the **Posted** column to **Yes** (operator "is exactly", value **Yes**).
+3. Either **search the journal number** (IDs are prefixed `VBS-`, e.g. `VBS-000546`), OR sort the **Journal** column **Z to A** to surface the latest posted journal.
+4. Identify the journal type by the **Name** column:
+   - **INV-ISSUE** = dispatch.
+   - **INV-RECV** = return transfer.
+5. Open the journal → **Line details** → open the **Inventory dimensions** tab.
+6. Inspect the split between **FROM INVENTORY DIMENSIONS** and **TO INVENTORY DIMENSIONS** to confirm the move direction.
+
+## What to verify
+
+| Column / cue | What to check |
+|---|---|
+| **Journal** | Journal/voucher ID (prefixed `VBS-`) |
+| **Name** | **INV-ISSUE** (dispatch) or **INV-RECV** (return) |
+| **Description** | Reads "Item transfer" |
+| **Lines** | Lines exist for the expected movement |
+| **Posted** | **Yes** |
+| **Workflow approval status** | Shown as `None` |
+
+In the **Inventory dimensions** tab, confirm:
+
+- For **INV-ISSUE** (dispatch): **FROM** location is `CHMCLSHED`, **TO** location is `Staging`.
+- For **INV-RECV** (return): **FROM** location is `Staging`, **TO** location is `CHMCLSHED`.
+- `Site` (e.g. `01`), `Warehouse`, and `Batch number` (`LOT-…`) match across the FROM/TO split as expected.
+
+## Notes & gotchas
+
+:::caution Scope (V1.0)
+V1.0 manuals cover only the **review of already-posted journals**. They do not document approval-button clicks, state-transition rules, validation logic, or error messages.
+:::
+
+- The **only** differentiator between a dispatch and a return on this screen is the journal **Name** (**INV-ISSUE** vs **INV-RECV**) and the reversed FROM/TO direction.
+- The Transfer screen uses the **Posted** column filter, not a **Show** dropdown — set it to **Yes** to see posted journals.
+- Item/expense consumption is recorded on different journals — see [Review postings](./review-postings).
+- A returned item can also appear as a **negative-quantity line** on the Item Journal — see [Review a Return Item Journal](./review-return-item-journal).

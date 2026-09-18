@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "capturedOn": "2026-08-26",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /metadata/inspectionTemplates?inspectionType=1",
+    "count": 7,
+    "note": "Required on the Inspection tab; the field is disabled everywhere else."
+  },
+  "items": [
+    {
+      "id": 3,
+      "name": "Sampling Template"
+    },
+    {
+      "id": 5,
+      "name": "Burn Piles"
+    },
+    {
+      "id": 7,
+      "name": "Malik Test Template"
+    },
+    {
+      "id": 8,
+      "name": "Mak Test Template"
+    },
+    {
+      "id": 17,
+      "name": "INSP_TPL-20260629-171924-54ba"
+    },
+    {
+      "id": 18,
+      "name": "INSP_TPL-20260630-102719-261a"
+    },
+    {
+      "id": 19,
+      "name": "test-123"
+    }
+  ]
+}

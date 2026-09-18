@@ -1,0 +1,69 @@
+---
+title: Postings — Review Item & Expense Journals
+sidebar_label: Review postings
+---
+
+# Postings: Review Item & Expense Journals
+
+**Who:** Finance / Accounting reviewer  **Where:** Dynamics 365 Finance & Operations
+
+This page explains how to verify the **Item Journal** and **Expense Journal** postings that record material and expense consumption against a Project in **Dynamics 365 Finance & Operations** (company context **VBS | VANN BROTHERS**).
+
+## Background
+
+Item and expense consumption is captured during field activity in VannBrosPhaseTwo (for example, when a work order is approved — see [Approve a Work Order](../user-journeys/work-orders/approve-work-order)). VannBrosPhaseTwo syncs that activity to D365 through a **batch job**, and the batch job **posts** the corresponding journals: material consumption posts to the **Item Journal**, and expense consumption posts to the **Expense Journal**. Both journal types tie back to a **Project** (Project ID, Activity) under **Project Management And Accounting**.
+
+:::note Review-only flow
+You do not enter or post these journals. The VannBrosPhaseTwo → D365 batch job posts them. Your job here is to **verify** what the integration already posted.
+:::
+
+## Steps
+
+### Review the Item Journal
+
+1. Go to **Project Management And Accounting > Journals > Item**.
+2. Set the **Show** dropdown to **Posted** (options are All / Not posted / **Posted**).
+3. Either **search the journal number** (IDs are prefixed `VBS-`, e.g. `VBS-000086`), OR sort the **Journal** column **Z to A** to surface the latest posted journal.
+4. Open the journal and inspect the **Line details**.
+
+### Review the Expense Journal
+
+1. Go to **Project Management And Accounting > Journals > Expense**.
+2. Set the **Show** dropdown to **Posted**.
+3. Either **search the journal number**, OR sort the **Journal batch number** column **Z to A** to surface the latest.
+4. Open the journal and inspect the **Line details**, including the **Approval** status and **Rejected by** state.
+
+## What to verify
+
+**Item Journal**
+
+| Column | What to check |
+|---|---|
+| **Name** | The item journal name |
+| **Journal** | Journal/voucher ID (prefixed `VBS-`) |
+| **Description** | Reads "Project Item Journal" |
+| **Lines** | Lines exist for the expected consumption |
+| **Posted** | **Yes** |
+
+**Expense Journal**
+
+| Column | What to check |
+|---|---|
+| **Journal batch number** | Journal/voucher ID |
+| **Name** | `PEJ` or `PEJ2` |
+| **Description** | Reads "Project Expense Journal" |
+| **Posted** | **Yes** |
+| **Posted on** | Posting date is present |
+| **Rejected by** | Empty unless the entry was rejected |
+
+The Expense Journal additionally exposes an **Approval** action and a **Rejected by** state, which the Item Journal does not. Use the **Show user-created only** checkbox to narrow the expense list if needed.
+
+## Notes & gotchas
+
+:::caution Scope (V1.0)
+V1.0 manuals cover only the **review of already-posted journals**. They do not document approval-button clicks, state-transition rules, validation logic, or error messages.
+:::
+
+- If a journal is not visible, confirm the **Show** dropdown is set to **Posted** rather than **All** or **Not posted**.
+- Returns appear differently: a returned item shows as a **negative-quantity line** in the Item Journal — see [Review a Return Item Journal](./review-return-item-journal).
+- Inventory dispatch and returns are recorded on separate journals — see [Review Transfer Journals](./review-transfer-journals).

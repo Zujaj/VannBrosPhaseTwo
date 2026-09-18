@@ -1,0 +1,83 @@
+---
+title: User Management — Set up users, roles & groups
+sidebar_label: Set up users, roles & groups
+---
+
+# User Management: Set up users, roles & groups
+
+**Who:** Farm App administrator (user with **Rights to Admin**)  **Where:** VannBrosPhaseTwo Farm Web App (**Settings → User Management**)
+
+Setting up access in VannBrosPhaseTwo spans two systems. **Resources** and **Resource groups** live in **Dynamics 365 Finance & Operations (D365 F&O)**; **Users**, **User Roles**, **User Groups**, and **User Enterprise** live in the **VannBrosPhaseTwo Farm Web App** under **Settings → User Management**. A user mapping links a Farm App user to a D365 Resource. This page documents the full ordered process for granting a person access.
+
+:::warning Follow the dependency order
+Each step depends on the previous one, so complete them in this exact sequence:
+
+**Resource (D365)** → **User Enterprise** → **User Role** → **User Group** → **Add Users** → **Edit user to assign Resource / Rights to Admin / groups**
+
+In particular, the **D365 Resource must already exist before** you can assign it to a Farm App user, the **User Enterprise** and **User Role** must exist before you can create a **User Group**, and the **User Group** must exist before you can assign it to a user.
+:::
+
+## Before you start
+- The required **Resource** already exists in D365 F&O — if not, create it first via [Create resources](./create-resources).
+- You have **Rights to Admin** in the Farm Web App.
+- You know which **Crops**, **Farms**, **Locations**, permissions, and attendance behavior this person needs. For the conceptual role model, see [Roles](../concepts/roles).
+
+## Steps
+
+### 1. Create the Resource (D365)
+In Dynamics 365 F&O, create the D365 **Resource** for this person if it does not already exist. Follow [Create resources](./create-resources). You will link this resource to the Farm App user in step 6.
+
+### 2. Create the User Enterprise (Web)
+1. Go to **Settings → User Management**, then open **User Enterprise** in the left submenu.
+2. In **User Enterprise Management**, select **Create**.
+3. Enter **Name*** ("Enter user enterprise name").
+4. Select the **Crops** (multi-select) for this enterprise.
+5. Select **Save**.
+
+### 3. Create the User Role (Web)
+1. In **User Management**, open **User Role** in the left submenu.
+2. In **User Roles Management** (tabs **All / Active / In Active**), select **+ Add User Role**.
+3. Enter **Name** and **Description**.
+4. Under **Web App Permission**, select the permission groups and checkboxes this role needs:
+   - **Map**: View
+   - **Planning**: View, Critical Activity
+   - **Work Order**: View, Create, Update, Print, Recall, Submit, Mark As Done, Manage Harvest Ticket, Manage Harvest ID
+   - **Material Template**: View, Create, Update
+   - **Inspection Template**: View, Create, Update, Publish
+   - **Attribute Inspection Template**: View, Create, Update
+5. Select **Save**.
+
+### 4. Create the User Group (Web)
+1. In **User Management**, open **User Groups** in the left submenu.
+2. In **User Groups Management**, select **Create User Group**.
+3. Select the **Enterprise** (from step 2).
+4. Select the **Role** (from step 3).
+5. Choose the **Farms** and **Locations** this group covers.
+6. Enter **Name*** ("Enter user group's name"; helper "Please enter the name for user group").
+7. Set the **Badge Color** (default `#000000`) and a **Description**.
+8. Set the **Bypass Attendance** toggle — turn it on so users in this group skip clock-in/out.
+9. Select **Save**.
+
+### 5. Add Users (Web)
+1. In **User Management**, open **Users** in the left submenu.
+2. Select **+ Add**.
+3. Import / add the users as required.
+
+### 6. Edit the user to assign Resource, admin rights & groups (Web)
+1. In the **Users** list, **Edit** the user.
+2. Toggle **Rights to Admin** on for administrators.
+3. Select the D365 **Resource** for this user (e.g. "00600 (00600)").
+4. Set the **Attendance Approver** toggle/dropdown and the **Location Tracking Interval** (e.g. "0h:30m").
+5. Set the **Form App Manager** toggle if applicable.
+6. Assign the **User Groups** (from step 4).
+7. Select **Save**.
+
+## Result
+The user now appears in the **Users** list with their mapped **Resource**, **User Roles**, and **User Groups**. The user inherits the role's permissions, the group's farms/locations and attendance behavior, and (if **Rights to Admin** is on) administrator access. The **Users** list shows columns: **Name**, **Email Address**, **User Roles**, **User Groups**, **Resource**, **Admin**, **Form App Manager**, **Attendance Approver**, **Status**, **Actions** (filter by **All / Active / Inactive**).
+
+## Notes & gotchas
+- The **D365 Resource must exist before** it can be assigned to a Farm App user — see [Create resources](./create-resources).
+- **Bypass Attendance** is set at the **User Group** level (step 4), not per user.
+- **Admin status** is set per user via the **Rights to Admin** toggle (step 6).
+- The five conceptual roles (Manager, Supervisor, Responsible Person, Machine Operator / Farm Hand) are a model; concrete access is realized through the configurable **User Role** permission checkboxes — see [Roles](../concepts/roles).
+- Resource groups, used to organize resources in D365, are covered in [Create resource groups](./create-resource-groups).

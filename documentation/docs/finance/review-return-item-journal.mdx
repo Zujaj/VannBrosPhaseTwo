@@ -1,0 +1,53 @@
+---
+title: Return Item Journal — Review
+sidebar_label: Review return item journal
+---
+
+# Return Item Journal: Review
+
+**Who:** Finance / Accounting reviewer  **Where:** Dynamics 365 Finance & Operations
+
+This page explains how to verify a **Return Item Journal** in **Dynamics 365 Finance & Operations** (company context **VBS | VANN BROTHERS**) — an Item Journal whose line carries a **negative quantity** to reverse item consumption and return stock.
+
+## Background
+
+When item consumption recorded in VannBrosPhaseTwo is later returned, VannBrosPhaseTwo syncs the return to D365 through the **batch job**, which **posts** a line into the **Item Journal** with a **negative quantity** (and correspondingly negative cost amount). This reverses the original consumption against the **Project**. There is no separate "return item" screen — the return is just a negative-quantity line on the standard Item Journal.
+
+:::note Review-only flow
+You do not enter or post these journals. The VannBrosPhaseTwo → D365 batch job posts them. Your job here is to **verify** the negative-quantity line the integration already posted.
+:::
+
+## Steps
+
+1. Go to **Project Management And Accounting > Journals > Item**.
+2. Set the **Show** dropdown to **Posted** (options are All / Not posted / **Posted**).
+3. Either **search the journal number** (IDs are prefixed `VBS-`), OR sort the **Journal** column **Z to A** to surface the latest posted journal.
+4. Open the journal and inspect the **Line details**.
+5. Confirm the line has a **negative Quantity** and a **negative Cost amount** — this is what marks it as a return.
+
+## What to verify
+
+| Line column | What to check |
+|---|---|
+| **Project date** | Date of the return |
+| **Project ID** | The project (`PRJ_…`) |
+| **Item number** | The returned item |
+| **Quantity** | **Negative** (e.g. `-0.50`) |
+| **Line property** | As expected for the activity |
+| **Cost price** | Per-unit cost |
+| **Cost amount** | **Negative** |
+| **Activity** | The activity (e.g. Irrigation) |
+| **Log** | Posting log entry present |
+
+:::tip Verification cue
+The **negative Quantity / negative Cost amount** line is the single cue that distinguishes a return from a normal consumption posting. If those values are positive, it is a standard consumption line, not a return.
+:::
+
+## Notes & gotchas
+
+:::caution Scope (V1.0)
+V1.0 manuals cover only the **review of already-posted journals**. They do not document approval-button clicks, state-transition rules, validation logic, or error messages.
+:::
+
+- The Return Item Journal shares the same navigation, list, and **Show** dropdown as the standard Item Journal — see [Review postings](./review-postings).
+- A return can alternatively be expressed as a **reverse-direction transfer** (**INV-RECV**) when leftover stock goes back to the shed — see [Review Transfer Journals](./review-transfer-journals).
