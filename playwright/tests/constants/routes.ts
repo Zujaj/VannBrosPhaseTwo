@@ -112,6 +112,10 @@ export const routes = {
     dynamicsSystemSetting: '/settings/dynamics-system-setting',
     cloudFunction: '/settings/cloud-function',
     crop: '/settings/crop',
+    // Plots/fields grid + the `Add Plot` form (ADO #26093). Confirmed live 2026-09-20: an
+    // unauthenticated hit redirects to `/login?returnUrl=%2Fsettings%2Fplot`, so the route
+    // exists and is session-gated like the rest of Settings.
+    plot: '/settings/plot',
     machineAndImplement: '/settings/machine-and-implement',
     location: '/settings/location',
     season: '/settings/season',

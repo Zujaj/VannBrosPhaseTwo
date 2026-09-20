@@ -6,7 +6,8 @@ description: >-
   VannBrosPhaseTwo concepts, screens, or terminology — work orders (planned, tank-mix,
   inspection, harvest) and Harvest Central harvest tickets, template
   management (inspection/material/attribute templates),
-  users/roles/resources, journal & posting review in Dynamics 365, observations
+  users/roles/resources, plots/fields (Settings > Plot, Add Plot, FinOps sync),
+  journal & posting review in Dynamics 365, observations
   / points of interest (POI), the communication center, attendance, maps,
   planning, or farm terminology. Consult this skill even when the user does not
   say "VannBrosPhaseTwo" but is clearly asking about these screens, flows, exact UI
@@ -46,6 +47,7 @@ This SKILL.md is the index. Read the matching reference file in `references/` fo
 | User roles & permissions; users, user groups, user enterprise; D365 resources & resource groups; user mapping | `references/users-resources.md` |
 | Reviewing posted journals in D365 (item, expense, transfer, return-transfer, return-item); postings & inventory sync | `references/journals-postings.md` |
 | Observations / Points of Interest (POI); POI categories; communication center / chat | `references/observations-chat.md` |
+| Plots / fields — **Settings > Plot** list, the **Add Plot** form and its fields, plot ↔ FinOps sync (`PlotJobField`) | `references/plots-fields.md` |
 
 ## Roles (the conceptual model)
 
@@ -66,12 +68,13 @@ Many permissions are gated by **feature toggles**: "(if attendance is enabled)",
 ## Global navigation (Farm App web)
 
 Top nav (labels vary slightly by tenant/version):
-`Maps | Planning | Work Orders | Template Management | Communication Center | Attendance`
+`Maps | Planning | Work Orders | Harvest Central | Template Management | Communication Center`
+(An **Attendance** entry appears where the feature toggle is on.)
 (Older screenshots show `Messaging` instead of `Communication Center`.)
 
 Header right: **Site** selector (e.g. "Vann Location", "VBS Locations", "Colusa"), **Season** selector (e.g. "Crop Year 2026", "2023 Crop…"), a create `+` icon, notifications, **Settings** gear, profile avatar (e.g. "CP" = Crop Planner).
 
-**Settings** gear → left nav: `Crops`, `Crop Stages`, `Machines and Implements`, `Map Toggle Config`, `Materials`, `Notifications`, `Resources`, `Seasons`, `Sites`, `Tasks / Operations`, `Template Management`, `User Management`.
+**Settings** gear → left nav (with a `Search` box above it): `Crops`, `Crop Stages`, `Machines and Implements`, `Maps Toggle Config`, `Materials`, `Notifications`, `Plot`, `Resources`, `Seasons`, `Sites`, `Tasks / Operations`, `Template Management`, `User Management`.
 
 ## Work-order lifecycle (status chips)
 
@@ -90,7 +93,7 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/s
 | **Task / Operation** | A field activity type (e.g. Irrigation, Fertilization, Pruning/Hedging, Weed Control, Harvest, Almond Preparation, Soil Sampling & Testing). Drives the work-order type. |
 | **Machine** | Self-powered unit that works on its own (tractor, combine harvester, excavator). |
 | **Implement** | Tool attached to a machine (usually a tractor) for a specific task (plow=tilling, sprayer=spraying, seeder=planting). |
-| **Field / Plot** | Land where crops are grown. WOs are executed against selected **plots** (with Plot Area / Operational Area in acres). |
+| **Field / Plot** | Land where crops are grown. WOs are executed against selected **plots** (with Plot Area / Operational Area in acres). Maintained under **Settings > Plot** — see `references/plots-fields.md`. |
 | **Crop** | Plant cultivated for food/fiber/feed/commercial use (e.g. almond, pistachio, walnut, rice, cotton, wheat). |
 | **Season** | Time period linked to weather/farming activity (Spring, Summer, Autumn/Fall, Winter); also "Crop Year NNNN". |
 | **Tank Mixing** | Combining two or more products (pesticides/herbicides/fungicides/fertilizers) in one spray tank, applied in a single pass instead of separate sprays. |
@@ -120,3 +123,5 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/s
 ## Source material
 
 Derived from `resources/VBPhaseTwo Introduction.pdf` and `resources/user-manuals/*.pdf` (V1.0 manuals, Vann Brothers tenant). When in doubt about a flow, the original PDF for that feature is the ground truth.
+
+Features added after the V1.0 manuals are written up from their Azure DevOps work items under `resources/work-items/*.md` (each names its ADO id, acceptance criteria and QA history).
