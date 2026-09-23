@@ -49,7 +49,9 @@ or `yarn.lock` files should be removed).
   Mirror them — don't invent behavior.
 - **`.claude/skills/`** — Project skills: `vannbrosphasetwo-knowledge` (product/domain reference),
   `vannbrosphasetwo-docs`, `vannbrosphasetwo-playwright`, `vannbrosphasetwo-test-cases`, `vannbrosphasetwo-vann-api-qa` (REST API
-  reference, with the backend's Swagger spec in its `openapi.json`). Consult
+  reference, with the backend's Swagger spec in its `openapi.json`). `vannbrosphasetwo-finops-api` covers the D365
+  F&O side (the `F3Agri*` custom services; Bearer token in `.auth/qa_finops_token.txt`), built from the
+  Postman collection's FinOps folder. Consult
   `vannbrosphasetwo-knowledge` for any product fact before authoring tests or docs.
 - **`.claude/agents/`** — Playwright test subagents (`playwright-test-planner`,
   `-generator`, `-healer`), with starter prompts in `.claude/prompts/`. Driven by the

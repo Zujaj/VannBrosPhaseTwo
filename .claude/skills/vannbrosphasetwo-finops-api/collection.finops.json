@@ -1,0 +1,1206 @@
+{
+  "info": {
+    "_postman_id": "c11a9522-5ff8-4362-82ba-5a7e117e6582",
+    "name": "AgriERP Product — FinOps",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "16161145"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{agrierp_fno_access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "FinOps",
+      "item": [
+        {
+          "name": "Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Parse the response body",
+                  "let jsonData = pm.response.json();",
+                  "",
+                  "// Check if token is returned",
+                  "if (jsonData.access_token) {",
+                  "    // Save token into Postman environment variable",
+                  "    pm.environment.set(\"agrierp_fno_access_token\", jsonData.access_token);",
+                  "",
+                  "    // Also log expiry info if available",
+                  "    // if (jsonData.expires_in) {",
+                  "    //    let expiryTime = Date.now() + (jsonData.expires_in * 1000);",
+                  "    //    pm.environment.set(\"token_expiry\", expiryTime);",
+                  "    // }",
+                  "",
+                  "    console.log(\"✅ Access token stored in environment variable: agrierp_fno_access_token\");",
+                  "} else {",
+                  "    console.log(\"❌ No access_token found in response\");",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": " application/x-www-form-urlencoded",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": " {{ClientId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": " {{AppKey}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": " {{AppUrl}}/.default",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": " client_credentials",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://login.microsoftonline.com/{{TenantID}}/oauth2/v2.0/token",
+              "protocol": "https",
+              "host": [
+                "login",
+                "microsoftonline",
+                "com"
+              ],
+              "path": [
+                "{{TenantID}}",
+                "oauth2",
+                "v2.0",
+                "token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriCropService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"doc\": {  \r\n        \"ID\": 0,      \r\n        \"DateTime\": \"2000-10-08T10:34:06Z\",\r\n        \"PageSize\": 100,\r\n        \"PageNo\": 1,\r\n        \"LegalEntity\":\"vbs\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriCropServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriCropServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriFarmOperationServices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"doc\": {  \r\n        \"ID\": 0,      \r\n        \"DateTime\": \"2000-10-08T10:34:06Z\",\r\n        \"PageSize\": 100,\r\n        \"PageNo\": 1,\r\n        \"LegalEntity\":\"vbs\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriCropServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriCropServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriCropVarietiesService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"doc\": {  \r\n        \"ID\": 0,      \r\n        \"DateTime\": \"2025-10-08T10:34:06Z\",\r\n        \"PageSize\": 100,\r\n        \"PageNo\": 1,\r\n        \"LegalEntity\":\"vbs\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriCropVarietiesServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriCropVarietiesServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriProjectService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"doc\": {  \r\n        \"ID\": 0,      \r\n        \"DateTime\": \"2025-10-08T10:34:06Z\",\r\n        \"PageSize\": 100,\r\n        \"PageNo\": 1,\r\n        \"LegalEntity\":\"vbs\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriProjectService/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriProjectService",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriMaterialService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"doc\": {  \r\n        \"ID\": 0,      \r\n        \"DateTime\": \"2000-10-08T10:34:06Z\",\r\n        \"PageSize\": 1000,\r\n        \"PageNo\": 1,\r\n        \"LegalEntity\":\"vbs\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriMaterialServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriMaterialServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriSeasonService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"doc\": {  \r\n        \"ID\": 0,      \r\n        \"DateTime\": \"2025-10-08T10:34:06Z\",\r\n        \"PageSize\": 100,\r\n        \"PageNo\": 1,\r\n        \"LegalEntity\":\"vbs\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriSeasonServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriSeasonServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriFarmOperationService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"doc\": {  \r\n        \"ID\": 0,      \r\n        \"DateTime\": \"2020-10-08T10:34:06Z\",\r\n        \"PageSize\": 100,\r\n        \"PageNo\": 1,\r\n        \"LegalEntity\":\"vbs\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriFarmOperationServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriFarmOperationServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriCropMaterialGroupService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"ID\": 0,      \n        \"DateTime\": \"2020-10-08T10:34:06Z\",\n        \"PageSize\": 100,\n        \"PageNo\": 1,\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriCropMaterialGroupServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriCropMaterialGroupServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriCustomerService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"ID\": 0,      \n        \"DateTime\": \"2020-10-08T10:34:06Z\",\n        \"PageSize\": 100,\n        \"PageNo\": 1,\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriCustomerServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriCustomerServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriUOMService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"ID\": 0,      \n        \"DateTime\": \"2020-10-08T10:34:06Z\",\n        \"PageSize\": 10000,\n        \"PageNo\": 1,\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriUOMServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriUOMServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriResourceGroupService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"ID\": 0,      \n        \"DateTime\": \"2020-10-08T10:34:06Z\",\n        \"PageSize\": 10000,\n        \"PageNo\": 1,\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriResourceGroupServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriResourceGroupServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriResourceService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"ID\": 0,      \n        \"DateTime\": \"2020-10-08T10:34:06Z\",\n        \"PageSize\": 10000,\n        \"PageNo\": 1,\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriResourceServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriResourceServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriIrrigationMethodService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"IrrigationMethodId\":\"Irrigation Method 35\",\n        \"Description\":\"Testing API\",\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriIrrigationMethodServices/create",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriIrrigationMethodServices",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriPlotFieldServices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doc\": {\n    \"RecId\": 5637144576, // Field.ID cross ref RecId\n    \"PlotField\": \"PlotFieldTesting45\", // Field.Code\n    \"Description\": \"Testing API description\", // Field.Name\n    \"HarvestWarehouse\": \"150\",\n    \"ConsumptionWarehouse\": \"150\",\n    \"HierarchyNode\": \"Testing API HierarchyNode\", // string.Empty\n    \"IrrigationMethod\": \"irrigation2\", // Field.Irrigation.Code\n    \"IrrigationSources\": \"source4;source2\", // Field.Soruces.Codes (Join with delimiter)\n    \"TotalArea\": 1000, // Field.Area\n    \"TotalOperationArea\": 500, // Field.Area\n    \"LegalEntity\": \"vbs\" // default\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriPlotFieldServices/create",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriPlotFieldServices",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriProjectService createProject",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {\n        \"ProjId\": \"PRJ_000117\",\n        \"ProjectName\": \"2026.PF-2\",\n        \"ProjGroupId\": \"03\",\n        \"CustAccount\": \"AIR-000001\",\n        \"ProjType\": 4,\n        \"LegalEntity\": \"vbs\",\n        \"Plot\": \"PF-2\",\n        \"Crop\": \"00344\",\n        \"CropYear\": 2025,\n        \"PlannedOperationalArea\": 2,\n        \"ProjectStartDate\": \"2026-05-29\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriSalesServiceGroup/F3AgriSalesProjectService/createProject",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriSalesServiceGroup",
+                "F3AgriSalesProjectService",
+                "createProject"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriProjectService CreateWBSLines",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doc\": {\n    \"RecId\": 5637144576, // Field.ID cross ref RecId\n    \"PlotField\": \"PlotFieldTesting45\", // Field.Code\n    \"Description\": \"Testing API description\", // Field.Name\n    \"HarvestWarehouse\": \"150\",\n    \"ConsumptionWarehouse\": \"150\",\n    \"HierarchyNode\": \"Testing API HierarchyNode\", // string.Empty\n    \"IrrigationMethod\": \"irrigation2\", // Field.Irrigation.Code\n    \"IrrigationSources\": \"source4;source2\", // Field.Soruces.Codes (Join with delimiter)\n    \"TotalArea\": 1000, // Field.Area\n    \"TotalOperationArea\": 500, // Field.Area\n    \"LegalEntity\": \"vbs\" // default\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriPlotFieldServices/create",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriPlotFieldServices",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriIrrigationSourceServices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doc\": {\n    \"SourceId\": \"Source34\",\n    \"Description\": \"Testing API\",\n    \"LegalEntity\": \"vbs\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriIrrigationSourceServices/create",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriIrrigationSourceServices",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriWorkOrderServices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {\n        \"ProjectId\": \"PRJ_000022\",\n        \"OperationId\": \"2001\",\n        \"TaskId\": \"1240\",\n        \"Activity\": \"\",\n        \"WOSequence\": \"WO-01\",\n        \"ActivityType\": \"adhoc\",\n        \"LegalEntity\": \"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriWorkOrderServices/createOrUpdateWO",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriWorkOrderServices",
+                "createOrUpdateWO"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriWMSLocationServices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"ID\": 0,      \n        \"DateTime\": \"2022-10-08T10:34:06Z\",\n        \"PageSize\": 100,\n        \"PageNo\": 1,\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriWMSLocationServices/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriWMSLocationServices",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "createProjectItemJournal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {\n        \"MaterialLines\": [\n          \n            {\n                \"ProjectDate\": \"2025-11-13T11:58:56.875\",\n                \"ItemId\": \"00166\",\n                \"Quantity\": 50.0,\n                \"Unit\": \"oz\",\n                \"Warehouse\":\"152\",\n                \"Location\":\"\",\n                \"BatchNumber\":\"BAT-001\"\n            }\n        ],\n        \"ProjectId\": \"PRJ_000022\",\n        \"Activity\": \"VBS-000059\",\n        \"OperationId\": \"1240\",\n        \"WOSequence\": \"WO-01\",\n        \"LegalEntity\": \"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriJournalService/createProjectItemJournal",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriJournalService",
+                "createProjectItemJournal"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriINVItemTransferService itemReturn",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"request\": {\n//         \"TransferJournalLines\": [\n//             {\n//                 \"ItemId\": \"00004\",\n//                 \"Quantity\": -1.0,\n//                 \"FromWarehouse\": \"\",\n//                 \"ToWarehouse\": \"0101\",\n//                 \"FromLocation\": \"\",\n//                 \"ToLocation\": \"CHMCLSHED\",\n//                 \"FromBatchNumber\": \"\",\n//                 \"ToBatchNumber\": \"LOT-000226\"\n//             }\n//         ],\n//         \"Company\": \"vbs\",\n//         \"languageId\": \"en-us\",\n//         \"TransferJournalHeader\": {}\n//     }\n// }\n\n// {\n//   \"request\": {\n//     \"TransferJournalLines\": [\n//       {\n//         \"ItemId\": \"00004\",\n//         \"Quantity\": 1.68,\n//         \"ToWarehouse\": \"0101\",\n//         \"ToLocation\": \"CHMCLSHED\",\n//         \"ToBatchNumber\": \"LOT-000227\"\n//       }\n//     ],\n//     \"Company\": \"vbs\",\n//     \"languageId\": \"en-us\",\n//     \"TransferJournalHeader\": {}\n//   }\n// }\n\n\n{\n  \"request\": {\n    \"TransferJournalLines\": [\n      {\n        \"ItemId\": \"00004\",\n        \"Quantity\": 10,\n        \"ToWarehouse\": \"0101\",\n        \"ToLocation\": \"CHMCLSHED\",\n        \"ToBatchNumber\": \"Opening\"\n      }\n    ],\n    \"Company\": \"vbs\",\n    \"languageId\": \"en-us\",\n    \"TransferJournalHeader\": {}\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriInventoryServiceGroup/F3AgriINVItemTransferService/itemReturn",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriInventoryServiceGroup",
+                "F3AgriINVItemTransferService",
+                "itemReturn"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriINVItemTransferService itemReturn Copy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"request\": {\n//         \"TransferJournalLines\": [\n//             {\n//                 \"ItemId\": \"00004\",\n//                 \"Quantity\": -1.0,\n//                 \"FromWarehouse\": \"\",\n//                 \"ToWarehouse\": \"0101\",\n//                 \"FromLocation\": \"\",\n//                 \"ToLocation\": \"CHMCLSHED\",\n//                 \"FromBatchNumber\": \"\",\n//                 \"ToBatchNumber\": \"LOT-000226\"\n//             }\n//         ],\n//         \"Company\": \"vbs\",\n//         \"languageId\": \"en-us\",\n//         \"TransferJournalHeader\": {}\n//     }\n// }\n\n// {\n//   \"request\": {\n//     \"TransferJournalLines\": [\n//       {\n//         \"ItemId\": \"00004\",\n//         \"Quantity\": 1.68,\n//         \"ToWarehouse\": \"0101\",\n//         \"ToLocation\": \"CHMCLSHED\",\n//         \"ToBatchNumber\": \"LOT-000227\"\n//       }\n//     ],\n//     \"Company\": \"vbs\",\n//     \"languageId\": \"en-us\",\n//     \"TransferJournalHeader\": {}\n//   }\n// }\n\n\n// {\n//   \"request\": {\n//     \"TransferJournalLines\": [\n//       {\n//         \"ItemId\": \"00004\",\n//         \"Quantity\": 10,\n//         \"ToWarehouse\": \"0101\",\n//         \"ToLocation\": \"CHMCLSHED\",\n//         \"ToBatchNumber\": \"Opening\"\n//       }\n//     ],\n//     \"Company\": \"vbs\",\n//     \"languageId\": \"en-us\",\n//     \"TransferJournalHeader\": {}\n//   }\n// }\n\n{\n  \"request\": {\n    \"TransferJournalLines\": [\n      {\n        \"ItemId\": \"00017\",\n        \"Quantity\": 12.8,\n        \"ToWarehouse\": \"0101\",\n        \"ToLocation\": \"CHMCLSHED\",\n        \"ToBatchNumber\": \"Opening\"\n      }\n    ],\n    \"Company\": \"vbs\",\n    \"languageId\": \"en-us\",\n    \"TransferJournalHeader\": {}\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriInventoryServiceGroup/F3AgriINVItemTransferService/itemReturn",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriInventoryServiceGroup",
+                "F3AgriINVItemTransferService",
+                "itemReturn"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "F3AgriUnitOfConversion",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agrierp_fno_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agrierp_fno_access_token}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doc\": {  \n        \"ID\": 0,      \n        \"DateTime\": \"2000-10-08T10:34:06Z\",\n        \"PageSize\": 1000,\n        \"PageNo\": 1,\n        \"LegalEntity\":\"vbs\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AppUrl}}/api/services/F3AgriERPServices/F3AgriUnitOfConversion/get",
+              "host": [
+                "{{AppUrl}}"
+              ],
+              "path": [
+                "api",
+                "services",
+                "F3AgriERPServices",
+                "F3AgriUnitOfConversion",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

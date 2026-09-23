@@ -8,3 +8,7 @@ node_modules/
 # `pnpm creds:import` (playwright/), then move this file out of the repo.
 creds.txt
 *credentials*.txt
+
+# Raw Postman exports hold literal client secrets/tokens. Extract what you need, never commit.
+*.postman_collection.json
+*.postman_environment.json
