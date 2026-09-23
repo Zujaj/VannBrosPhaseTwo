@@ -39,6 +39,20 @@ const COLUMN_VARIANTS: Record<string, string[]> = {
   Plots: ['Plots', 'Blocks'],
   Task: ['Task', 'Operation'],
   Actions: ['Actions', 'Action'],
+
+  // Settings > Plot (ADO #26093). This grid sets its header `title` to the API FIELD NAME
+  // rather than to the rendered label — `title="code"` under a `Field Code` heading, and so on
+  // for all seven columns (verified live 2026-09-23). `expectColumns` reads `thead th` text so
+  // it passes regardless, but `searchColumn`/`sortColumn` resolve through `title` and matched
+  // nothing at all: the click waited out the full test timeout. Mapping the display name to the
+  // served attribute is what this table is for.
+  'Field Code': ['Field Code', 'code'],
+  'Field Name': ['Field Name', 'name'],
+  Site: ['Site', 'locationName'],
+  Farm: ['Farm', 'farmName'],
+  'Total Area': ['Total Area', 'area'],
+  'Irrigation Method': ['Irrigation Method', 'irrigationMethodCode'],
+  'Irrigation Sources': ['Irrigation Sources', 'irrigationSources'],
 };
 
 /** Every spelling a column may render under. Unknown columns map to themselves. */

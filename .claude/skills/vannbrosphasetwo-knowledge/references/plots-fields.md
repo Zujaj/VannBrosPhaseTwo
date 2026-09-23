@@ -11,7 +11,12 @@ A **plot** and a **field** are the same entity: the web app calls it a *Plot*, F
 **Settings** gear → left nav **Plot** → `/settings/plot`. Breadcrumb: `Home > Settings > Plot`,
 page heading **Plot**.
 
-The list is scoped by the header **Site** selector (e.g. `Colusa`), so switching site changes the rows.
+**The list is NOT scoped by the header Site selector.** Verified live 2026-09-23: with the header
+on `Site: Colusa` the grid still lists rows for `Yolo`, `Vann Brothers`, `Karmdeep Bains`,
+`Atkinson Farms II Inc`, `Olive Glen Orchards LLC` and others — it is the whole tenant's plot
+register. A row's `Site` comes from its **Farm**, not from the header (e.g. `Vann Farm` → `Colusa`,
+`Yolo Farm` → `Yolo`), which is also how a new plot gets its site: the Add Plot form has no Site
+field, only `Farms*`.
 
 ![Settings > Plot list with the Add Plot button top-right](../assets/settings-plot-list.png)
 
@@ -24,6 +29,11 @@ The list is scoped by the header **Site** selector (e.g. `Colusa`), so switching
 - Footer: `Page Size` selector (default `100`) and `Page N of M - Showing X - Y of Z records`.
 - `Irrigation Method` shows the code only (e.g. `01`) in the list; the form shows the full label.
 - `Irrigation Sources` shows comma-joined abbreviations (e.g. `GCID, CCWD`).
+- **`Field Code` repeats across farms and that is expected** — `12`, `13`, `15`, `130` and `131`
+  each appear against several different farms (verified live 2026-09-23). The code is unique
+  *within* a farm, not tenant-wide.
+- Many rows carry `Total Area` `0` and a blank `Irrigation Method` / `Irrigation Sources`; only
+  the Vann Farm rows are fully populated.
 
 ## Creating a plot — Add Plot
 
@@ -49,6 +59,9 @@ The list is scoped by the header **Site** selector (e.g. `Colusa`), so switching
 - A right-hand **Summary** panel mirrors the entered values (Farms, Field Name, Field Code,
   Irrigation Method, Irrigation Sources, Total Area) as they are typed.
 - Actions: **Save** (blue) and **X** (close without saving).
+- **A farm cannot hold the same plot twice.** `Field Code` is unique per farm — re-saving an
+  existing code against the same `Farms` value is refused rather than creating a second row.
+  The same code may legitimately exist under a different farm.
 
 ## Sync with FinOps (D365)
 
@@ -63,6 +76,12 @@ Plot creation is not local to the web app — it round-trips through D365:
 
 If a new plot is missing from FinOps, check that **PlotJobField** is active and compare the sync
 console's latest timestamp against the creation time before treating it as an app-side defect.
+
+**Checking the D365 side.** The `F3Agri*` custom services (vannbrosphasetwo-finops-api skill)
+expose `F3AgriPlotFieldServices/create` but **no `get` for plots**, so there is no API read-back
+that confirms a plot landed — that check is the **AgriERP management > Plots/Fields** grid in the
+D365 UI. Projects *are* readable (`F3AgriProjectService/get`), which is how the return leg
+(project → web app) is verified.
 
 ## Source
 

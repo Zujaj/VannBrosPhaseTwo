@@ -804,3 +804,69 @@ must never store two. The four broken WOs above were removed from QA the same da
 **Also found on the way:** Select Materials pages at 50 rows and half of page 1 is "DO NOT USE",
 so the seed's `addFromModal` now pages through the panel with "→". Ticks survive moving between
 pages, and Save keeps the ticks from every page.
+
+## 30. `Field Code` on the Add Plot form takes 14 characters; the API caps it at 10 — product defect
+
+ADO [#26093](https://dev.azure.com/AgriERPProduct/Vann%20Brothers/_workitems/edit/26093) asks for
+field creation "via form **with limitations**". The Farm App's own model caps the code:
+`PlotFieldAPIModel.code` is `maxLength 10` (vannbrosphasetwo-vann-api-qa skill).
+
+**Settings → Plot → Add Plot does not enforce it.** Typing 14 characters into `Field Code` leaves
+all 14 in the control, and Angular marks it valid — verified live twice, 2026-09-23:
+
+```
+locator resolved to <input id="code" type="text" formcontrolname="code"
+                     placeholder="Field Code" class="form-control ng-untouched ng-dirty ng-valid"/>
+  - unexpected value "12345678901234"
+```
+
+The input carries no `maxlength` attribute and the control reports `ng-valid`, so there is neither
+a hard cap nor an inline validation message. Covered by `@ADO-26093 Field Code is capped at 10
+characters` in `tests/authenticated/settings-plot.spec.ts`, which fails on this.
+
+**Not established:** whether **Save** then fails server-side. Confirming that needs a second form
+submission, and the mutating footprint for this work item is deliberately held at one plot on
+Colusa — so it was left alone. Either way the form should reject the 11th character at entry
+rather than let a user fill in a record that cannot be stored.
+
+**Suggested defect:** Medium. Data-entry validation missing against a known model constraint.
+
+## 31. The Settings → Plot grid is not scoped by the header Site selector
+
+With the header on `Site: Colusa`, the grid still lists plots for `Yolo`, `Vann Brothers`,
+`Karmdeep Bains`, `Atkinson Farms II Inc`, `Olive Glen Orchards LLC` and others (verified live
+2026-09-23). It is the whole tenant's plot register.
+
+A row's `Site` is a property of its **Farm** (`Vann Farm` → `Colusa`, `Yolo Farm` → `Yolo`), and
+the Add Plot form has no Site field at all — only `Farms*`. So "create a plot on Colusa" means
+"pick a Colusa farm", not "switch the header first".
+
+Consequence for specs: `Field Code` repeats across farms by design (`12`, `13`, `15`, `130`, `131`
+each appear several times), so a uniqueness assertion must be scoped to a farm, or use a code
+generated to be tenant-unique. Not a defect — recorded because the opposite was assumed while
+writing the plot specs.
+
+## 32. The Settings → Plot grid sets its column `title` to the API field name, not the label
+
+`ListPage` resolves a column through `div.table-header-search[title="<name>"]`. On this grid the
+`title` is the backing API field, while the rendered heading is the display label (verified live
+2026-09-23):
+
+| Heading | `title` |
+|---|---|
+| Site | `locationName` |
+| Farm | `farmName` |
+| Field Code | `code` |
+| Field Name | `name` |
+| Total Area | `area` |
+| Irrigation Method | `irrigationMethodCode` |
+| Irrigation Sources | `irrigationSources` |
+
+`expectColumns` reads `thead th` text, so it passes and the grid looks fine. `searchColumn` and
+`sortColumn` do not: the locator matched nothing and the click waited out the **full 300s test
+timeout** rather than failing fast. Fixed by mapping every one of these in `COLUMN_VARIANTS`
+(`tests/pages/list.page.ts`).
+
+Worth noting for future page objects: this is a third labelling convention for the same widget.
+Work Orders serves display names, the other Settings grids serve lowercased display names
+(`name`, `code`), and this one serves API field names.

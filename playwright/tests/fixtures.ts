@@ -7,7 +7,7 @@ import { PlanningPage } from './pages/planning.page';
 import { MessagingPage } from './pages/messaging.page';
 import { MapsPage } from './pages/maps.page';
 import { HarvestCentralPage } from './pages/harvest-central.page';
-import { PlotPage } from './pages/plot.page';
+import { PlotPage } from './pages/settings-plot.page';
 import { routeGoogleMapsViaNode } from './helpers/googleMaps';
 
 /**
