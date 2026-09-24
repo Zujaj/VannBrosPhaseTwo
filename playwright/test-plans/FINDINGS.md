@@ -870,3 +870,97 @@ timeout** rather than failing fast. Fixed by mapping every one of these in `COLU
 Worth noting for future page objects: this is a third labelling convention for the same widget.
 Work Orders serves display names, the other Settings grids serve lowercased display names
 (`name`, `code`), and this one serves API field names.
+
+## 33. No QA plot has a GP field-to-variety mapping, so the Variety filter always empties the plot picker
+
+**Verified:** 2026-09-24, live in Firefox, Vann Farm (VBSF) / Fertilization (1240), Crop Year 2026.
+
+The Variety Management PSD's R1 ships its UI on QA: the Create form has a `Variety` multi-select,
+and the Select Plots panel is re-fetched through `POST /api/activity/blocks` with the chosen
+varieties as `cropVarietyIDs` (e.g. `[52, 49]`). The data behind it is missing. All 103 blocks
+come back with
+
+```json
+{ "fieldName": "130", "batchCode": "PRJ_000112", "varieties": [], "totalApplicableAcreage": null, ... }
+```
+
+and no other `farmID` (1–12) returns any block for this season and operation. So any variety,
+`WOOD COLONY` included, gives `0 Total Records` / "No blocks found".
+
+That is not because no work order carries a variety. The list shows `WOOD COLONY` on WO-1221
+(plot 130) and `BUTTE/PADRE` on WO-1216 (plot 328). The variety is stored on the **work order**,
+while the **field** mapping the PSD's R1 FR-1 syncs from the Grower Portal (GP) is empty. A
+user who picks the variety first, as the PSD's user journey says, can no longer reach plot 130.
+
+**GP has the data, so the gap is the GP → AgriERP sync** (checked read-only in Grower's Portal QA,
+2026-09-24, as `gp_superadmin`). GP company **260 "Vann Brothers"** has 57 fields, all 57 with
+plantings (variety + acreage), and 55 of them carry two or more varieties. Across GP, 1,109 of
+1,113 fields have plantings. The two fields above:
+
+| Field | GP plantings (variety, acres) | GP total | AgriERP `fieldArea` |
+|---|---|---|---|
+| 130 | MONTEREY 37.2, NONPAREIL 74.579, WINTERS 37.289, LIBERTY 35.289 (planted 2026-06-01) | **184.357** | 148.9 |
+| 328 | NONPAREIL 67.48, WINTERS 33.15, WOOD COLONY 34.01 | 134.64 | 136.6 |
+
+Three more things this shows:
+
+- **Field 130's GP variety acreage exceeds its AgriERP area by 35.46 ac.** The PSD's only acreage
+  rule, "total Variety acreage must not exceed the Plot/Field total", is an R2 rule for mappings
+  maintained in AgriERP. It says nothing about GP-synced data. Whether R1 should accept, clip or
+  reject this field is a question for the product owner, and the answer changes what VM-07's
+  summed acreage should be.
+- **WO-1221 shows `WOOD COLONY` on plot 130, but GP maps no `WOOD COLONY` to field 130.** Work-order
+  varieties on QA are therefore not derived from the field mapping. Under R1 FR-2, which only offers
+  fields mapped to the chosen variety, that pairing could not be created.
+- **GP's integration feed cannot be read with a user login.** `GET /api/DataIntegration/fields`
+  (and `/crop-varieties`) answer 401 "User-based tokens are not accepted. Use client credentials
+  flow." The shape it serves is presumably `FieldVarietyDTO {varietyId, code, name, color,
+  acreage}` (GP Swagger), which fills in the element shape `PlotBlock.varieties` has been missing.
+  Whether AgriERP's sync job runs and succeeds is for whoever holds those client credentials to
+  check.
+
+**Consequence for tests:** `variety-management.spec.ts` VM-05..08 and the value half of VM-13
+need mapped plots, and skip with this finding's number while there are none. Once the sync
+delivers, field 130 is the natural VM-07 fixture (four varieties on one field). VM-04 asserts the
+sync itself and is parked as `@upcoming`. VM-03, the "unmapped variety empties the picker" case,
+is the one filtering check that can run today.
+
+## 34. Dummy Resources: QA serves the v1 flow; the v2 PSD's "+" menu is not deployed
+
+**Verified:** 2026-09-24, live in Firefox.
+
+The v2 PSD (Sep 16, 2026) replaces the `Dummy Resource` Yes/No switch in Select Resources with a
+"+" dropdown offering `Add Resource` / `Add Dummy Resource`. QA still has v1:
+
+- `button[title="Add Resources"]` opens the `Select Resources` panel directly. It carries
+  `aria-haspopup="true"`, so the menu may be partly wired.
+- The panel has the switch: `#dummyResourceFilter`, a custom-switch whose label reads `No`/`Yes`.
+- With it on `Yes`, the list holds eight rows: `Agrierp 02 (02)`, `Dummy Res 04 (DM004)`,
+  `Irrigator (DM002)`, `Irrigator 02 (DM003)`, `Joe Works (R001245)`, `Joel Guzman (000012)`,
+  `Kel Williams (000171)`, `Machine Operator (DM001)`.
+- Adding one puts a row in the form's Resources grid with a `No Of Resource` number input
+  (`min=0`, empty by default). The Assets grid also gained a `No Of Resource` column.
+
+**This explains #26.** `Agrierp 02`, `Joel Guzman` and `Kel Williams` did not leave D365. They are
+now flagged as dummy resources, so the named-resource list (switch on `No`) no longer offers them.
+
+**Consequence for tests:** `dummy-resources.spec.ts` DR-02..05 assert the v2 wording and are parked
+as `@upcoming`. `WorkOrdersPage.addFirstDummyResource()` takes whichever path the build serves, so
+DR-01 runs on both.
+
+## 35. The Create form's Variety field is an `ng-multiselect-dropdown`: click the row, not the checkbox
+
+**Verified:** 2026-09-24.
+
+`#select-variety` is not the app's `.dropdown` widget, so `selectFromDropdown` and `dropdownToggle`
+cannot drive it. The label-anchored XPath lands on a later button, and the test hangs until timeout.
+In the open `.dropdown-list`, each option's `<li class="multiselect-item-checkbox">` covers its
+own `<input type="checkbox" aria-label="<variety>">`. Calling `check()` on the input times out
+("`<li>` intercepts pointer events"), so click the `<li>`. Chips render as `.selected-item`
+("WOOD COLONY x"), and the `x` link removes one. The list is closed while it has the `hidden`
+attribute. Use `WorkOrdersPage.selectVarieties()` / `deselectVariety()`.
+
+Two more Variety controls behave differently. The list's `Set Filters → Variety` is the ordinary
+single-select `app-f3-select`; it sends `cropVarietyIDs=<id>` on `GET /api/workOrder`, and
+`WOOD COLONY` narrowed 895 records to 7. The Select Plots panel has **no** Variety column. Only
+the form's own `Select Plot` grid has one.

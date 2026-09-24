@@ -37,6 +37,47 @@ export const SUB_TABS = [
 
 export type SubTabName = (typeof SUB_TABS)[number];
 
+/** The plot section's add trigger and panel heading, under both names the QA host serves. */
+const PLOT_ADD_TITLES = ['Add Plot', 'Add Block'];
+const PLOT_PANEL_HEADING = /Select (Blocks|Plots)/;
+
+/**
+ * One row of `POST /api/activity/blocks`, the Select Plots panel's data (observed 2026-09-24).
+ * Only the fields the Variety specs read are typed. `varieties` has been `[]` on every QA block
+ * so far, so its element shape is unobserved — read it through `blockVarietyNames`.
+ */
+export interface PlotBlock {
+  fieldID: number;
+  fieldName: string;
+  batchCode: string;
+  fieldArea: number;
+  varieties: unknown[];
+  totalApplicableAcreage: number | null;
+}
+
+/**
+ * Variety names on a block, whichever name key the element turns out to use. GP's integration
+ * model is `FieldVarietyDTO { varietyId, code, name, color, acreage }` (FINDINGS #33), so `name`
+ * is the likely key; the others stay as fallbacks until AgriERP's shape is seen.
+ */
+export function blockVarietyNames(block: PlotBlock): string[] {
+  return block.varieties.map((v) => {
+    if (typeof v === 'string') return v;
+    const o = v as Record<string, unknown>;
+    return String(o.varietyName ?? o.cropVarietyName ?? o.name ?? o.variety ?? JSON.stringify(o));
+  });
+}
+
+/** The open Select Plots panel plus the blocks request/response behind it. */
+export interface PlotPicker {
+  panel: Locator;
+  heading: Locator;
+  /** Data rows only — the empty state renders one checkbox-less "No blocks found" row. */
+  rows: Locator;
+  blocks: PlotBlock[];
+  cropVarietyIDs: number[];
+}
+
 /**
  * WO types that are authored from their own sub-tab rather than the default list. The four
  * sub-tabs are in-page buttons at /workorders (not routes) whose visible text IS their
@@ -268,6 +309,246 @@ export class WorkOrdersPage extends BasePage {
     const list = Array.isArray(titles) ? titles : [titles];
     const match = list.map((t) => `normalize-space()="${t}"`).join(' or ');
     return this.page.locator(`xpath=(//h3[${match}])[1]/following::table[1]`);
+  }
+
+  // ---------------------------------------------------------------------------------------
+  // Variety (Variety Management PSD, R1). Verified live 2026-09-24 in Firefox.
+  // ---------------------------------------------------------------------------------------
+
+  /**
+   * The Create form's `Variety` field: an `ng-multiselect-dropdown` (`#select-variety`), not the
+   * app's `.dropdown` widget, so `selectFromDropdown` cannot drive it. It renders a
+   * `.dropdown-btn` holding one `.selected-item` chip per pick ("WOOD COLONY x") and a
+   * `.dropdown-list` (hidden attribute while closed) with `Select All`, a search box and one
+   * `li.multiselect-item-checkbox` per variety. The `<li>` takes the click; the checkbox inside
+   * it is covered and a direct `check()` times out.
+   */
+  get varietyPicker(): Locator {
+    return this.page.locator('#select-variety');
+  }
+
+  /**
+   * Open the variety list. Its open state has to be read from visibility: after a pick the list
+   * collapses to `display: none` while its `hidden` attribute stays unset (seen 2026-09-24), so
+   * each pick reopens it.
+   */
+  private async openVarietyList(): Promise<Locator> {
+    const list = this.varietyPicker.locator('.dropdown-list');
+    await expect(async () => {
+      if (!(await list.isVisible())) {
+        await this.waitForLoaderGone();
+        // The caret, not the button's middle: once a variety is picked, the middle is its chip.
+        await this.varietyPicker.locator('.dropdown-multiselect__caret').click({ timeout: 5000 });
+      }
+      await expect(list).toBeVisible({ timeout: 3000 });
+    }).toPass({ timeout: 30000 });
+    return list;
+  }
+
+  /** Close the variety list by clicking the form heading, the one neutral spot above it. */
+  private async closeVarietyList(): Promise<void> {
+    const list = this.varietyPicker.locator('.dropdown-list');
+    if (await list.isVisible()) {
+      await this.page.getByRole('heading', { name: /^Create New Work Order\b/ }).click();
+    }
+    await expect(list).toBeHidden();
+    await this.waitForLoaderGone();
+  }
+
+  /** Every variety the field offers, in list order (without `Select All`). */
+  async varietyOptions(): Promise<string[]> {
+    const list = await this.openVarietyList();
+    const names = (await list.locator('ul.item2 li').allInnerTexts()).map((s) => s.trim());
+    await this.closeVarietyList();
+    return names.filter(Boolean);
+  }
+
+  /** A Variety chip. Its text is "<name>&nbsp;x", so an exact text match misses it. */
+  private varietyChip(name: string): Locator {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+    return this.varietyPicker.locator('.selected-item').filter({ hasText: new RegExp(`^\\s*${escaped}\\s*x?\\s*$`) });
+  }
+
+  /** Tick each named variety. Already-selected names are left alone. */
+  async selectVarieties(names: string[]): Promise<void> {
+    const selected = await this.selectedVarieties();
+    for (const name of names) {
+      if (selected.includes(name)) continue;
+      // Retried as a unit: the list closes a beat AFTER a pick, so a reopen check made straight
+      // after the previous pick can see it still open and then click into a closed list.
+      await expect(async () => {
+        const list = await this.openVarietyList();
+        await list.locator('input[aria-label="multiselect-search"]').fill(name);
+        await list
+          .locator('ul.item2 li.multiselect-item-checkbox')
+          .filter({ has: this.page.getByText(name, { exact: true }) })
+          .click({ timeout: 5000 });
+        await expect(this.varietyChip(name)).toHaveCount(1, { timeout: 3000 });
+      }).toPass({ timeout: 45000 });
+    }
+    if (await this.varietyPicker.locator('.dropdown-list').isVisible()) {
+      await this.varietyPicker.locator('input[aria-label="multiselect-search"]').fill('');
+    }
+    await this.closeVarietyList();
+  }
+
+  /** Remove one variety through its chip's `x`. */
+  async deselectVariety(name: string): Promise<void> {
+    await this.waitForLoaderGone();
+    await this.varietyChip(name).locator('a').click();
+    await this.waitForLoaderGone();
+  }
+
+  /** The chips currently shown in the Variety field. */
+  async selectedVarieties(): Promise<string[]> {
+    const chips = await this.varietyPicker.locator('.selected-item').allInnerTexts();
+    return chips.map((c) => c.replace(/\u00a0/g, ' ').replace(/\s*x\s*$/, '').trim()).filter(Boolean);
+  }
+
+  /**
+   * Open the Select Plots panel and return it with the `POST /api/activity/blocks` exchange that
+   * filled it. The request carries the Variety field as `cropVarietyIDs` (one id per chip), and
+   * each returned block has `varieties` + `totalApplicableAcreage` — the GP field-to-variety
+   * mapping the PSD's R1 FR-1 synchronises. The panel shows neither, so specs assert on these.
+   */
+  async openPlotPicker(): Promise<PlotPicker> {
+    const response = this.page.waitForResponse(
+      (r) => /\/api\/activity\/blocks/i.test(r.url()) && r.request().method() === 'POST',
+      { timeout: 60000 },
+    );
+    const heading = await this.openSectionModal(PLOT_ADD_TITLES, PLOT_PANEL_HEADING);
+    const res = await response;
+    const body = (await res.json()) as { data?: PlotBlock[] };
+    const panel = this.page.locator('.side-panel').filter({ has: heading });
+    return {
+      panel,
+      heading,
+      rows: panel.locator('tbody tr').filter({ has: this.page.locator('input[type="checkbox"]') }),
+      blocks: body.data ?? [],
+      cropVarietyIDs: (JSON.parse(res.request().postData() ?? '{}').cropVarietyIDs ?? []) as number[],
+    };
+  }
+
+  /** Close the Select Plots panel without saving (its reject icon, not Save). */
+  async closePlotPicker(picker: PlotPicker): Promise<void> {
+    // The reject icon sits beside Save in the heading's header row (both panel variants).
+    await this.clickPastLoader(picker.heading.locator('xpath=../..').locator('a.icon-reject-btn'), () =>
+      expect(picker.heading).toBeHidden({ timeout: 10000 }),
+    );
+  }
+
+  /** Tick the picker's first `count` rows and Save. */
+  async addPlotsFromPicker(picker: PlotPicker, count: number): Promise<void> {
+    for (let i = 0; i < count; i++) await picker.rows.nth(i).locator('input[type="checkbox"]').check();
+    await this.saveSectionModal(picker.heading);
+  }
+
+  // ---------------------------------------------------------------------------------------
+  // Resources (Dummy Resources PSD v2). QA still serves the v1 panel as of 2026-09-24.
+  // ---------------------------------------------------------------------------------------
+
+  /** The Select Resources section's "+" (`title="Add Resources"`). */
+  get addResourcesButton(): Locator {
+    return this.page.locator('button[title="Add Resources"]');
+  }
+
+  /**
+   * PSD v2 Figure 1: the "+" opens a menu with `Add Resource` and `Add Dummy Resource`. The menu's
+   * DOM is not on QA yet, so the items are located by their text alone.
+   */
+  addResourceMenuItem(name: 'Add Resource' | 'Add Dummy Resource'): Locator {
+    return this.page.getByText(name, { exact: true });
+  }
+
+  /**
+   * The v1 "Dummy Resource" No/Yes switch inside Select Resources (`#dummyResourceFilter`, a
+   * Bootstrap custom-switch whose `<label>` carries the No/Yes text). PSD v2 removes it.
+   */
+  get dummyResourceSwitch(): Locator {
+    return this.page.locator('#dummyResourceFilter');
+  }
+
+  /**
+   * Add the first dummy resource to the form through whichever flow the build serves: the v2
+   * `Add Dummy Resource` menu item, or the v1 panel with the Dummy Resource switch set to Yes.
+   * Returns the added resource's name as the panel lists it (e.g. `Irrigator (DM002)`).
+   */
+  async addFirstDummyResource(): Promise<string> {
+    await expect(this.addResourcesButton).toBeVisible({ timeout: 30000 });
+    const v1Heading = this.page.getByRole('heading', { name: /^Select Resources/, level: 2 });
+    const v2Heading = this.page.getByRole('heading', { name: /^Add Dummy Resource/, level: 2 });
+    const v2Item = this.addResourceMenuItem('Add Dummy Resource');
+    await this.clickPastLoader(this.addResourcesButton, () =>
+      expect(v1Heading.or(v2Item)).toBeVisible({ timeout: 8000 }),
+    );
+
+    let heading: Locator;
+    if (await v2Item.isVisible()) {
+      await v2Item.click();
+      heading = v2Heading;
+      await expect(heading).toBeVisible();
+    } else {
+      heading = v1Heading;
+      await this.waitForLoaderGone();
+      const switchLabel = this.page.locator('label[for="dummyResourceFilter"]');
+      if (!(await this.dummyResourceSwitch.isChecked())) await switchLabel.click();
+      await expect(switchLabel).toHaveText(/Yes/);
+      // Apply re-fetches, but the named-resource rows linger for a moment; wait for the first row
+      // to change, or the tick lands on a stale named resource (seen 2026-09-24).
+      const panel = this.page.locator('.side-panel').filter({ has: heading });
+      const firstRow = panel.locator('tbody tr').first();
+      const before = await firstRow.innerText();
+      await panel.getByRole('button', { name: 'Apply' }).click();
+      await expect(firstRow).not.toHaveText(before, { timeout: 30000 });
+    }
+    await this.waitForLoaderGone();
+    const panel = this.page.locator('.side-panel').filter({ has: heading });
+    const row = panel.locator('tbody tr').filter({ has: this.page.locator('input[type="checkbox"]') }).first();
+    await expect(row).toBeVisible({ timeout: 30000 });
+    const name = (await row.locator('td').nth(1).innerText()).replace(/\s+/g, ' ').trim();
+    await row.locator('input[type="checkbox"]').check();
+    await this.saveSectionModal(heading);
+    return name.replace(/\s*DUMMY RESOURCE\s*$/i, '');
+  }
+
+  // ---------------------------------------------------------------------------------------
+  // List "Set Filters" panel (Work Orders list). Variety added by the Variety PSD, R1 FR-5.
+  // ---------------------------------------------------------------------------------------
+
+  /** The list's `Set Filters` aside, opened from the `Filter` button beside the status chips. */
+  async openListFilters(): Promise<Locator> {
+    const panel = this.page.locator('app-aside').filter({ hasText: 'Set Filters' });
+    await this.clickPastLoader(this.page.getByRole('button', { name: /^\s*Filter\b/ }), () =>
+      expect(panel).toBeVisible({ timeout: 8000 }),
+    );
+    return panel;
+  }
+
+  /**
+   * Pick one value in a `Set Filters` dropdown and Apply. Scoped to the panel: a page-wide label
+   * lookup would hit the grid's own `Variety` column header first.
+   */
+  async applyListFilter(label: string, option: string): Promise<void> {
+    const panel = await this.openListFilters();
+    await panel
+      .locator('label', { hasText: new RegExp(`^\\s*${label}\\s*$`) })
+      .locator('xpath=following::button[1]')
+      .click();
+    const menu = this.page.locator('.dropdown.show');
+    await expect(menu).toBeVisible();
+    await menu.locator('input').first().fill(option);
+    await menu.getByText(option, { exact: true }).click();
+    await panel.getByRole('button', { name: 'Apply' }).click();
+    await this.waitForLoaderGone();
+  }
+
+  /** Reset and re-apply the `Set Filters` panel so later specs see the unfiltered list. */
+  async resetListFilters(): Promise<void> {
+    const panel = await this.openListFilters();
+    await panel.getByRole('button', { name: 'Reset' }).click();
+    await this.waitForLoaderGone();
+    if (await panel.isVisible()) await panel.getByRole('button', { name: 'Apply' }).click();
+    await this.waitForLoaderGone();
   }
 
   /** Open a section's "+" add modal and wait out its row fetch. Returns the modal's heading. */

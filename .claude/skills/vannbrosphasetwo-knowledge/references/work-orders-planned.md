@@ -34,6 +34,11 @@ Creating a **Planned (standard)** Work Order: a non-tank-mix operation with plot
 - **Select Resources**: `Resource Group` dropdown (default `All`; Machine Operators, Farm Hands), searchboxes `Search By Resource Name` / `Search By Company Name`, `Apply` / `Reset`. Rows `<Resource Name> (code) <Resource Type>`. `By Resource` radio on the form section. Grid: `Resource Name`, `Resource Type`, `Company Name`, `Action`.
 - **Select Assets**: `Resource Group` dropdown (default `All`), searchbox `Search By Asset Name`, `Apply` / `Reset`. Rows `<Asset Name> (code)`. Grid: `Asset Name`, `Asset Type`, `Resource Group`, `Action`.
 
+## Variety and dummy resources (live 2026-09-24)
+
+- **`Variety`** (header field after `Tank Mixing`, optional): multi-select with `Select All` and a search box; picks show as chips. It filters the Select Plots panel to plots GP maps to the chosen varieties (union for several). On QA no plot has a GP variety mapping yet, so any variety empties the panel (`0 Total Records`, "No blocks found"). The form's inline plot grid has a `Variety` column; the panel does not. Source: *Variety Management* PSD, R1 FR-2.
+- **Select Resources → `Dummy Resource` switch** (`No` / `Yes`, v1): `Yes` lists the dummy register (e.g. `Irrigator (DM002)`, `Machine Operator (DM001)`). A dummy resource on the form gets a **`No Of Resource`** number input (the headcount). The Assets grid also shows `No Of Resource`. The *Dummy Resources* PSD v2 replaces the switch with a `+` menu (`Add Resource` / `Add Dummy Resource`); not deployed yet.
+
 ## Notes / pitfalls (verified live 2026-06-10)
 
 - **`Add Plot` vs `Select Range`:** plots are added via the **`+` (`Add Plot`)** button (formerly `Add Block`) → modal. The inline `Task Date Range` / `Select Range` filter is a separate date filter; as of 2026-08-26 it shows a dead calendar (only `Jan 1 1900`, month-nav disabled, min=max) and is not required to add a plot or submit — do not touch it.
