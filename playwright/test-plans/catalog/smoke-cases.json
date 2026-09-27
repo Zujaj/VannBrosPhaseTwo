@@ -1,0 +1,1478 @@
+{
+  "_meta": {
+    "source": "resources/Vann Brother Smoke check list.xlsx",
+    "sheet": "Detail Smoke Checklist v2",
+    "generatedBy": "playwright/scripts/extract-smoke.py",
+    "totalRows": 162,
+    "byScope": {
+      "web": 103,
+      "mobile": 50,
+      "after-mobile": 7,
+      "d365": 2
+    },
+    "headerOnlyModules": [
+      "Planning Tab"
+    ],
+    "note": "IDs are minted here and must stay stable. Regenerate with `pnpm smoke:catalog`."
+  },
+  "cases": [
+    {
+      "id": "WO-01",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Create,Save as Draft, Submit, Recall and Re-submit Planned WO with Multiple Blocks (By Resource)|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Create,Save as Draft, Submit, Recall and Re-submit Planned WO with Multiple Blocks (By Resource)",
+      "scope": "web"
+    },
+    {
+      "id": "WO-02",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Verify WO Detail screen|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Verify WO Detail screen",
+      "scope": "web"
+    },
+    {
+      "id": "WO-03",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Start WO from mobile|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Start WO from mobile",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-04",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Start job|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Start job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-05",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Enter Intermediate Progress|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Enter Intermediate Progress",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-06",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|End Job|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "End Job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-07",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Upload Attachments(Images, Documents, voice note, Videos,Recorded video)|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Upload Attachments(Images, Documents, voice note, Videos,Recorded video)",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-08",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Delete Attachments|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Delete Attachments",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-09",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Verify Progress update on web|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Verify Progress update on web",
+      "scope": "after-mobile"
+    },
+    {
+      "id": "WO-10",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Start another job|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Start another job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-11",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Enter the complete progress|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Enter the complete progress",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-12",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|End job|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "End job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-13",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|End WO|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "End WO",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-14",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Verify Progress update on web|2",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Verify Progress update on web",
+      "scope": "after-mobile"
+    },
+    {
+      "id": "WO-15",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Perform adjusment from web and mobile and verify on both|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Perform adjusment from web and mobile and verify on both",
+      "scope": "after-mobile"
+    },
+    {
+      "id": "WO-16",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Download PDF for Planned Work Order (By Resource) from Web|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Download PDF for Planned Work Order (By Resource) from Web",
+      "scope": "web"
+    },
+    {
+      "id": "WO-17",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Download PDF for Planned Work Order (By Resource) from Mobile|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Download PDF for Planned Work Order (By Resource) from Mobile",
+      "scope": "mobile"
+    },
+    {
+      "id": "WO-18",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Verify Material posting|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Verify Material posting",
+      "scope": "d365"
+    },
+    {
+      "id": "WO-19",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Verify machine posting|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Verify machine posting",
+      "scope": "d365"
+    },
+    {
+      "id": "WO-20",
+      "key": "WO|Create Planned Work Order with Adhoc block(By Resource)|Verify WO Clones succesfully after hitting submit|1",
+      "area": "WO",
+      "module": "Work Order",
+      "scenario": "Create Planned Work Order with Adhoc block(By Resource)",
+      "description": "Verify WO Clones succesfully after hitting submit",
+      "scope": "web"
+    },
+    {
+      "id": "WI-01",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Create,Save as Draft, Submit, Recall and Re-submit Planned Inspection WO from web|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Create,Save as Draft, Submit, Recall and Re-submit Planned Inspection WO from web",
+      "scope": "web"
+    },
+    {
+      "id": "WI-02",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify WO Detail screen|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify WO Detail screen",
+      "scope": "web"
+    },
+    {
+      "id": "WI-03",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Start WO from mobile|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Start WO from mobile",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-04",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Start job|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Start job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-05",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Enter Intermediate Progress|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Enter Intermediate Progress",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-06",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|End Job|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "End Job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-07",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify Progress update on web|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify Progress update on web",
+      "scope": "after-mobile"
+    },
+    {
+      "id": "WI-08",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Start another job|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Start another job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-09",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Enter the complete progress|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Enter the complete progress",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-10",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|End job|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "End job",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-11",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|End WO|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "End WO",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-12",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify Progress update on web|2",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify Progress update on web",
+      "scope": "after-mobile"
+    },
+    {
+      "id": "WI-13",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Perform adjusment from web and mobile and verify on both|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Perform adjusment from web and mobile and verify on both",
+      "scope": "after-mobile"
+    },
+    {
+      "id": "WI-14",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Download PDF for Planned Inspection Work Order from Web|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Download PDF for Planned Inspection Work Order from Web",
+      "scope": "web"
+    },
+    {
+      "id": "WI-15",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Download PDF for Planned Inspection Work Order from Mobile|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Download PDF for Planned Inspection Work Order from Mobile",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-16",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|->Verify planned inspection WO app performance while updating locations.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "->Verify planned inspection WO app performance while updating locations.",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-17",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify planned inspection WO if the user missed saving location's data then the user should be prompt.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify planned inspection WO if the user missed saving location's data then the user should be prompt.",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-18",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify that when the user uploads an attachment through instant recording.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify that when the user uploads an attachment through instant recording.",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-19",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify that when the user uploads an attachment through instant recording of more than 30sec.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify that when the user uploads an attachment through instant recording of more than 30sec.",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-20",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify that when the user uploads a video attachment through the gallery.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify that when the user uploads a video attachment through the gallery.",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-21",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|verify that on updating locations, progress should be updated on web app against that WO.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "verify that on updating locations, progress should be updated on web app against that WO.",
+      "scope": "after-mobile"
+    },
+    {
+      "id": "WI-22",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify that, when user upload more than 30 sec recording then it should be compressed.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify that, when user upload more than 30 sec recording then it should be compressed.",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-23",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify that, when user attach more than 30 sec recording from gallery then it should be compressed.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify that, when user attach more than 30 sec recording from gallery then it should be compressed.",
+      "scope": "mobile"
+    },
+    {
+      "id": "WI-24",
+      "key": "WI|Create Planned Inspection WO with mulitple resources|Verify that the resource can not start the other job before ending the previous one.|1",
+      "area": "WI",
+      "module": "Work Order",
+      "scenario": "Create Planned Inspection WO with mulitple resources",
+      "description": "Verify that the resource can not start the other job before ending the previous one.",
+      "scope": "mobile"
+    },
+    {
+      "id": "MP-01",
+      "key": "MP|Map|User can see Upcoming Work Order|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can see Upcoming Work Order",
+      "scope": "web"
+    },
+    {
+      "id": "MP-02",
+      "key": "MP|Map|User can see Active Work Order|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can see Active Work Order",
+      "scope": "web"
+    },
+    {
+      "id": "MP-03",
+      "key": "MP|Map|User can see Completed Work Order|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can see Completed Work Order",
+      "scope": "web"
+    },
+    {
+      "id": "MP-04",
+      "key": "MP|Map|User can see Active Inspection Work Order|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can see Active Inspection Work Order",
+      "scope": "web"
+    },
+    {
+      "id": "MP-05",
+      "key": "MP|Map|User can see Completed Inspection Work Order|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can see Completed Inspection Work Order",
+      "scope": "web"
+    },
+    {
+      "id": "MP-06",
+      "key": "MP|Map|User can select the Crop|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can select the Crop",
+      "scope": "web"
+    },
+    {
+      "id": "MP-07",
+      "key": "MP|Map|User can select the Stages|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can select the Stages",
+      "scope": "web"
+    },
+    {
+      "id": "MP-08",
+      "key": "MP|Map|User can select the Operation|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can select the Operation",
+      "scope": "web"
+    },
+    {
+      "id": "MP-09",
+      "key": "MP|Map|User can verify Active Inspection tile in Advance filter|1",
+      "area": "MP",
+      "module": "Maps",
+      "scenario": "Map",
+      "description": "User can verify Active Inspection tile in Advance filter",
+      "scope": "web"
+    },
+    {
+      "id": "US-01",
+      "key": "US|User Settings on Web|Verify Default Location|1",
+      "area": "US",
+      "module": "User Settings",
+      "scenario": "User Settings on Web",
+      "description": "Verify Default Location",
+      "scope": "web"
+    },
+    {
+      "id": "US-02",
+      "key": "US|User Settings on Web|Default location verify from mobile|1",
+      "area": "US",
+      "module": "User Settings",
+      "scenario": "User Settings on Web",
+      "description": "Default location verify from mobile",
+      "scope": "mobile"
+    },
+    {
+      "id": "US-03",
+      "key": "US|User Settings on Web|Verify Default Season|1",
+      "area": "US",
+      "module": "User Settings",
+      "scenario": "User Settings on Web",
+      "description": "Verify Default Season",
+      "scope": "web"
+    },
+    {
+      "id": "US-04",
+      "key": "US|User Settings on Web|Verify Default Language|1",
+      "area": "US",
+      "module": "User Settings",
+      "scenario": "User Settings on Web",
+      "description": "Verify Default Language",
+      "scope": "web"
+    },
+    {
+      "id": "US-05",
+      "key": "US|User Settings on Web|Verify Default Timezone|1",
+      "area": "US",
+      "module": "User Settings",
+      "scenario": "User Settings on Web",
+      "description": "Verify Default Timezone",
+      "scope": "web"
+    },
+    {
+      "id": "US-06",
+      "key": "US|User Settings on Web|Verify Default page size|1",
+      "area": "US",
+      "module": "User Settings",
+      "scenario": "User Settings on Web",
+      "description": "Verify Default page size",
+      "scope": "web"
+    },
+    {
+      "id": "ST-01",
+      "key": "ST|Settings on Web|Verify Assets|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Assets",
+      "scope": "web"
+    },
+    {
+      "id": "ST-02",
+      "key": "ST|Settings on Web|Verify Crop|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Crop",
+      "scope": "web"
+    },
+    {
+      "id": "ST-03",
+      "key": "ST|Settings on Web|Verify Crop Stages|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Crop Stages",
+      "scope": "web"
+    },
+    {
+      "id": "ST-04",
+      "key": "ST|Settings on Web|Verify Maps Toggle Config|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Maps Toggle Config",
+      "scope": "web"
+    },
+    {
+      "id": "ST-05",
+      "key": "ST|Settings on Web|Verify Materials|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Materials",
+      "scope": "web"
+    },
+    {
+      "id": "ST-06",
+      "key": "ST|Settings on Web|Verify Notifications|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Notifications",
+      "scope": "web"
+    },
+    {
+      "id": "ST-07",
+      "key": "ST|Settings on Web|Verify Operations|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Operations",
+      "scope": "web"
+    },
+    {
+      "id": "ST-08",
+      "key": "ST|Settings on Web|Verify Resources|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Resources",
+      "scope": "web"
+    },
+    {
+      "id": "ST-09",
+      "key": "ST|Settings on Web|Verify Template Management|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Template Management",
+      "scope": "web"
+    },
+    {
+      "id": "ST-10",
+      "key": "ST|Settings on Web|Verify Users on User Management|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Users on User Management",
+      "scope": "web"
+    },
+    {
+      "id": "ST-11",
+      "key": "ST|Settings on Web|Verify Users Groups on User Management|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Users Groups on User Management",
+      "scope": "web"
+    },
+    {
+      "id": "ST-12",
+      "key": "ST|Settings on Web|Verify Users Role on User Management|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Users Role on User Management",
+      "scope": "web"
+    },
+    {
+      "id": "ST-13",
+      "key": "ST|Settings on Web|Verify Users Enterprise on User Management|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Users Enterprise on User Management",
+      "scope": "web"
+    },
+    {
+      "id": "ST-14",
+      "key": "ST|Settings on Web|Verify Mobile User Role Permissions|1",
+      "area": "ST",
+      "module": "Settings",
+      "scenario": "Settings on Web",
+      "description": "Verify Mobile User Role Permissions",
+      "scope": "web"
+    },
+    {
+      "id": "TA-01",
+      "key": "TA|Attribute Template|Verfiy Create Attribute|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verfiy Create Attribute",
+      "scope": "web"
+    },
+    {
+      "id": "TA-02",
+      "key": "TA|Attribute Template|Verify select attribute on New Attribute Screen|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verify select attribute on New Attribute Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TA-03",
+      "key": "TA|Attribute Template|Verify Next Button on New Attribute Screen|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verify Next Button on New Attribute Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TA-04",
+      "key": "TA|Attribute Template|Verify Back Button on New Attribute Screen|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verify Back Button on New Attribute Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TA-05",
+      "key": "TA|Attribute Template|Verify Save & Add New button on New Attribute Screen|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verify Save & Add New button on New Attribute Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TA-06",
+      "key": "TA|Attribute Template|Verify close button|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verify close button",
+      "scope": "web"
+    },
+    {
+      "id": "TA-07",
+      "key": "TA|Attribute Template|Verify search on Attributes Screen|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verify search on Attributes Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TA-08",
+      "key": "TA|Attribute Template|Verfiy Enable Attribute on Attributes Screen|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verfiy Enable Attribute on Attributes Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TA-09",
+      "key": "TA|Attribute Template|Verfiy Disable Attribute on Attributes Screen|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verfiy Disable Attribute on Attributes Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TA-10",
+      "key": "TA|Attribute Template|Verify filters|1",
+      "area": "TA",
+      "module": "Template Management",
+      "scenario": "Attribute Template",
+      "description": "Verify filters",
+      "scope": "web"
+    },
+    {
+      "id": "TI-01",
+      "key": "TI|Inspection Template|Verify create Normal inspection|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify create Normal inspection",
+      "scope": "web"
+    },
+    {
+      "id": "TI-02",
+      "key": "TI|Inspection Template|Verify Name|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Name",
+      "scope": "web"
+    },
+    {
+      "id": "TI-03",
+      "key": "TI|Inspection Template|Verify default location|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify default location",
+      "scope": "web"
+    },
+    {
+      "id": "TI-04",
+      "key": "TI|Inspection Template|Verify Available attribute filters|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Available attribute filters",
+      "scope": "web"
+    },
+    {
+      "id": "TI-05",
+      "key": "TI|Inspection Template|Verify select attributes|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify select attributes",
+      "scope": "web"
+    },
+    {
+      "id": "TI-06",
+      "key": "TI|Inspection Template|Verify Save as Draft Button|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Save as Draft Button",
+      "scope": "web"
+    },
+    {
+      "id": "TI-07",
+      "key": "TI|Inspection Template|Verify Save & Publish Button|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Save & Publish Button",
+      "scope": "web"
+    },
+    {
+      "id": "TI-08",
+      "key": "TI|Inspection Template|Verify Close Button|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Close Button",
+      "scope": "web"
+    },
+    {
+      "id": "TI-09",
+      "key": "TI|Inspection Template|Verify Publish template from detail screen|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Publish template from detail screen",
+      "scope": "web"
+    },
+    {
+      "id": "TI-10",
+      "key": "TI|Inspection Template|Verify Clone template from detail screen|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Clone template from detail screen",
+      "scope": "web"
+    },
+    {
+      "id": "TI-11",
+      "key": "TI|Inspection Template|Verify Edit template from detail screen|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify Edit template from detail screen",
+      "scope": "web"
+    },
+    {
+      "id": "TI-12",
+      "key": "TI|Inspection Template|Verify View detail icon from detial screen|1",
+      "area": "TI",
+      "module": "Template Management",
+      "scenario": "Inspection Template",
+      "description": "Verify View detail icon from detial screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-01",
+      "key": "TM|Material Template|Verify Filter on Material Template Name|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Filter on Material Template Name",
+      "scope": "web"
+    },
+    {
+      "id": "TM-02",
+      "key": "TM|Material Template|Verify Filter on Operation|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Filter on Operation",
+      "scope": "web"
+    },
+    {
+      "id": "TM-03",
+      "key": "TM|Material Template|Verify Reset button on Filter|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Reset button on Filter",
+      "scope": "web"
+    },
+    {
+      "id": "TM-04",
+      "key": "TM|Material Template|Verify Close Button on Filter|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Close Button on Filter",
+      "scope": "web"
+    },
+    {
+      "id": "TM-05",
+      "key": "TM|Material Template|Verify the Refresh Button on Material Template Name|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify the Refresh Button on Material Template Name",
+      "scope": "web"
+    },
+    {
+      "id": "TM-06",
+      "key": "TM|Material Template|Verify Create New Material Template button|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Create New Material Template button",
+      "scope": "web"
+    },
+    {
+      "id": "TM-07",
+      "key": "TM|Material Template|Verify the Material Title on Basic Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify the Material Title on Basic Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-08",
+      "key": "TM|Material Template|Verify the operation on Basic Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify the operation on Basic Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-09",
+      "key": "TM|Material Template|Verify the Additional Comments on Basic Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify the Additional Comments on Basic Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-10",
+      "key": "TM|Material Template|Verify Select Product on Material Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Select Product on Material Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-11",
+      "key": "TM|Material Template|Verify Mix Method on Material Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Mix Method on Material Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-12",
+      "key": "TM|Material Template|Verify Rate on Material Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Rate on Material Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-13",
+      "key": "TM|Material Template|Verify Rate Unit on Material Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Rate Unit on Material Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-14",
+      "key": "TM|Material Template|Verify Per on Material Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Per on Material Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-15",
+      "key": "TM|Material Template|Verify Save & Add New Button on Material Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Save & Add New Button on Material Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-16",
+      "key": "TM|Material Template|Verify Delete Button on Material Details|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Delete Button on Material Details",
+      "scope": "web"
+    },
+    {
+      "id": "TM-17",
+      "key": "TM|Material Template|Verify Select Problem on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Select Problem on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-18",
+      "key": "TM|Material Template|Verify Stage on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Stage on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-19",
+      "key": "TM|Material Template|Verify Severity on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Severity on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-20",
+      "key": "TM|Material Template|Verify Infestation on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Infestation on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-21",
+      "key": "TM|Material Template|Verify Infestation Unit on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Infestation Unit on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-22",
+      "key": "TM|Material Template|Verify Description on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Description on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-23",
+      "key": "TM|Material Template|Verify Save Button on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Save Button on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-24",
+      "key": "TM|Material Template|Verify Delete Button on Problem Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Delete Button on Problem Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-25",
+      "key": "TM|Material Template|Verify Application Method on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Application Method on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-26",
+      "key": "TM|Material Template|Verify Total Application Rate on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Total Application Rate on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-27",
+      "key": "TM|Material Template|Verify Tank Size on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Tank Size on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-28",
+      "key": "TM|Material Template|Verify Nozzle Type on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Nozzle Type on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-29",
+      "key": "TM|Material Template|Verify Droplet Size on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Droplet Size on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-30",
+      "key": "TM|Material Template|Verify Preharvest (PHI) Days on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Preharvest (PHI) Days on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-31",
+      "key": "TM|Material Template|Verify Band Percentage for Each Row to Apply on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Band Percentage for Each Row to Apply on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-32",
+      "key": "TM|Material Template|Verify Save Button on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Save Button on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-33",
+      "key": "TM|Material Template|Verify Close Button on Application Details Screen|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Close Button on Application Details Screen",
+      "scope": "web"
+    },
+    {
+      "id": "TM-34",
+      "key": "TM|Material Template|Verify Edit of Material Template on View Detail Page|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Edit of Material Template on View Detail Page",
+      "scope": "web"
+    },
+    {
+      "id": "TM-35",
+      "key": "TM|Material Template|Verify Clone of Material Template|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify Clone of Material Template",
+      "scope": "web"
+    },
+    {
+      "id": "TM-36",
+      "key": "TM|Material Template|Verify View Detail Page|1",
+      "area": "TM",
+      "module": "Template Management",
+      "scenario": "Material Template",
+      "description": "Verify View Detail Page",
+      "scope": "web"
+    },
+    {
+      "id": "PO-01",
+      "key": "PO|POI on Web|Verify that manager can access POI under the map config screen .|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Web",
+      "description": "Verify that manager can access POI under the map config screen .",
+      "scope": "web"
+    },
+    {
+      "id": "PO-02",
+      "key": "PO|POI on Web|Verify that user must be able to categorize different types of pin categories with different icons and pin colours as a setup table|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Web",
+      "description": "Verify that user must be able to categorize different types of pin categories with different icons and pin colours as a setup table",
+      "scope": "web"
+    },
+    {
+      "id": "PO-03",
+      "key": "PO|POI on Web|Verify that after configuring the setup, the map view should show pins on the block|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Web",
+      "description": "Verify that after configuring the setup, the map view should show pins on the block",
+      "scope": "web"
+    },
+    {
+      "id": "PO-04",
+      "key": "PO|POI on Web|Verify that point of interest should be filter under Point of interest tab as per the selected season.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Web",
+      "description": "Verify that point of interest should be filter under Point of interest tab as per the selected season.",
+      "scope": "web"
+    },
+    {
+      "id": "PO-05",
+      "key": "PO|POI on Web|Verify that POI details get open when user clicks on details icon.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Web",
+      "description": "Verify that POI details get open when user clicks on details icon.",
+      "scope": "web"
+    },
+    {
+      "id": "PO-06",
+      "key": "PO|POI on Web|Verify that user can redirected to create wo through point of interset(observation) detail screen|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Web",
+      "description": "Verify that user can redirected to create wo through point of interset(observation) detail screen",
+      "scope": "web"
+    },
+    {
+      "id": "PO-07",
+      "key": "PO|POI on Mobile App|New tab of Point of interest should be available on dashboard.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Mobile App",
+      "description": "New tab of Point of interest should be available on dashboard.",
+      "scope": "mobile"
+    },
+    {
+      "id": "PO-08",
+      "key": "PO|POI on Mobile App|Verify that user can create new point of interest by tapping add icon.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Mobile App",
+      "description": "Verify that user can create new point of interest by tapping add icon.",
+      "scope": "mobile"
+    },
+    {
+      "id": "PO-09",
+      "key": "PO|POI on Mobile App|Verify that user can select value from drop down of point of interset type.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Mobile App",
+      "description": "Verify that user can select value from drop down of point of interset type.",
+      "scope": "mobile"
+    },
+    {
+      "id": "PO-10",
+      "key": "PO|POI on Mobile App|Verify that user can add comment or attachment on create point of interset type screen.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Mobile App",
+      "description": "Verify that user can add comment or attachment on create point of interset type screen.",
+      "scope": "mobile"
+    },
+    {
+      "id": "PO-11",
+      "key": "PO|POI on Mobile App|Verify that user can change block during creating point of interest by default it should be fetched as its current location.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on Mobile App",
+      "description": "Verify that user can change block during creating point of interest by default it should be fetched as its current location.",
+      "scope": "mobile"
+    },
+    {
+      "id": "PO-12",
+      "key": "PO|POI on web|If user change the pin color in configuration then all previous pin's color should remain same as previous.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on web",
+      "description": "If user change the pin color in configuration then all previous pin's color should remain same as previous.",
+      "scope": "web"
+    },
+    {
+      "id": "PO-13",
+      "key": "PO|POI on web|Add the logs to track the POI category changes.|1",
+      "area": "PO",
+      "module": "POI",
+      "scenario": "POI on web",
+      "description": "Add the logs to track the POI category changes.",
+      "scope": "web"
+    },
+    {
+      "id": "IM-01",
+      "key": "IM|Inspection WO on Mobile App|Verify that Inspection WO created on the web is being synced successfully|1",
+      "area": "IM",
+      "module": "POI",
+      "scenario": "Inspection WO on Mobile App",
+      "description": "Verify that Inspection WO created on the web is being synced successfully",
+      "scope": "mobile"
+    },
+    {
+      "id": "IM-02",
+      "key": "IM|Inspection WO on Mobile App|Verify iOS attachments don't break up the flow|1",
+      "area": "IM",
+      "module": "POI",
+      "scenario": "Inspection WO on Mobile App",
+      "description": "Verify iOS attachments don't break up the flow",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-01",
+      "key": "OF|Start WO|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Start WO",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-02",
+      "key": "OF|Pick Resource|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Pick Resource",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-03",
+      "key": "OF|Pick Assets & Implements (By Resource)|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Pick Assets & Implements (By Resource)",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-04",
+      "key": "OF|Select Batch to pick material|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Select Batch to pick material",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-05",
+      "key": "OF|Enter Progress (By Responsible/Supervisor)|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Enter Progress (By Responsible/Supervisor)",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-06",
+      "key": "OF|Enter Progress By Resource without team|Online + Offline|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Enter Progress By Resource without team",
+      "description": "Online + Offline",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-07",
+      "key": "OF|End Job (By Responsible/Supervisor)|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "End Job (By Responsible/Supervisor)",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-08",
+      "key": "OF|End Job By Resource without team|Online + Offline|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "End Job By Resource without team",
+      "description": "Online + Offline",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-09",
+      "key": "OF|Adjust Progress|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Adjust Progress",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-10",
+      "key": "OF|End Partial WO|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "End Partial WO",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-11",
+      "key": "OF|End WO|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "End WO",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-12",
+      "key": "OF|Leave and assign responsible|Online only|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Leave and assign responsible",
+      "description": "Online only",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-13",
+      "key": "OF|Working multiple work orders|Online + Offline|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "Working multiple work orders",
+      "description": "Online + Offline",
+      "scope": "mobile"
+    },
+    {
+      "id": "OF-14",
+      "key": "OF|View logs for all users|Online + Offline|1",
+      "area": "OF",
+      "module": "Offline",
+      "scenario": "View logs for all users",
+      "description": "Online + Offline",
+      "scope": "mobile"
+    },
+    {
+      "id": "TK-01",
+      "key": "TK||Verify user can navigate to create a new work order|1",
+      "area": "TK",
+      "module": "Tank Mixing",
+      "scenario": "",
+      "description": "Verify user can navigate to create a new work order",
+      "scope": "web"
+    },
+    {
+      "id": "TK-02",
+      "key": "TK||Validate operation dropdown loads all operations configured in system|1",
+      "area": "TK",
+      "module": "Tank Mixing",
+      "scenario": "",
+      "description": "Validate operation dropdown loads all operations configured in system",
+      "scope": "web"
+    }
+  ]
+}

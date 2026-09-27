@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
-import { QA_ENVIRONMENT_LABEL, routeUrl, routes } from '../constants/routes';
+import { QA_ENVIRONMENT_LABEL, QA_HOST, routeUrl, routes } from '../constants/routes';
 import type { Credential } from './credentials';
 
 /**
@@ -18,13 +18,17 @@ import type { Credential } from './credentials';
  *   3. Azure AD — the email again (tenant-dependent) and then the password.
  *   4. "Stay signed in?", when the tenant shows it.
  *
+ * The whole walk currently runs twice; see the loop in `signIn` for why.
+ *
  * Best-effort by design: never throws, never asserts. Callers decide what a given end state
  * means — the setup falls through to its human-assisted wait, the triage tool classifies
  * whichever screen it landed on.
  */
 
-/** Budget for the whole scripted sign-in. Past this the caller takes over. */
-const LOGIN_BUDGET_MS = 90_000;
+/** Budget for the whole scripted sign-in, both passes. Past this the caller takes over. */
+const LOGIN_BUDGET_MS = 180_000;
+/** Full walks through the flow before the caller takes over. See the loop in `signIn`. */
+const SIGN_IN_PASSES = 2;
 const STEP_TIMEOUT_MS = 25_000;
 
 /**
@@ -118,9 +122,8 @@ export async function signIn(
   const adEmailBox = () => page.locator('input[name="loginfmt"]').first();
   const passwordBox = () => page.locator('input[type="password"], input[name="passwd"]').first();
 
-  try {
-    await page.goto(routeUrl(routes.login), { waitUntil: 'domcontentloaded', timeout: 60_000 });
-
+  /** One walk through stages 1-4, starting from whatever app login page is on screen. */
+  const attempt = async () => {
     // Stage 1 — VannBrosPhaseTwo's own login page.
     const appEmail = await firstVisible([emailBox()], remaining());
     if (!appEmail) throw new Error('no email field on /login');
@@ -167,6 +170,30 @@ export async function signIn(
       Math.min(10_000, remaining()),
     );
     if (stay) await submit().click();
+
+    // Wait for the app to take the redirect back and decide: `/maps` on success, or its own
+    // `/login?returnUrl=...` when it rejected the session.
+    await page
+      .waitForURL(
+        (url) => url.host === QA_HOST && (url.pathname.startsWith(routes.maps.root) || url.pathname === routes.login),
+        { timeout: Math.max(1, deadline - Date.now()) },
+      )
+      .catch(() => {});
+  };
+
+  try {
+    await page.goto(routeUrl(routes.login), { waitUntil: 'domcontentloaded', timeout: 60_000 });
+
+    // The QA app currently needs the whole flow TWICE. The first pass always ends back on
+    // `/login?returnUrl=/maps?sessionId=...`: the web build reads `custumToken` from the
+    // gateway's `/auth/token-exchange` response, which now names it `customToken`, so it calls
+    // `signInWithCustomToken(undefined)` and bounces. A second pass from that page lands on
+    // `/maps`. Verified live 2026-09-27. Harmless once fixed: a first pass that reaches `/maps`
+    // skips the retry.
+    for (let pass = 1; pass <= SIGN_IN_PASSES; pass += 1) {
+      await attempt();
+      if (new URL(page.url()).pathname.startsWith(routes.maps.root)) break;
+    }
   } catch (error) {
     onIncomplete?.((error as Error).message.split('\n')[0]);
   }

@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures';
 import { routes } from '../constants/routes';
-import { MAP_LAYERS } from '../pages/maps.page';
+import { INSPECTION_FILTER_TYPE, MAP_LAYERS, WO_STATUS } from '../pages/maps.page';
+import type { MapsPage } from '../pages/maps.page';
 
 /**
  * Maps. Workbook tab `02 Maps`.
@@ -269,4 +270,140 @@ test('@TC:MP-044 the Maps state survives a browser refresh', async ({ page, maps
   await expect(mapsPage.treeNodes.first()).toBeVisible({ timeout: 45000 });
   await expect(mapsPage.aside).toContainText(number!, { timeout: 45000 });
   await expect(page.locator('body')).not.toContainText(/NG0[0-9]{3}|Cannot match any routes/i);
+});
+
+/*
+ * ---------------------------------------------------------------------------------------
+ * Smoke checklist — Maps (`@SMK:MP-*`, test-plans/catalog/smoke-cases.json).
+ *
+ * The work orders a layer shows are drawn on the Google Maps canvas, which the DOM cannot
+ * read. What IS observable is the contract behind the drawing: switching a layer on makes
+ * the app fetch exactly that layer's work orders (`POST /api/Map/workOrderDetails` with the
+ * layer's status) for the WO date range shown in the chip. These tests assert that contract.
+ *
+ * The date range cannot be widened: the WO Date Range picker is stuck on 1 Jan 1900 (only
+ * that day enabled, month navigation disabled), so every layer is limited to the default
+ * one-week window. See test-plans/FINDINGS.md. The inspection layers are partial because
+ * QA has no In Progress / Done inspection in that window to be seen.
+ * ---------------------------------------------------------------------------------------
+ */
+
+async function expectLayerShows(
+  mapsPage: MapsPage,
+  layer: string,
+  status: number,
+  kind: 'work order' | 'inspection',
+): Promise<void> {
+  test.setTimeout(150000);
+  await mapsPage.open();
+
+  const query = await mapsPage.showOnlyLayer(layer);
+  expect(query.status, `${layer} request failed`).toBe(200);
+  expect(query.request.statuses, `${layer} asked for the wrong status`).toEqual([status]);
+  if (kind === 'inspection') expect(query.request.filterType).toBe(INSPECTION_FILTER_TYPE);
+  else expect(query.request.filterType ?? null).not.toBe(INSPECTION_FILTER_TYPE);
+
+  // The window the layer covers is shown to the user, and is the one requested.
+  await expect(mapsPage.dateRangeChip).toBeVisible({ timeout: 15000 });
+  expect(query.request.startDate).toBeTruthy();
+  expect(query.request.endDate).toBeTruthy();
+
+  test.info().annotations.push({ type: 'records', description: `${layer}: ${query.records}` });
+  for (const wo of query.data) {
+    expect(wo.sequenceNo, `${layer} returned a row with no WO number`).toMatch(/^WO-\d+/);
+    if (kind === 'inspection') expect(wo.inspectionType, `${wo.sequenceNo} is not an inspection`).not.toBeNull();
+  }
+}
+
+test('@SMK:MP-01 Maps Control shows Upcoming Work Orders', async ({ mapsPage }) => {
+  await expectLayerShows(mapsPage, 'Upcoming Work Orders', WO_STATUS['To Do'], 'work order');
+});
+
+test('@SMK:MP-02 Maps Control shows Active Work Orders', async ({ mapsPage }) => {
+  await expectLayerShows(mapsPage, 'Active Work Orders', WO_STATUS['In Progress'], 'work order');
+});
+
+test('@SMK:MP-03 Maps Control shows Completed Work Orders', async ({ mapsPage }) => {
+  await expectLayerShows(mapsPage, 'Completed Work Orders', WO_STATUS.Done, 'work order');
+});
+
+test('@SMK-partial:MP-04 Maps Control shows Active Inspection Work Orders', async ({ mapsPage }) => {
+  await expectLayerShows(mapsPage, 'Active Inspections', WO_STATUS['In Progress'], 'inspection');
+});
+
+test('@SMK-partial:MP-05 Maps Control shows Completed Inspection Work Orders', async ({ mapsPage }) => {
+  await expectLayerShows(mapsPage, 'Completed Inspections', WO_STATUS.Done, 'inspection');
+});
+
+test('@SMK:MP-06 Set Filters narrows the map to a selected Crop', async ({ mapsPage }) => {
+  test.setTimeout(150000);
+  await mapsPage.open();
+  const panel = await mapsPage.openFilters();
+
+  await mapsPage.chooseFilter(panel, 'Filter Type', 'Crops');
+  await expect(mapsPage.filterField(panel, 'Crop')).toBeEnabled();
+  const crops = await mapsPage.filterOptions(panel, 'Crop');
+  expect(crops.length, 'the Crop filter offers no crops').toBeGreaterThan(0);
+  await mapsPage.chooseFilter(panel, 'Crop', crops[0]);
+
+  const query = mapsPage.nextLayerQuery('Crops');
+  await panel.getByRole('button', { name: 'Apply' }).click();
+  const result = await query;
+  expect(result.status).toBe(200);
+  expect(result.request.cropIds, 'the selected crop was not sent').toHaveLength(1);
+  await expect(mapsPage.layerSwitch('Crops')).toBeChecked();
+});
+
+test('@SMK:MP-07 Set Filters selects the Stages layer', async ({ mapsPage }) => {
+  test.setTimeout(150000);
+  await mapsPage.open();
+  const panel = await mapsPage.openFilters();
+
+  await mapsPage.chooseFilter(panel, 'Filter Type', 'Stages');
+  const query = mapsPage.nextLayerQuery('Stages');
+  await panel.getByRole('button', { name: 'Apply' }).click();
+  expect((await query).status).toBe(200);
+  await expect(mapsPage.layerSwitch('Stages')).toBeChecked();
+});
+
+test('@SMK:MP-08 Set Filters narrows the map to a selected Operation', async ({ mapsPage }) => {
+  test.setTimeout(150000);
+  await mapsPage.open();
+  const panel = await mapsPage.openFilters();
+
+  // The panel labels the operation filter `Task`, as the rest of the app does.
+  //
+  // Known defect (2026-09-27): choosing Filter Type `Task` straight away leaves this list
+  // EMPTY; it only fills after a work-order Filter Type (e.g. Upcoming Work Orders) has been
+  // chosen first. This follows the user's direct path on purpose, so it fails until fixed.
+  await mapsPage.chooseFilter(panel, 'Filter Type', 'Task');
+  await expect(mapsPage.filterField(panel, 'Task')).toBeEnabled();
+  const operations = await mapsPage.filterOptions(panel, 'Task');
+  expect(
+    operations.length,
+    'Filter Type "Task" offers no operations to pick (they only load after a work-order Filter Type is chosen) — see FINDINGS.md',
+  ).toBeGreaterThan(0);
+  await mapsPage.chooseFilter(panel, 'Task', operations[0]);
+
+  const query = mapsPage.nextLayerQuery('Operations');
+  await panel.getByRole('button', { name: 'Apply' }).click();
+  const result = await query;
+  expect(result.status).toBe(200);
+  expect(result.request.operationIds, 'the selected operation was not sent').toHaveLength(1);
+  await expect(mapsPage.layerSwitch('Operations')).toBeChecked();
+});
+
+test('@SMK:MP-09 Set Filters offers Active Inspections and applies it', async ({ mapsPage }) => {
+  test.setTimeout(150000);
+  await mapsPage.open();
+  const panel = await mapsPage.openFilters();
+
+  await mapsPage.chooseFilter(panel, 'Filter Type', 'Active Inspections');
+  const query = mapsPage.nextLayerQuery('Active Inspections');
+  await panel.getByRole('button', { name: 'Apply' }).click();
+  const result = await query;
+  expect(result.status).toBe(200);
+  expect(result.request.statuses).toEqual([WO_STATUS['In Progress']]);
+  expect(result.request.filterType).toBe(INSPECTION_FILTER_TYPE);
+  await expect(mapsPage.layerSwitch('Active Inspections')).toBeChecked();
 });

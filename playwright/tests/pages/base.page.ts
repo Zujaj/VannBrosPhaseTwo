@@ -15,11 +15,15 @@ export class BasePage {
    * any click fired against the form races it. Resolves immediately when the loader is absent.
    */
   async waitForLoaderGone() {
-    const loader = this.page.locator('#f3-overlay-loader');
+    // The app now mounts TWO `#f3-overlay-loader` elements (verified 2026-09-27). A plain
+    // `locator('#f3-overlay-loader').waitFor()` is then a strict-mode violation, which the
+    // catch below swallowed — so this wait silently became a no-op for the whole suite. Count
+    // the VISIBLE ones instead, which is right for one loader or several.
+    const visible = this.page.locator('#f3-overlay-loader:visible');
     // A fetch may have only just started, so give the loader a beat to appear first;
     // otherwise we could check "hidden" before it even shows and act mid-fetch.
-    await loader.waitFor({ state: 'visible', timeout: 1500 }).catch(() => {});
-    await loader.waitFor({ state: 'hidden', timeout: 20000 }).catch(() => {});
+    await visible.first().waitFor({ state: 'visible', timeout: 1500 }).catch(() => {});
+    await expect(visible).toHaveCount(0, { timeout: 20000 }).catch(() => {});
   }
 
   /**

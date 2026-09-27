@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import type { Page, Locator } from '@playwright/test';
+import type { Page, Locator, Response } from '@playwright/test';
 import { BasePage } from './base.page';
 import { routes } from '../constants/routes';
 
@@ -27,6 +27,31 @@ export const MAP_LAYERS = [
   'Completed Work Orders',
   'Point Of Interest',
 ] as const;
+
+/**
+ * Work-order status IDs the Maps layers send to `POST /api/Map/workOrderDetails` as
+ * `statuses`. Read off the live requests 2026-09-27: each layer asks for exactly one status.
+ */
+export const WO_STATUS = { Draft: 1, 'To Do': 2, 'In Progress': 3, Done: 5 } as const;
+
+/** `filterType` on that request when the layer is an inspection one. */
+export const INSPECTION_FILTER_TYPE = 2;
+
+/** The parsed body of a Maps data request, plus what the app asked for. */
+export interface MapLayerQuery {
+  status: number;
+  request: {
+    filterSelected: string;
+    filterType?: number | null;
+    statuses: number[] | null;
+    operationIds: number[] | null;
+    cropIds: number[] | null;
+    startDate: string | null;
+    endDate: string | null;
+  };
+  records: number;
+  data: Array<Record<string, unknown>>;
+}
 
 export class MapsPage extends BasePage {
   constructor(page: Page) {
@@ -97,13 +122,131 @@ export class MapsPage extends BasePage {
     return this.page.locator('app-map-control-panel');
   }
 
-  /** Open the "Set Filters" aside behind the funnel control. */
+  /**
+   * A layer's on/off switch in the Maps Control panel. The switch is keyed by its input's
+   * `name`, which differs from the visible label for two layers: the `Task` label drives
+   * `name="Operations"` and `Point Of Interest` drives `name="Point of Interests"`.
+   * Clicking the label text does nothing — the `.switch-slider` is the control.
+   */
+  layerSwitch(name: string): Locator {
+    return this.layerPanel.locator(`input.switch-input[name="${name}"]`);
+  }
+
+  /**
+   * Turn one layer on (every other layer off first, so the next data request belongs to
+   * this layer alone) and return the Maps data request it fires.
+   */
+  async showOnlyLayer(name: string): Promise<MapLayerQuery> {
+    // Read the names first: a `:checked` locator re-resolves after every click, so iterating
+    // it while unchecking skips entries and then points at nothing.
+    const on = await this.layerPanel
+      .locator('input.switch-input:checked')
+      .evaluateAll((inputs) => inputs.map((i) => i.getAttribute('name') ?? ''));
+    for (const other of on) {
+      await this.sliderFor(this.layerSwitch(other)).click();
+      await expect(this.layerSwitch(other)).not.toBeChecked();
+    }
+    const query = this.nextLayerQuery(name);
+    await this.sliderFor(this.layerSwitch(name)).click();
+    const result = await query;
+    await expect(this.layerSwitch(name)).toBeChecked();
+    return result;
+  }
+
+  private sliderFor(input: Locator): Locator {
+    return input.locator('xpath=following-sibling::span[contains(@class,"switch-slider")]');
+  }
+
+  /**
+   * Resolve with the next Maps data request (`/api/Map/workOrderDetails`,
+   * `cultivationDetails` or `observationDetails`) whose `filterSelected` is `name`.
+   * Start waiting BEFORE the action that triggers it.
+   */
+  async nextLayerQuery(name: string): Promise<MapLayerQuery> {
+    const response: Response = await this.page.waitForResponse(
+      (r) =>
+        /\/api\/Map\/\w+Details/.test(r.url()) &&
+        r.request().method() === 'POST' &&
+        (r.request().postDataJSON()?.filterSelected ?? '') === name,
+      { timeout: 45000 },
+    );
+    const body = await response.json().catch(() => ({}));
+    const data = Array.isArray(body?.data) ? body.data : [];
+    return {
+      status: response.status(),
+      request: response.request().postDataJSON(),
+      records: body?.recordsTotal ?? data.length,
+      data,
+    };
+  }
+
+  /** The WO date-range chip next to the funnel, e.g. `09/27/2026 - 10/04/2026`. */
+  get dateRangeChip(): Locator {
+    return this.page.getByText(/^\d{2}\/\d{2}\/\d{4} - \d{2}\/\d{2}\/\d{4}$/).first();
+  }
+
+  /** The toggle button of a field in the Set Filters aside, by its label. */
+  filterField(panel: Locator, label: string): Locator {
+    return panel.locator(`xpath=(.//*[normalize-space(text())="${label}"])/following::button[1]`).first();
+  }
+
+  /** Pick an option in one of the Set Filters dropdowns (Filter Type, Task, Crop, Variety). */
+  async chooseFilter(panel: Locator, label: string, option: string): Promise<void> {
+    // A late Maps data load can close the aside after it opened; reopen rather than wait out
+    // the test timeout on a control that is no longer on screen.
+    if (!(await this.filtersHeading.isVisible())) await this.openFilters();
+    await this.filterField(panel, label).click();
+    const open = this.page.locator('.dropdown.show');
+    await expect(open).toBeVisible();
+    await open.getByText(option, { exact: true }).first().click();
+    await expect(this.filterField(panel, label)).toContainText(option);
+  }
+
+  /** The options a Set Filters dropdown offers, minus its `All` entry and search box. */
+  async filterOptions(panel: Locator, label: string): Promise<string[]> {
+    await this.filterField(panel, label).click();
+    const open = this.page.locator('.dropdown.show');
+    await expect(open).toBeVisible();
+    // The option list is fetched when the Filter Type changes, so it can open empty.
+    const read = async () =>
+      (await open.innerText())
+        .split('\n')
+        .map((o) => o.trim())
+        .filter((o) => o && o !== 'All');
+    await expect.poll(async () => (await read()).length, { timeout: 20000 }).toBeGreaterThan(0).catch(() => {});
+    const options = await read();
+    await this.filterField(panel, label).click(); // close it again
+    await expect(open).toBeHidden();
+    return options;
+  }
+
+  /**
+   * The "Set Filters" heading. The Summary and Set Filters views share one `app-aside` and the
+   * hidden one stays in the DOM, so the aside being visible says nothing about which view is
+   * showing — this heading's visibility does.
+   */
+  get filtersHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Set Filters' });
+  }
+
+  /**
+   * Open the "Set Filters" aside behind the funnel control.
+   *
+   * The page's initial data load resets the aside to Summary when it finishes, so a funnel
+   * click fired before then is undone a moment later. Wait for the load, then confirm the view
+   * is still Set Filters after a beat.
+   */
   async openFilters(): Promise<Locator> {
-    const panel = this.page.locator('app-aside').filter({ hasText: 'Set Filters' });
+    const panel = this.page.locator('app-aside').filter({ has: this.filtersHeading });
+    await this.waitForLoaderGone();
     await expect(async () => {
-      await this.page.locator('button:has(i[class*=filter])').first().click({ timeout: 8000 });
-      await expect(panel).toBeVisible({ timeout: 8000 });
-    }).toPass({ timeout: 45000 });
+      if (!(await this.filtersHeading.isVisible())) {
+        await this.page.locator('button:has(i[class*=filter])').first().click({ timeout: 8000 });
+      }
+      await expect(this.filtersHeading).toBeVisible({ timeout: 8000 });
+      await this.page.waitForTimeout(1500);
+      await expect(this.filtersHeading).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 60000 });
     return panel;
   }
 
