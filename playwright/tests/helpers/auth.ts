@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, statSync } from 'fs-extra';
+import { existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'fs-extra';
 import path from 'path';
 import type { Browser, BrowserContext } from '@playwright/test';
 import { routeUrl, routes, QA_HOST } from '../constants/routes';
@@ -140,6 +140,76 @@ export async function captureFailure(context: BrowserContext | null, label: stri
     log(`Saved failure screenshot: ${shotPath}`);
   } catch (err) {
     log(`Screenshot capture failed: ${(err as Error).message}`);
+  }
+}
+
+/**
+ * The app's auth gateway. It fronts the API and issues access tokens: when a call returns 401
+ * the app posts both stored tokens to `/auth/refresh`, saves the new pair, and retries. If the
+ * refresh itself fails it shows "session expired" and sends the user back to /login.
+ */
+const AUTH_GATEWAY = 'https://agrierp-authgateway-qa-api.folio3.site';
+
+/**
+ * Check a saved session the way the app itself does, in ~2s instead of the ~30s browser probe.
+ *
+ * Refreshes the stored tokens at the gateway, writes the new access token (and refresh token,
+ * if one comes back) into the session file as the app would, then makes one cheap API call
+ * with it. Returns false on any failure (rejected tokens, network error, a storage-format
+ * change after an app update), so the caller falls back to `probeAuthenticated` and the worst
+ * case is the old behaviour. As a side effect every run starts with a fresh access token.
+ *
+ * Each refresh supersedes the previous access token for refresh purposes (a second refresh
+ * with it returns 400), so the new token MUST be written back, and any older copy of the
+ * session file stops refreshing. Verified 2026-09-27.
+ */
+export async function refreshSession(storageStatePath: string): Promise<boolean> {
+  try {
+    const state = JSON.parse(readFileSync(storageStatePath, 'utf-8'));
+    const storage: { name: string; value: string }[] | undefined = state.origins?.find(
+      (o: { origin: string }) => o.origin === routeUrl('/').replace(/\/$/, ''),
+    )?.localStorage;
+    // Values are expiry-wrapped (`{"_expired": ..., "_value": ...}`); keep the wrapper.
+    const entry = (key: string) => storage?.find((kv) => kv.name === key);
+    const read = (key: string): string | undefined => JSON.parse(entry(key)?.value ?? '{}')._value;
+    const write = (key: string, value: string) => {
+      const kv = entry(key)!;
+      kv.value = JSON.stringify({ ...JSON.parse(kv.value), _value: value });
+    };
+
+    const authToken = read('printToken');
+    const refreshToken = read('refreshToken');
+    if (!authToken || !refreshToken) return false;
+
+    const refreshed = await fetch(`${AUTH_GATEWAY}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authToken, refreshToken }),
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!refreshed.ok) {
+      log(`Token refresh returned HTTP ${refreshed.status}.`);
+      return false;
+    }
+    const tokens: { authToken?: string; refreshToken?: string } = await refreshed.json();
+    if (!tokens.authToken) return false;
+    // Save before anything else can fail: the old token is already spent.
+    write('printToken', tokens.authToken);
+    if (tokens.refreshToken) write('refreshToken', tokens.refreshToken);
+    writeFileSync(storageStatePath, JSON.stringify(state, null, 2));
+
+    const check = await fetch(`${AUTH_GATEWAY}/api/metadata/WorkOrderStatus`, {
+      headers: { Authorization: `Bearer ${tokens.authToken}` },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!check.ok) {
+      log(`API check with the refreshed token returned HTTP ${check.status}.`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    log(`Token refresh check failed: ${(err as Error).message}`);
+    return false;
   }
 }
 

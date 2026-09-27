@@ -8,16 +8,19 @@
  * (a JWT, ~1100 chars, issuer `securetoken.google.com/agrierp-vann-qa`) the web app holds after
  * login. It expires about an hour after issue. Checked 2026-09-17: the short token from
  * `POST /api/Auth/signin` is NOT it (401 everywhere, and that endpoint issues one even for a
- * wrong password). The token is not minted here; a person supplies it via (first match wins):
+ * wrong password). The token is not minted here; it comes from (first usable wins):
  *
  *   1. `VANNBROSPHASETWO_API_TOKEN` environment variable (the former `AGRIERP_API_TOKEN` still works)
  *   2. `.auth/qa_refresh_token.txt` (gitignored), a file holding just the token — or a JSON object
- *      with a `token` field, if you'd rather save the whole thing
+ *      with a `token` field, if you'd rather save the whole thing. Skipped once expired.
+ *   3. The UI suite's saved session, `.auth/admin.json` (its `printToken`). The `setup` project
+ *      refreshes it on every run, so after `pnpm auth:qa` (~3s) it is good for about an hour.
+ *      Read only: refreshing here would spend the token the running tests hold.
  *
- * Either may include the `Bearer ` prefix or not. `VANNBROSPHASETWO_API_BASE` overrides the base URL.
- * Nothing here prints the token.
+ * 1 and 2 may include the `Bearer ` prefix or not. `VANNBROSPHASETWO_API_BASE` overrides the base
+ * URL. Nothing here prints the token.
  *
- * To fetch a fresh token:
+ * To fetch a token by hand instead (normally not needed, see 3):
  *   1. Log in to https://agrierp-vann-qa.folio3.site/ as `rffcropplanner` and open the QA site.
  *   2. Open the browser console, go to the `Network` tab and filter to `Fetch/XHR` so it records
  *      requests.
@@ -32,6 +35,7 @@ import path from 'path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 export const TOKEN_FILE = path.join(ROOT, '.auth', 'qa_refresh_token.txt');
+export const SESSION_FILE = path.join(ROOT, '.auth', 'admin.json');
 const DEFAULT_BASE = 'https://agrierp-vann-api-qa.folio3.site/api';
 // QA only, same rule as the UI suite: refuse any host that is not a QA host.
 const QA_HOST = /^https:\/\/agrierp-[a-z-]*qa[a-z-]*\.folio3\.site(\/|$)/;
@@ -68,30 +72,51 @@ function readTokenFile(): string {
   return value.trim();
 }
 
-function readToken(): string {
-  const raw =
-    process.env.VANNBROSPHASETWO_API_TOKEN?.trim() ||
-    // Pre-rename name, still honoured so existing shells and CI keep working.
-    process.env.AGRIERP_API_TOKEN?.trim() ||
-    readTokenFile();
-  if (!raw) {
-    throw new Error(
-      `no API token: set VANNBROSPHASETWO_API_TOKEN or write the token to ${path.relative(process.cwd(), TOKEN_FILE)}`,
-    );
+/** The access token from the UI suite's saved session, or '' if there is none. */
+function readSessionToken(): string {
+  if (!existsSync(SESSION_FILE)) return '';
+  try {
+    const state = JSON.parse(readFileSync(SESSION_FILE, 'utf8'));
+    for (const origin of state.origins ?? []) {
+      const kv = origin.localStorage?.find((e: { name: string }) => e.name === 'printToken');
+      // Stored expiry-wrapped: {"_expired": ..., "_value": "<jwt>"}.
+      if (kv) return JSON.parse(kv.value)._value ?? '';
+    }
+  } catch {
+    // Unreadable session: fall through to the "no API token" error.
   }
-  const tokenEnv = process.env.VANNBROSPHASETWO_API_TOKEN
+  return '';
+}
+
+const live = (token: string) => (jwtExpiry(token.replace(/^Bearer\s+/i, '')) ?? 0) > Date.now();
+
+function readToken(): string {
+  const tokenEnv = process.env.VANNBROSPHASETWO_API_TOKEN?.trim()
     ? 'VANNBROSPHASETWO_API_TOKEN'
-    : process.env.AGRIERP_API_TOKEN
+    : // Pre-rename name, still honoured so existing shells and CI keep working.
+      process.env.AGRIERP_API_TOKEN?.trim()
       ? 'AGRIERP_API_TOKEN'
       : null;
-  console.log(`Using API token from ${tokenEnv ?? TOKEN_FILE}`);
+  let raw = tokenEnv ? process.env[tokenEnv]!.trim() : '';
+  let source = tokenEnv ?? '';
+  if (!raw) {
+    const fromFile = readTokenFile();
+    const fromSession = readSessionToken();
+    // A pasted token wins while it lasts; after that the session's always-fresh one takes over.
+    if (fromFile && (live(fromFile) || !fromSession)) [raw, source] = [fromFile, TOKEN_FILE];
+    else if (fromSession) [raw, source] = [fromSession, SESSION_FILE];
+  }
+  if (!raw) {
+    throw new Error('no API token: run `pnpm auth:qa` to refresh the saved session, or set VANNBROSPHASETWO_API_TOKEN');
+  }
+  console.log(`Using API token from ${source}`);
   const token = raw.replace(/^Bearer\s+/i, '');
   const expiry = jwtExpiry(token);
   if (expiry === null) {
     throw new Error('API token is not a JWT; use the web app login token, not the one from Auth/signin');
   }
   if (expiry <= Date.now()) {
-    throw new Error(`API token expired at ${new Date(expiry).toISOString()}; replace it with a fresh one`);
+    throw new Error(`API token expired at ${new Date(expiry).toISOString()}; run \`pnpm auth:qa\` for a fresh one`);
   }
   return `Bearer ${token}`;
 }

@@ -10,6 +10,7 @@ import {
   log,
   migrateLegacyAuthFile,
   probeAuthenticated,
+  refreshSession,
   sessionFileHasAuth,
   sessionSeasonValid,
 } from './helpers/auth';
@@ -132,6 +133,9 @@ async function bootstrapRole(role: Role, browser: Browser) {
     // and force a fresh login that re-stamps a live Season.
     if (!sessionSeasonValid(authFile)) {
       log(`[${role}] Session Season is missing or expired. Will bootstrap a fresh login.`);
+    } else if (await refreshSession(authFile)) {
+      log(`[${role}] Existing session is VALID (token refresh + API check, live Season). Stopping immediately.`);
+      return;
     } else if (await probeAuthenticated(browser, authFile)) {
       log(`[${role}] Existing session is VALID (auth + live Season). Stopping immediately.`);
       return;
@@ -223,7 +227,7 @@ async function bootstrapRole(role: Role, browser: Browser) {
   await context.close();
 
   log(`[${role}] Validating saved session in a fresh browser context.`);
-  const authed = await probeAuthenticated(browser, authFile);
+  const authed = (await refreshSession(authFile)) || (await probeAuthenticated(browser, authFile));
   expect(authed, `[${role}] Persisted session failed to authenticate against /maps`).toBe(true);
   log(`[${role}] Persistence check OK. Session reusable.`);
 }

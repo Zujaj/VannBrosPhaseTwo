@@ -17,6 +17,9 @@ or `yarn.lock` files should be removed).
   - Stack: `@playwright/test` ^1.60, TypeScript, **Chromium + Firefox** device profiles.
   - `playwright.config.ts` defines five projects:
     - `setup` — runs `tests/auth.setup.ts`, logs in **per role**, writes `.auth/<role>.json`.
+      Each run first checks the saved session (~2 s: token refresh at the auth gateway
+      `agrierp-authgateway-qa-api.folio3.site` + one API call, falling back to a ~30 s browser
+      check of `/maps`) and only logs in again if it fails; tests themselves never log in.
     - `chromium` / `firefox` — authenticated specs under `tests/authenticated/`, depend on
       `setup`, reuse `.auth/admin.json`. Chromium is primary (the regression workbook scopes
       the web suite to a Chromium-based browser); Firefox is the second engine.
@@ -72,6 +75,8 @@ Run inside the relevant package directory.
 - `pnpm test:authed` — authenticated specs, both engines. `pnpm test:chromium` / `:firefox`
   for one engine.
 - `pnpm test:public` — guest specs only.
+- `pnpm test:fast` — daily loop: Firefox only, no retries. Run both engines (`pnpm test:clean`)
+  before a UAT cycle, since the workbook scopes the web suite to Chromium.
 - `pnpm test:clean` — everything except `@mutating` (specs that create real work orders on the
   shared QA env with no teardown). Use before a UAT cycle.
 - `pnpm seed:planned` / `seed:harvest` / `seed:tickets` — create real test data on QA:
