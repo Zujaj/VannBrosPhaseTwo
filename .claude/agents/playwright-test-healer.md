@@ -62,6 +62,8 @@ Always:
 - Use role/label locators and assert on the real wording from the knowledge skill.
 - If the live app contradicts the knowledge skill, the app is correct. Follow it and report which knowledge entry is stale.
 - Keep existing `@TC:` / `@SMK:` / `@mutating` tags in test titles intact.
+- In any file you edit, also fix convention breaks you find: move hardcoded QA URLs to `routes` (adding the path to
+  `tests/constants/routes.ts` if missing) and replace inline logins with the storage state.
 - Classify each failure before editing: selector drift, timing, stale session, test data, or a real product bug.
   Only fix the first four. Never weaken an assertion on product wording or status to make a test pass. For a real
   product bug, mark `test.fixme()` with a comment and say it belongs in `playwright/test-plans/FINDINGS.md`.

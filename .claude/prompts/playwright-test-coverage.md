@@ -1,12 +1,12 @@
 ---
 agent: default
-description: Produce test coverage
+description: Plan, generate and heal tests for one flow
 ---
 
 Parameters:
-- Task: the task to perform
-- Seed file (optional): the seed file to use, defaults to `playwright/tests/seed.spec.ts`
-- Test plan file (optional): the test plan file to write, under `playwright/test-plans/{authenticated,public}/` folder (match the flow's auth context).
+- Task: the flow to cover
+- Seed file (optional): defaults to `playwright/tests/authenticated/agent-seed.spec.ts` (logged-in flows; none for public flows)
+- Test plan file: `playwright/test-plans/{authenticated,public}/<flow>.md` (match the flow's auth context)
 
 1. Call #playwright-test-planner subagent with prompt:
 
@@ -28,4 +28,4 @@ Parameters:
 
 3. Call #playwright-test-healer subagent with prompt:
 
-<heal>Run all tests and fix the failing ones one after another.</heal>
+<heal>Run only the spec files generated in step 2 and fix the failing tests one after another. Do not run the whole suite.</heal>

@@ -76,5 +76,7 @@ Always:
 - Use role/label locators and assert on the real wording from the knowledge skill.
 - If the live app contradicts the knowledge skill, the app is correct. Follow it and report which knowledge entry is stale.
 - Keep existing `@TC:` / `@SMK:` / `@mutating` tags in test titles intact.
+- In any file you edit, also fix convention breaks you find: move hardcoded QA URLs to `routes` (adding the path to
+  `tests/constants/routes.ts` if missing) and replace inline logins with the storage state.
 - Write specs under `playwright/tests/authenticated/` (logged in) or `playwright/tests/public/` (guest),
   never a flat `tests/<topic>/` path.
