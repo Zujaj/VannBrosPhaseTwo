@@ -19,6 +19,7 @@
     "catalog": "python3 scripts/extract-cases.py",
     "coverage": "node scripts/coverage.mts",
     "coverage:write": "node scripts/coverage.mts --write",
+    "docs:check": "node scripts/docs-check.mts",
     "smoke:catalog": "python3 scripts/extract-smoke.py",
     "smoke:coverage": "node scripts/smoke-coverage.mts",
     "smoke:coverage:write": "node scripts/smoke-coverage.mts --write",

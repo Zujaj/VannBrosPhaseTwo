@@ -19,7 +19,7 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
 - **`documentation/`** — Docusaurus 3.10 site (pnpm, React 19, TypeScript). Content under
   `docs/`, navigation in `sidebars.ts`, config in `docusaurus.config.ts`, PDF export via
   `scripts/generate-pdf.ts`. Details: **`vannbrosphasetwo-docs` skill**.
-- **`resources/`** — Authoritative product PDFs (`VBPhaseTwo Introduction.pdf`,
+- **`resources/`** — Authoritative product PDFs (`VB Phase Two Introduction.pdf`,
   `user-manuals/*.pdf`). **Source of truth** for exact UI labels, steps, statuses, flows.
   Mirror them — don't invent behavior. The `vannbrosphasetwo-knowledge` skill distils them;
   check it before opening a PDF, and read PDFs by page range, never whole.

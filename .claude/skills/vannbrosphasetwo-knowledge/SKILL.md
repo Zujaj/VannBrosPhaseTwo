@@ -122,6 +122,6 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/s
 
 ## Source material
 
-Derived from `resources/VBPhaseTwo Introduction.pdf` and `resources/user-manuals/*.pdf` (V1.0 manuals, Vann Brothers tenant). When in doubt about a flow, the original PDF for that feature is the ground truth.
+Derived from `resources/VB Phase Two Introduction.pdf` and `resources/user-manuals/*.pdf` (V1.0 manuals, Vann Brothers tenant). When in doubt about a flow, the original PDF for that feature is the ground truth.
 
 Features added after the V1.0 manuals are written up from their Azure DevOps work items under `resources/work-items/*.md` (each names its ADO id, acceptance criteria and QA history).

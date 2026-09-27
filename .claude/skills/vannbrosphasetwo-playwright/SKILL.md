@@ -58,7 +58,7 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
 - `pnpm api:smoke [--count N] [--location N] [--season N]` — read-only check that the API token
   works: lists N work orders (default 2) and reads each one's Summary. Prints which token source
   it used. Never prints the token.
-- `pnpm typecheck` · `pnpm catalog` · `pnpm coverage[:write]`.
+- `pnpm typecheck` · `pnpm catalog` · `pnpm coverage[:write]` · `pnpm docs:check` (fails when README, CLAUDE.md, ARCHITECTURE.md or this skill name a missing script, link or path; runs in CI).
 - Smoke checklist: `pnpm smoke:catalog` (re-extract `test-plans/catalog/smoke-cases.json` from
   `resources/Vann Brother Smoke check list.xlsx`, IDs stay stable) · `pnpm smoke:coverage[:write]`
   (report vs. the web-scoped rows → `test-plans/SMOKE-COVERAGE.md`; fails on an orphan, double

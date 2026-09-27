@@ -18,9 +18,9 @@ name: Playwright
 on:
   push:
     branches: [main]
-    paths: ['playwright/**', '.github/workflows/playwright.yml']
+    paths: ['playwright/**', '.github/workflows/playwright.yml', 'README.md', 'CLAUDE.md', '.claude/skills/vannbrosphasetwo-playwright/**']
   pull_request:
-    paths: ['playwright/**', '.github/workflows/playwright.yml']
+    paths: ['playwright/**', '.github/workflows/playwright.yml', 'README.md', 'CLAUDE.md', '.claude/skills/vannbrosphasetwo-playwright/**']
   workflow_dispatch:
 
 jobs:
@@ -53,6 +53,7 @@ jobs:
       # Fails when a spec's @TC tag matches no workbook case, or when one case is tagged both
       # full and partial - i.e. when the traceability link to the regression suite is broken.
       - run: pnpm coverage
+      - run: pnpm docs:check
 
       # `.npmrc` sets ignore-scripts=true, so the browser download never runs on install.
       - run: pnpm exec playwright install --with-deps chromium firefox
