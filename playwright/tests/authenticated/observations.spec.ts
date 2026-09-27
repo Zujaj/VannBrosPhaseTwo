@@ -86,7 +86,7 @@ test('@TC:WB-003 search on the observations list filters and clears', async ({ l
  * header selector rather than printed on the record, and there is no comments section on the
  * observations examined. Partial for those two.
  */
-test('@TC-partial:WB-005 the observation detail opens from the row action', async ({
+test('@TC-partial:WB-005 @SMK:PO-05 the observation detail opens from the row action', async ({
   page,
   listPage,
 }) => {

@@ -23,7 +23,7 @@ import { plannedBulkScenario, plannedScenario } from '../helpers/workOrderScenar
  * Opens the Create form and verifies form identity (title + Planned chip + Submit).
  * Does NOT fill or submit.
  */
-test('@TC-partial:WP-016 opens the Create New Work Order form with the Planned chip', async ({ page, workOrdersPage }) => {
+test('@TC-partial:WP-016 @SMK:TK-01 opens the Create New Work Order form with the Planned chip', async ({ page, workOrdersPage }) => {
   await workOrdersPage.openCreateForm('planned');
 
   // Confirm the authoring form is actually mounted (not just the list behind it).
@@ -91,7 +91,7 @@ test('@TC-partial:WP-029 gates tank-mix parameters behind the Enable Tank Mixing
  * MUTATES the shared QA env: every run creates a real WO. WO Start/End dates default
  * to a valid current window, so they are left untouched.
  */
-test('@mutating @TC-partial:WP-049 @TC-partial:WP-038 @TC-partial:WP-046 creates and submits a Planned work order end to end', async ({ page, workOrdersPage }) => {
+test('@mutating @TC-partial:WP-049 @TC-partial:WP-038 @TC-partial:WP-046 @SMK-partial:WO-01 creates and submits a Planned work order end to end', async ({ page, workOrdersPage }) => {
   test.setTimeout(240000); // full create flow; clicks retry past the truck loader on a slow shared QA env (see clickPastLoader)
   const wo = plannedScenario();
 

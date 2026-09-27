@@ -120,7 +120,7 @@ async function exportFirstWorkOrder(
   return { file, name: download.suggestedFilename() };
 }
 
-test('@TC:AP-020 the export control generates a PDF', async ({
+test('@TC:AP-020 @SMK:WO-16 the export control generates a PDF', async ({
   page,
   listPage,
   workOrdersPage,
@@ -315,7 +315,7 @@ test('@TC-partial:AP-036 the material rows appear in the PDF with rates and unit
   );
 });
 
-test('@TC:AP-023 the inspection PDF carries its inspection detail and progress sections', async ({
+test('@TC:AP-023 @SMK:WI-14 the inspection PDF carries its inspection detail and progress sections', async ({
   page,
   listPage,
   workOrdersPage,

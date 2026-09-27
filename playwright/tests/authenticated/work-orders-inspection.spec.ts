@@ -52,7 +52,7 @@ test('@TC-partial:WI-008 requires Inspection Template and blocks submit when emp
  * Plot + resources only — no materials/assets/tank-mix. MUTATES the shared QA env once
  * un-fixmed.
  */
-test('@mutating @TC-partial:WI-004 @TC-partial:WI-011 @TC-partial:WI-009 creates and submits an Inspection work order end to end', async ({ page, workOrdersPage }) => {
+test('@mutating @TC-partial:WI-004 @TC-partial:WI-011 @TC-partial:WI-009 @SMK-partial:WI-01 creates and submits an Inspection work order end to end', async ({ page, workOrdersPage }) => {
   test.setTimeout(240000); // full create flow; clicks retry past the truck loader on a slow shared QA env (see clickPastLoader)
   const wo = inspectionScenario();
 

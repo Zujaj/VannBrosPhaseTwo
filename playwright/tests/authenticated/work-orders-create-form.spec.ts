@@ -170,7 +170,7 @@ test('@TC:WP-023 the Farm dropdown lists only farms for the selected site', asyn
  * task code. Varying the type happens through the Inspection and Harvest sub-tabs, which
  * `work-orders-inspection.spec.ts` and `work-orders-harvest.spec.ts` already cover.
  */
-test('@TC-partial:WP-024 the task list is populated with coded tasks for the form type', async ({
+test('@TC-partial:WP-024 @SMK-partial:TK-02 the task list is populated with coded tasks for the form type', async ({
   workOrdersPage,
 }) => {
   const type = workOrdersPage.dropdownToggle(['Operation Type*', 'Task Type*']);

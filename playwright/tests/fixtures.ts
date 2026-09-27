@@ -3,6 +3,7 @@ import { WorkOrdersPage } from './pages/work-orders.page';
 import { HeaderPage } from './pages/header.page';
 import { ListPage } from './pages/list.page';
 import { TemplatesPage } from './pages/templates.page';
+import { MaterialTemplatesPage } from './pages/material-templates.page';
 import { PlanningPage } from './pages/planning.page';
 import { MessagingPage } from './pages/messaging.page';
 import { MapsPage } from './pages/maps.page';
@@ -26,6 +27,7 @@ export const test = base.extend<{
   headerPage: HeaderPage;
   listPage: ListPage;
   templatesPage: TemplatesPage;
+  materialTemplatesPage: MaterialTemplatesPage;
   planningPage: PlanningPage;
   messagingPage: MessagingPage;
   mapsPage: MapsPage;
@@ -47,6 +49,9 @@ export const test = base.extend<{
   },
   templatesPage: async ({ page }, use) => {
     await use(new TemplatesPage(page));
+  },
+  materialTemplatesPage: async ({ page }, use) => {
+    await use(new MaterialTemplatesPage(page));
   },
   planningPage: async ({ page }, use) => {
     await use(new PlanningPage(page));

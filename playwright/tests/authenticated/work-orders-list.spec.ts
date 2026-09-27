@@ -284,7 +284,7 @@ test('@TC:WP-014 the row actions are the four documented ones', async ({ listPag
  * Everything but the last is present — materials render under the heading "Inputs". There is
  * no status-history section anywhere on the page (verified 2026-09-07), hence partial.
  */
-test('@TC-partial:WP-015 View Work Order Detail opens a read-only detail view', async ({
+test('@TC-partial:WP-015 @SMK-partial:WO-02 View Work Order Detail opens a read-only detail view', async ({
   page,
   listPage,
   workOrdersPage,

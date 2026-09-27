@@ -27,7 +27,7 @@ const STEP_ONE = /Enter Title (And|&) Select Attributes/;
  * Attribute screen is a card grid instead.
  */
 
-test('@TC:TM-001 the landing page shows a card for each template type', async ({
+test('@TC:TM-001 @SMK:ST-09 the landing page shows a card for each template type', async ({
   page,
   templatesPage,
 }) => {
@@ -161,7 +161,7 @@ test('@TC:TM-005 the All / Draft / Published tabs each return only their own tem
   expect(sum).toBe(allRows);
 });
 
-test('@TC:TM-013 the Create wizard opens on its first step with General and the attribute picker', async ({
+test('@TC:TM-013 @SMK-partial:TI-01 @SMK-partial:TI-05 the Create wizard opens on its first step with General and the attribute picker', async ({
   page,
   templatesPage,
 }) => {
@@ -192,7 +192,7 @@ test('@TC:TM-014 the wizard marks its mandatory fields', async ({ page, template
   }
 });
 
-test('@TC:TM-015 saving is blocked while the wizard has no name', async ({
+test('@TC:TM-015 @SMK-partial:TI-02 saving is blocked while the wizard has no name', async ({
   page,
   templatesPage,
 }) => {

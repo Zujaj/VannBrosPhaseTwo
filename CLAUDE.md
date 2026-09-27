@@ -87,6 +87,12 @@ Run inside the relevant package directory.
   works: lists N work orders (default 2) and reads each one's Summary. Run it after pasting a
   fresh token. Never prints the token.
 - `pnpm typecheck` · `pnpm catalog` · `pnpm coverage[:write]`.
+- Smoke checklist: `pnpm smoke:catalog` (re-extract `test-plans/catalog/smoke-cases.json` from
+  `resources/Vann Brother Smoke check list.xlsx`, IDs stay stable) · `pnpm smoke:coverage[:write]`
+  (report vs. the web-scoped rows → `test-plans/SMOKE-COVERAGE.md`; fails on an orphan, double
+  or non-web `@SMK` tag) · `pnpm test:smoke` (Firefox, every `@SMK`/`@SMK-partial` test except `@mutating`;
+  `test:smoke:all` includes them and creates real data on QA).
+  Specs tag rows `@SMK:<id>` / `@SMK-partial:<id>` alongside any `@TC` tags.
 - `pnpm test:ui` / `test:headed` / `test:debug` — interactive variants.
 
 **`documentation/`** (pnpm):

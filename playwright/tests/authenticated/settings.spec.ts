@@ -83,7 +83,7 @@ async function openGrid(page: import('@playwright/test').Page, listPage: ListPag
  * this account has no saved preferences, so the "with the saved values" half is unobservable
  * rather than failing. Tagged partial for that reason.
  */
-test('@TC-partial:ST-001 the User Settings page loads its preference controls', async ({
+test('@TC-partial:ST-001 @SMK-partial:US-03 @SMK-partial:US-04 @SMK-partial:US-05 @SMK-partial:US-06 the User Settings page loads its preference controls', async ({
   page,
   headerPage,
 }) => {
@@ -114,7 +114,7 @@ test('@TC-partial:ST-001 the User Settings page loads its preference controls', 
  * `app-f3-select` widget the header Site/Season pickers use, so there is no search box to
  * exercise. Tagged partial for that alone. See test-plans/FINDINGS.md.
  */
-test('@TC-partial:ST-002 the Default Location dropdown lists the entitled locations', async ({
+test('@TC-partial:ST-002 @SMK-partial:US-01 the Default Location dropdown lists the entitled locations', async ({
   page,
   headerPage,
 }) => {
@@ -255,7 +255,7 @@ test('@TC:ST-015 the Seasons page lists seasons with their code and date range',
   }
 });
 
-test('@TC:ST-020 the Resources page lists resources synced from D365', async ({
+test('@TC:ST-020 @SMK:ST-08 the Resources page lists resources synced from D365', async ({
   page,
   listPage,
 }) => {
@@ -281,7 +281,7 @@ test('@TC:ST-023 the Resource Group Name column is populated', async ({ page, li
   expect(blank, `${blank} of ${groups.length} resources have no Resource Group Name`).toBe(0);
 });
 
-test('@TC:ST-025 the Materials page lists materials with codes and units', async ({
+test('@TC:ST-025 @SMK:ST-05 the Materials page lists materials with codes and units', async ({
   page,
   listPage,
 }) => {
@@ -301,7 +301,7 @@ test('@TC:ST-025 the Materials page lists materials with codes and units', async
   expect((await listPage.recordCount())!.total).toBeGreaterThan(0);
 });
 
-test('@TC:ST-028 the Crops page lists configured crops with their attributes', async ({
+test('@TC:ST-028 @SMK:ST-02 the Crops page lists configured crops with their attributes', async ({
   page,
   listPage,
 }) => {
@@ -313,7 +313,7 @@ test('@TC:ST-028 the Crops page lists configured crops with their attributes', a
   for (const name of names) expect(name.trim()).not.toBe('');
 });
 
-test('@TC:ST-033 the Operations page lists operations with their attributes', async ({
+test('@TC:ST-033 @SMK:ST-07 the Operations page lists operations with their attributes', async ({
   page,
   listPage,
 }) => {
