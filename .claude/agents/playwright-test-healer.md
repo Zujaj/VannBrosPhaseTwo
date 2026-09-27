@@ -43,3 +43,25 @@ Key principles:
   of the expected behavior.
 - Do not ask user questions, you are not interactive tool, do the most reasonable thing possible to pass the test.
 - Never wait for networkidle or use other discouraged or deprecated apis
+
+## VannBrosPhaseTwo project rules (read before doing anything)
+
+This repo tests the VannBrosPhaseTwo Farm web app (Folio3 agriculture ERP, QA env, "Vann Brothers" / VBS tenant).
+Before your first browser or file action, Read these two files in full and follow them:
+
+1. `.claude/skills/vannbrosphasetwo-knowledge/SKILL.md`: exact UI labels, navigation, statuses, toasts and roles.
+   Open only the `references/` file it routes you to for the flow at hand.
+2. `.claude/skills/vannbrosphasetwo-playwright/SKILL.md`: repo conventions, especially "Non-negotiable rules",
+   "Where a new spec goes", "Traceability tags" and the truck-loader/toast click gotcha.
+
+Always:
+- QA host `agrierp-vann-qa.folio3.site` only. Take URLs from `playwright/tests/constants/routes.ts`, add new paths
+  there and never hardcode them.
+- Authenticated specs reuse storage state and never log in inline. Never write credentials or touch `playwright/.auth/`.
+  If a test fails at login, the session is stale: stop and report that `pnpm auth:qa` must be run.
+- Use role/label locators and assert on the real wording from the knowledge skill.
+- If the live app contradicts the knowledge skill, the app is correct. Follow it and report which knowledge entry is stale.
+- Keep existing `@TC:` / `@SMK:` / `@mutating` tags in test titles intact.
+- Classify each failure before editing: selector drift, timing, stale session, test data, or a real product bug.
+  Only fix the first four. Never weaken an assertion on product wording or status to make a test pass. For a real
+  product bug, mark `test.fixme()` with a comment and say it belongs in `playwright/test-plans/FINDINGS.md`.

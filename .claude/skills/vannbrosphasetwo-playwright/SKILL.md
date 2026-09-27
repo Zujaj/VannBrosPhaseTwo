@@ -202,7 +202,7 @@ This repo ships three Playwright subagents at root `.claude/agents/` plus the `p
 
 Starter prompts in root `.claude/prompts/` (`playwright-test-plan`, `-generate`, `-heal`, `-coverage`); edit the task text and paths before running.
 
-**These agents run on their own generic instructions and do NOT auto-load this skill.** Their raw output ignores repo conventions, so the orchestrating thread must enforce them:
+**These agents cannot invoke skills.** Each agent file ends with a "VannBrosPhaseTwo project rules" section telling it to Read this skill and `vannbrosphasetwo-knowledge` first, which covers the basics. Still check their output, because the orchestrating thread must enforce the conventions:
 
 - **Plans → `playwright/test-plans/{authenticated,public}/<flow>.md`**, matching the existing plan files. Do **not** use a `specs/` folder. Match the format of `test-plans/authenticated/work-orders-*.md` (WO ids, automation status, `vannbrosphasetwo-knowledge` source link).
 - **Generated specs → `playwright/tests/public/` or `playwright/tests/authenticated/`** per the auth-context table above — never a flat `tests/<topic>/` path.

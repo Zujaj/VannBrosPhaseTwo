@@ -7,6 +7,42 @@
       "Read(./.claude/skills/vannbrosphasetwo-vann-api-qa/openapi.json)",
       "Read(./.claude/skills/vannbrosphasetwo-finops-api/collection.finops.json)",
       "Read(./playwright/playwright-report/**)"
+    ],
+    "allow": [
+      "Bash(git diff *)",
+      "Bash(git diff)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git status *)",
+      "Bash(git status)",
+      "Bash(pnpm api:smoke)",
+      "Bash(pnpm catalog)",
+      "Bash(pnpm coverage)",
+      "Bash(pnpm docs:check)",
+      "Bash(pnpm smoke:catalog)",
+      "Bash(pnpm smoke:coverage)",
+      "Bash(pnpm test:clean *)",
+      "Bash(pnpm test:clean)",
+      "Bash(pnpm test:public *)",
+      "Bash(pnpm test:public)",
+      "Bash(pnpm test:smoke *)",
+      "Bash(pnpm test:smoke)",
+      "Bash(pnpm typecheck)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r \".tool_input.file_path // empty\"); case \"$f\" in \"$CLAUDE_PROJECT_DIR\"/playwright/node_modules/*) exit 0;; \"$CLAUDE_PROJECT_DIR\"/playwright/*.ts|\"$CLAUDE_PROJECT_DIR\"/playwright/*.mts) ;; *) exit 0;; esac; cd \"$CLAUDE_PROJECT_DIR/playwright\" && out=$(pnpm typecheck 2>&1) || { printf \"pnpm typecheck failed after editing %s:\\n%s\\n\" \"$f\" \"$(echo \"$out\" | grep -E \"error TS|\\\\.m?ts\\\\(\" | head -30)\" >&2; exit 2; }",
+            "timeout": 120,
+            "statusMessage": "Typechecking playwright/"
+          }
+        ]
+      }
     ]
   }
 }

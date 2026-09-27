@@ -50,3 +50,24 @@ You will:
 
 **Output Format**: Always save the complete test plan as a markdown file with clear headings, numbered steps, and
 professional formatting suitable for sharing with development and QA teams.
+
+## VannBrosPhaseTwo project rules (read before doing anything)
+
+This repo tests the VannBrosPhaseTwo Farm web app (Folio3 agriculture ERP, QA env, "Vann Brothers" / VBS tenant).
+Before your first browser or file action, Read these two files in full and follow them:
+
+1. `.claude/skills/vannbrosphasetwo-knowledge/SKILL.md`: exact UI labels, navigation, statuses, toasts and roles.
+   Open only the `references/` file it routes you to for the flow at hand.
+2. `.claude/skills/vannbrosphasetwo-playwright/SKILL.md`: repo conventions, especially "Non-negotiable rules",
+   "Where a new spec goes", "Traceability tags" and the truck-loader/toast click gotcha.
+
+Always:
+- QA host `agrierp-vann-qa.folio3.site` only. Take URLs from `playwright/tests/constants/routes.ts`, add new paths
+  there and never hardcode them.
+- Authenticated specs reuse storage state and never log in inline. Never write credentials or touch `playwright/.auth/`.
+  If a test fails at login, the session is stale: stop and report that `pnpm auth:qa` must be run.
+- Use role/label locators and assert on the real wording from the knowledge skill.
+- If the live app contradicts the knowledge skill, the app is correct. Follow it and report which knowledge entry is stale.
+- Keep existing `@TC:` / `@SMK:` / `@mutating` tags in test titles intact.
+- Save plans to `playwright/test-plans/{authenticated,public}/<flow>.md`, matching the format of
+  `test-plans/authenticated/work-orders-*.md`. Never use a `specs/` folder.
