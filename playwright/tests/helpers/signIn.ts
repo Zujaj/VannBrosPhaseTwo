@@ -135,12 +135,19 @@ export async function signIn(
     // window — skipping it early is what used to send stage 3 back to the app's own login.
     const dialog = page.getByRole('dialog');
     if (await firstVisible([dialog], remaining())) {
-      await dialog.locator('button.dropdown-toggle').first().click();
-      await page
+      // A toggle click fired while the dialog is still fading in (or before its environment
+      // list has loaded) is swallowed, and a bare click on the option then waits out the whole
+      // test (observed 2026-09-27: dialog up, menu closed, Login disabled). Retry the toggle
+      // until the QA option is actually on screen.
+      const qaOption = page
         .locator('#myDropdown.show .dropdown-item')
         .filter({ hasText: QA_ENVIRONMENT_LABEL })
-        .first()
-        .click();
+        .first();
+      await expect(async () => {
+        if (!(await qaOption.isVisible())) await dialog.locator('button.dropdown-toggle').first().click();
+        await expect(qaOption).toBeVisible({ timeout: 3_000 });
+      }).toPass({ timeout: remaining() });
+      await qaOption.click();
       const confirm = dialog.getByRole('button', { name: 'Login', exact: true });
       await expect(confirm).toBeEnabled({ timeout: 10_000 });
       await confirm.click();

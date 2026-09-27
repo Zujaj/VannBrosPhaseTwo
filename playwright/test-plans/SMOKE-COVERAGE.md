@@ -14,14 +14,14 @@ execution produces (*after-mobile*) and D365 posting checks are counted under
 | MP | Maps | 9 | 7 | 2 | 0 | 77.8% | 0 |
 | US | User Settings | 5 | 0 | 5 | 0 | 0.0% | 1 |
 | ST | Settings | 14 | 5 | 0 | 9 | 35.7% | 0 |
-| TA | Template Management | 10 | 0 | 0 | 10 | 0.0% | 0 |
-| TI | Template Management | 12 | 0 | 3 | 9 | 0.0% | 0 |
+| TA | Template Management | 10 | 9 | 0 | 1 | 90.0% | 0 |
+| TI | Template Management | 12 | 10 | 1 | 1 | 83.3% | 0 |
 | TM | Template Management | 36 | 17 | 19 | 0 | 47.2% | 0 |
 | PO | POI | 8 | 1 | 0 | 7 | 12.5% | 5 |
 | IM | POI | 0 | 0 | 0 | 0 | — | 2 |
 | OF | Offline | 0 | 0 | 0 | 0 | — | 14 |
 | TK | Tank Mixing | 2 | 1 | 1 | 0 | 50.0% | 0 |
-| **TOTAL** | | **103** | **33** | **33** | **37** | **32.0%** | **59** |
+| **TOTAL** | | **103** | **52** | **31** | **20** | **50.5%** | **59** |
 
 ## Fully covered rows
 
@@ -41,6 +41,25 @@ execution produces (*after-mobile*) and D365 posting checks are counted under
 | ST-07 | Settings on Web | Verify Operations | `tests/authenticated/settings.spec.ts` |
 | ST-08 | Settings on Web | Verify Resources | `tests/authenticated/settings.spec.ts` |
 | ST-09 | Settings on Web | Verify Template Management | `tests/authenticated/template-management.spec.ts` |
+| TA-01 | Attribute Template | Verfiy Create Attribute | `tests/authenticated/attribute-template.spec.ts` |
+| TA-02 | Attribute Template | Verify select attribute on New Attribute Screen | `tests/authenticated/attribute-template.spec.ts` |
+| TA-03 | Attribute Template | Verify Next Button on New Attribute Screen | `tests/authenticated/attribute-template.spec.ts` |
+| TA-04 | Attribute Template | Verify Back Button on New Attribute Screen | `tests/authenticated/attribute-template.spec.ts` |
+| TA-05 | Attribute Template | Verify Save & Add New button on New Attribute Screen | `tests/authenticated/attribute-template.spec.ts` |
+| TA-06 | Attribute Template | Verify close button | `tests/authenticated/attribute-template.spec.ts` |
+| TA-07 | Attribute Template | Verify search on Attributes Screen | `tests/authenticated/attribute-template.spec.ts` |
+| TA-08 | Attribute Template | Verfiy Enable Attribute on Attributes Screen | `tests/authenticated/attribute-template.spec.ts` |
+| TA-09 | Attribute Template | Verfiy Disable Attribute on Attributes Screen | `tests/authenticated/attribute-template.spec.ts` |
+| TI-01 | Inspection Template | Verify create Normal inspection | `tests/authenticated/inspection-template.spec.ts` |
+| TI-02 | Inspection Template | Verify Name | `tests/authenticated/inspection-template.spec.ts` |
+| TI-03 | Inspection Template | Verify default location | `tests/authenticated/inspection-template.spec.ts` |
+| TI-04 | Inspection Template | Verify Available attribute filters | `tests/authenticated/inspection-template.spec.ts` |
+| TI-05 | Inspection Template | Verify select attributes | `tests/authenticated/inspection-template.spec.ts` |
+| TI-06 | Inspection Template | Verify Save as Draft Button | `tests/authenticated/inspection-template.spec.ts` |
+| TI-07 | Inspection Template | Verify Save & Publish Button | `tests/authenticated/inspection-template.spec.ts` |
+| TI-08 | Inspection Template | Verify Close Button | `tests/authenticated/inspection-template.spec.ts` |
+| TI-09 | Inspection Template | Verify Publish template from detail screen | `tests/authenticated/inspection-template.spec.ts` |
+| TI-12 | Inspection Template | Verify View detail icon from detial screen | `tests/authenticated/inspection-template.spec.ts` |
 | TM-01 | Material Template | Verify Filter on Material Template Name | `tests/authenticated/material-template.spec.ts` |
 | TM-02 | Material Template | Verify Filter on Operation | `tests/authenticated/material-template.spec.ts` |
 | TM-03 | Material Template | Verify Reset button on Filter | `tests/authenticated/material-template.spec.ts` |
@@ -78,9 +97,7 @@ partial is usually cheaper than automating a new row.
 | US-04 | User Settings on Web | Verify Default Language | `tests/authenticated/settings.spec.ts` |
 | US-05 | User Settings on Web | Verify Default Timezone | `tests/authenticated/settings.spec.ts` |
 | US-06 | User Settings on Web | Verify Default page size | `tests/authenticated/settings.spec.ts` |
-| TI-01 | Inspection Template | Verify create Normal inspection | `tests/authenticated/template-management.spec.ts` |
-| TI-02 | Inspection Template | Verify Name | `tests/authenticated/template-management.spec.ts` |
-| TI-05 | Inspection Template | Verify select attributes | `tests/authenticated/template-management.spec.ts` |
+| TI-10 | Inspection Template | Verify Clone template from detail screen | `tests/authenticated/inspection-template.spec.ts` |
 | TM-08 | Material Template | Verify the operation on Basic Details | `tests/authenticated/material-template.spec.ts` |
 | TM-10 | Material Template | Verify Select Product on Material Details | `tests/authenticated/material-template.spec.ts` |
 | TM-11 | Material Template | Verify Mix Method on Material Details | `tests/authenticated/material-template.spec.ts` |
@@ -117,25 +134,8 @@ partial is usually cheaper than automating a new row.
 | ST-12 | Settings on Web | Verify Users Role on User Management |
 | ST-13 | Settings on Web | Verify Users Enterprise on User Management |
 | ST-14 | Settings on Web | Verify Mobile User Role Permissions |
-| TA-01 | Attribute Template | Verfiy Create Attribute |
-| TA-02 | Attribute Template | Verify select attribute on New Attribute Screen |
-| TA-03 | Attribute Template | Verify Next Button on New Attribute Screen |
-| TA-04 | Attribute Template | Verify Back Button on New Attribute Screen |
-| TA-05 | Attribute Template | Verify Save & Add New button on New Attribute Screen |
-| TA-06 | Attribute Template | Verify close button |
-| TA-07 | Attribute Template | Verify search on Attributes Screen |
-| TA-08 | Attribute Template | Verfiy Enable Attribute on Attributes Screen |
-| TA-09 | Attribute Template | Verfiy Disable Attribute on Attributes Screen |
 | TA-10 | Attribute Template | Verify filters |
-| TI-03 | Inspection Template | Verify default location |
-| TI-04 | Inspection Template | Verify Available attribute filters |
-| TI-06 | Inspection Template | Verify Save as Draft Button |
-| TI-07 | Inspection Template | Verify Save & Publish Button |
-| TI-08 | Inspection Template | Verify Close Button |
-| TI-09 | Inspection Template | Verify Publish template from detail screen |
-| TI-10 | Inspection Template | Verify Clone template from detail screen |
 | TI-11 | Inspection Template | Verify Edit template from detail screen |
-| TI-12 | Inspection Template | Verify View detail icon from detial screen |
 | PO-01 | POI on Web | Verify that manager can access POI under the map config screen . |
 | PO-02 | POI on Web | Verify that user must be able to categorize different types of pin categories with different icons and pin colours as a setup table |
 | PO-03 | POI on Web | Verify that after configuring the setup, the map view should show pins on the block |
