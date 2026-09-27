@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 import type { Page, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
 import { routes } from '../constants/routes';
+import type { UploadFile } from '../helpers/files';
 
 /**
  * Communication Center (`/messaging`): the conversation list on the left, a message thread on
@@ -56,6 +57,24 @@ export class MessagingPage extends BasePage {
 
   get sendButton(): Locator {
     return this.page.getByRole('button', { name: 'Send', exact: true });
+  }
+
+  /**
+   * The composer's file inputs. The camera icon picks photos and the paperclip picks documents
+   * (knowledge: observations-chat.md); the photo input is told apart by its `accept`.
+   * NOT yet verified live: confirm against a snapshot of the composer on the first run.
+   */
+  fileInput(kind: 'photo' | 'document'): Locator {
+    const inputs = this.root.locator('input[type="file"]');
+    return kind === 'photo'
+      ? inputs.and(this.root.locator('[accept*="image"]')).first()
+      : inputs.and(this.root.locator(':not([accept*="image"])')).first();
+  }
+
+  /** Attach a file through the composer and send it. Mutates the open conversation. */
+  async sendAttachment(kind: 'photo' | 'document', file: UploadFile): Promise<void> {
+    await this.fileInput(kind).setInputFiles(file);
+    await this.sendButton.click();
   }
 
   /** The participant list inside the New Conversation panel. */
