@@ -8,12 +8,13 @@
 
 ## 1. The Playwright projects
 
-`playwright.config.ts` defines **five** projects. Each project decides *which* specs run,
-*what* browser storage they start with, and *whether* they need a prior login.
+`playwright.config.ts` defines **five** main projects, plus two special-purpose ones (below).
+Each project decides *which* specs run, *what* browser storage they start with, and *whether*
+they need a prior login.
 
 | Project | Spec match | Storage state | Depends on | Purpose |
 | --- | --- | --- | --- | --- |
-| `setup` | `auth.setup.ts` | empty (`{ cookies: [], origins: [] }`) | — | Logs in once **per role**, writing `.auth/<role>.json`. Runs **headed** (visible Firefox) so a human can complete Microsoft/Azure SSO. |
+| `setup` | `auth.setup.ts` | empty (`{ cookies: [], origins: [] }`) | — | Checks or (re)creates one session **per role**, writing `.auth/<role>.json`. Usually a ~2 s token refresh; a fresh login is scripted when a credential is stored, and runs **headed** by default so a human can finish any screen the script doesn't recognise. |
 | `chromium` | `tests/authenticated/**` | loads `.auth/admin.json` | `setup` | Primary engine. The regression workbook scopes the web suite to a "Chromium based Browser". |
 | `firefox` | `tests/authenticated/**` | loads `.auth/admin.json` | `setup` | Second engine. The suite was authored and verified here, and the loader/toast interception behaviour in `base.page.ts` was characterised against it. |
 | `chromium-guest` | `tests/public/**` | empty | — | Unauthenticated specs (login page loads, protected route redirects to `/login`). |
@@ -21,6 +22,13 @@
 
 Key idea: **the authenticated projects never log in themselves.** They depend on `setup`,
 which produces the session files. Authenticated specs inherit the stored cookie/origin state.
+
+The special-purpose projects:
+
+- `triage` — `tests/public/account-triage.spec.ts`, one sign-in per QA account (~31) to find
+  usable ones; rewrites `test-plans/ACCOUNT-TRIAGE.md`. Registered only while `pnpm triage:accounts` sets `TRIAGE`, so a plain `pnpm test` never runs it.
+- `seed` — `tests/seed/*.seed.ts`, registered **only** while `scripts/seed.mts` sets `SEED`, so
+  a plain `pnpm test` never creates data.
 
 ### Roles
 
@@ -114,39 +122,52 @@ flowchart LR
 ## 2. The auth flow (the confusing part)
 
 The `setup` project runs `tests/auth.setup.ts`. It does **not** blindly log in every time.
-It first tries to **reuse** an existing session, and only falls back to a **human-assisted
-login** when reuse fails. Three layers are involved:
+It first tries to **reuse** an existing session, cheapest check first, and only logs in again
+when reuse fails. Three layers are involved:
 
-- `tests/auth.setup.ts` — the orchestration (the `setup('authenticate', ...)` test).
-- `tests/helpers/auth.ts` — the helpers: session-file check, the `/maps` probe, safety guards.
+- `tests/auth.setup.ts` — the orchestration (one `authenticate (<role>)` test per role).
+- `tests/helpers/auth.ts` — the helpers: session-file checks, the token refresh, the `/maps`
+  probe, safety guards.
 - `tests/constants/routes.ts` — URLs (`/login`, `/maps`, `/workorders`) + QA host.
 
 ### Step-by-step
 
+Runs once per role in `AUTH_ROLES`, serially (a login may need a human at the keyboard, so
+parallel login windows would be unusable).
+
 1. **Has a session file?** `sessionFileHasAuth(file)` — file exists, size ≥ 10 bytes, and has
-   at least one cookie or origin. Runs once per role in `AUTH_ROLES`, serially (each needs a
-   human at the keyboard, so parallel login windows would be unusable).
-2. **If yes → silently probe it.** `probeAuthenticated()` opens a *fresh* context with the
-   stored state, navigates to `/maps`, waits for redirects to settle, then checks the URL:
-   - Still on `/maps` → **session valid, stop immediately** (skip login entirely).
-   - Bounced to `/login` → session expired/invalid → fall through to login.
-3. **If no valid session → log in.** Opens `/login`. With a stored credential the script
-   drives the four sign-in steps itself; without one (or on an MFA/consent screen) a human
-   completes it in the visible window. Either way the script waits up to **5 minutes** for
-   the redirect to `/maps`.
-4. **Save state.** Once on `/maps`, stabilize 5s, then `context.storageState()` writes
-   `.auth/<role>.json`.
-5. **Re-validate.** Re-run `probeAuthenticated()` in another fresh context and assert it
-   really authenticates. Guards against saving a junk session.
+   at least one cookie or origin. No → go to step 4.
+2. **Is its Season still live?** `sessionSeasonValid(file)`. The app keeps the Site/Season
+   context in localStorage as expiry-wrapped values with a short, same-day TTL, independent of
+   the token. A season-expired session still authenticates but serves degraded data (the
+   "Select Blocks" no-season plot picker), so it is rejected → step 4.
+3. **Is the session still valid?** Two checks, cheapest first; either one passing **stops
+   here** (no login):
+   - `refreshSession(file)` (~2 s) — does what the app does on a 401: posts the stored
+     `printToken` + `refreshToken` to the auth gateway's `/auth/refresh`
+     (`agrierp-authgateway-qa-api.folio3.site`), **writes the new tokens back** into the file,
+     then makes one API call with them. Each refresh spends the previous token, which is why
+     the write-back matters and why an older copy of the session file stops refreshing. Side
+     effect: every run starts with a fresh access token, which the `api/` client reuses.
+   - `probeAuthenticated()` (~30 s, fallback if the refresh fails for any reason) — opens a
+     *fresh* browser context with the stored state, navigates to `/maps`, waits for redirects
+     to settle, then checks the URL: still on `/maps` → valid; bounced to `/login` → invalid.
+4. **Log in.** Opens `/login`. With a stored credential the script drives the sign-in steps
+   itself; without one (or on an MFA/consent screen) a human completes it in the visible
+   window. Either way it waits up to **5 minutes** for the redirect to `/maps`.
+5. **Save state.** Once on `/maps`, wait for the Season/Location entries to appear in storage,
+   stabilize 5 s, then `context.storageState()` writes `.auth/<role>.json`. Warn loudly if the
+   saved session still has no live Season.
+6. **Re-validate.** `refreshSession() || probeAuthenticated()` on the saved file, and assert it
+   authenticates. Guards against saving a junk session.
 
 ### Why the "settle" waits matter (the false-positive trap)
 
 The app is an SPA with a **client-side auth guard**. An expired session will *load* `/maps`
-first, then redirect to `/login` **after** `domcontentloaded`. If the probe read the URL too
-early it would see `/maps` and falsely call the session valid. So both the probe and the
-bootstrap wait (`networkidle` + a fixed `PROBE_SETTLE_MS` / `STABILIZE_MS` = 5s) before
-judging the final URL. This is the fix referenced by commit `fc95944` ("fixes auth false
-positive").
+first, then redirect to `/login` **after** `domcontentloaded`. If the browser probe read the
+URL too early it would see `/maps` and falsely call the session valid. So both the probe and
+the login wait (`networkidle` + a fixed 5 s settle) before judging the final URL. The token
+refresh path avoids this trap entirely because it asks the API, not the page.
 
 ### Safety guards (run throughout)
 
@@ -159,22 +180,25 @@ positive").
 
 ```mermaid
 flowchart TD
-    Start(["setup: authenticate"]) --> Has{"sessionFileHasAuth()<br/>file + cookies/origins?"}
+    Start(["setup: authenticate (role)"]) --> Has{"sessionFileHasAuth()<br/>file + cookies/origins?"}
 
     Has -->|No| Boot
-    Has -->|Yes| Probe1["probeAuthenticated()<br/>fresh ctx → goto /maps<br/>wait networkidle + 5s settle"]
+    Has -->|Yes| Season{"sessionSeasonValid()<br/>live Season in storage?"}
+    Season -->|"No (expired)"| Boot
+    Season -->|Yes| Refresh["refreshSession() ~2 s<br/>gateway /auth/refresh →<br/>write tokens back → 1 API call"]
 
-    Probe1 --> Valid{"final URL<br/>still /maps?"}
-    Valid -->|"Yes (valid)"| Done(["STOP — reuse session"])
-    Valid -->|"No → /login (expired)"| Boot
+    Refresh -->|OK| Done(["STOP — reuse session"])
+    Refresh -->|Failed| Probe1["probeAuthenticated() ~30 s<br/>fresh ctx → goto /maps<br/>wait networkidle + 5 s settle"]
+    Probe1 -->|"still /maps"| Done
+    Probe1 -->|"→ /login"| Boot
 
-    subgraph BootGrp["Human-assisted login (headed Firefox)"]
-        Boot["goto /login"] --> Human["Human completes<br/>Microsoft / Azure SSO"]
-        Human --> WaitMaps["waitForURL /maps<br/>(up to 5 min)"]
-        WaitMaps --> Save["stabilize 5s →<br/>storageState() →<br/>.auth/auth-session.json"]
+    subgraph BootGrp["Login (headed by default)"]
+        Boot["goto /login"] --> Sign["scripted sign-in if a credential is stored;<br/>otherwise a human finishes SSO"]
+        Sign --> WaitMaps["waitForURL /maps<br/>(up to 5 min)"]
+        WaitMaps --> Save["wait for Season in storage →<br/>stabilize 5 s → storageState() →<br/>.auth/&lt;role&gt;.json"]
     end
 
-    Save --> Probe2["probeAuthenticated()<br/>re-validate fresh ctx"]
+    Save --> Probe2["re-validate:<br/>refreshSession() || probeAuthenticated()"]
     Probe2 --> Assert{"authenticated?"}
     Assert -->|Yes| Done2(["session reusable ✔"])
     Assert -->|No| Fail(["throw — bad session"])
@@ -182,7 +206,6 @@ flowchart TD
     Guards["Guards on every navigation:<br/>assertQaOnly · checkAbortPatterns<br/>· HTTP 429 watch · captureFailure"]
     Guards -.-> BootGrp
     Guards -.-> Probe1
-    Guards -.-> Probe2
 
     style Done fill:#bbf7d0,stroke:#16a34a,color:#000
     style Done2 fill:#bbf7d0,stroke:#16a34a,color:#000
@@ -203,21 +226,27 @@ sequenceDiagram
     participant Setup as auth.setup.ts
     participant FS as .auth/&lt;role&gt;.json
     participant App as QA app (/login, /maps)
-    participant Human as Human (SSO)
+    participant GW as Auth gateway
+    participant Human as Human (only if needed)
 
     Dev->>PW: pnpm auth:qa  (--project=setup)
     PW->>Setup: run "authenticate"
     Setup->>FS: sessionFileHasAuth()?
-    alt session file exists
-        Setup->>App: probe /maps (fresh ctx, stored state)
-        App-->>Setup: stays /maps  → VALID, stop
-    else missing / expired
-        Setup->>App: goto /login (headed)
-        Setup->>Human: complete Microsoft/Azure SSO
-        Human-->>App: credentials
+    alt session file exists, Season live
+        Setup->>GW: POST /auth/refresh (stored tokens)
+        GW-->>Setup: new tokens → written back to FS
+        Setup->>GW: one API call → OK → VALID, stop
+        opt refresh failed
+            Setup->>App: probe /maps (fresh ctx, stored state)
+            App-->>Setup: stays /maps → VALID, stop
+        end
+    else missing / Season expired / invalid
+        Setup->>App: goto /login (headed by default)
+        Setup->>App: scripted sign-in (stored credential)
+        Human-->>App: finishes any unrecognised screen (MFA, consent)
         App-->>Setup: redirect to /maps
         Setup->>FS: write storageState
-        Setup->>App: re-probe /maps → assert authenticated
+        Setup->>GW: re-validate (refresh, else /maps probe) → assert authenticated
     end
 
     Note over Dev,App: Later — actual test run
@@ -228,37 +257,7 @@ sequenceDiagram
 
 ---
 
-## 4. Commands cheat-sheet
-
-All scripts prefix `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`.
-
-| Command | What it does |
-| --- | --- |
-| `pnpm test` | Run everything (setup → both engines, authed + guest). |
-| `pnpm auth:qa` | Run only `setup` — (re)generate/validate sessions. Use this when authed specs fail at login. Honours `AUTH_ROLES`. |
-| `pnpm creds:import` | One-time: QA account list → gitignored `.auth/credentials.json`. |
-| `pnpm test:authed` | Authenticated specs on both engines (runs `setup` first via dependency). |
-| `pnpm test:chromium` / `:firefox` | A single engine. |
-| `pnpm test:public` | Guest specs only, both engines. |
-| `pnpm test:clean` | Everything **except** `@mutating` — use before a UAT cycle, when the shared QA env must not gain new work orders. |
-| `pnpm typecheck` | `tsc --noEmit`. |
-| `pnpm catalog` | Re-extract the regression workbook → `test-plans/catalog/web-cases.json`. |
-| `pnpm coverage` / `:write` | Coverage against that catalogue; `--write` refreshes `test-plans/COVERAGE.md`. |
-| `pnpm test:ui` / `:headed` / `:debug` | Interactive variants. |
-| `pnpm seed:planned` / `seed:harvest` | **Creates real work orders on QA** as test data, e.g. `pnpm seed:planned --count 5 --plots 10 --materials 2 --resources 3 --assets 2`. Prints the new WO numbers. |
-| `pnpm seed:tickets` | **Plans real harvest tickets on QA**, e.g. `pnpm seed:tickets --tickets 25 --pair "130:LIVINGSTON"` (repeat `--pair`). |
-
-Flags and limits for all three: `scripts/seed.mts`. The `seed` project (`tests/seed/`) is only
-registered while that script sets `SEED`, so `pnpm test` never runs it. Work orders go through
-`WorkOrdersPage.createWorkOrder`, the same form path as the `@mutating` specs, taking the first N
-rows of each picker: materials, resources and assets show 50 rows per page, so each is capped at
-50, and Harvest WOs have no materials. Tickets go through `HarvestCentralPage.planTickets`, which
-splits counts above the form's 100-per-plan limit and checks the pair's `No Of Planned Tickets`
-rose by exactly N, since saving shows no toast.
-
----
-
-## 3a. Page objects
+## 4. Page objects
 
 | Object | Covers |
 | --- | --- |
@@ -276,7 +275,7 @@ absorbs all four; a spec that reaches around it will not.
 
 ---
 
-## 4a. Traceability to the regression workbook
+## 5. Traceability to the regression workbook
 
 The QA team's `AgriFarm_VannBrothers_Regression_Suite_Web_iOS.xlsx` is the source of truth for
 what "regression tested" means: 796 cases, 633 of them web-scoped, with a formula-driven
@@ -302,15 +301,39 @@ does not carry the Status column, which is the QA team's per-cycle execution rec
 
 ---
 
-## 5. TL;DR on the auth confusion
+## 6. Commands
+
+All test scripts prefix `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`. The everyday ones:
+
+| Command | What it does |
+| --- | --- |
+| `pnpm auth:qa` | Run only `setup` — check/refresh or (re)create sessions. Use when authed specs fail at login or the API token expired. Honours `AUTH_ROLES`. |
+| `pnpm test:fast` | Daily loop: Firefox only, no retries. |
+| `pnpm test:clean` | Both engines, everything **except** `@mutating` — before a UAT cycle, when the shared QA env must not gain new work orders. |
+| `pnpm test:authed` / `test:public` | Authenticated / guest specs, both engines. `test:chromium` / `test:firefox` for one engine. |
+| `pnpm typecheck` · `pnpm coverage` | Type check; workbook coverage (fails on an unknown `@TC` tag). |
+
+The full list — seeding real QA data (`seed:planned`, `seed:harvest`, `seed:tickets`), API
+cleanup (`wo:delete`, `api:smoke`), the smoke checklist (`smoke:*`, `test:smoke`),
+`test:upcoming`, `triage:accounts`, `creds:import` — with flags and caveats is in the
+`vannbrosphasetwo-playwright` skill (`.claude/skills/vannbrosphasetwo-playwright/SKILL.md`,
+§ Commands). Seed flags and limits: `scripts/seed.mts`. Work orders are seeded through
+`WorkOrdersPage.createWorkOrder`, the same form path as the `@mutating` specs; tickets through
+`HarvestCentralPage.planTickets`, which splits counts above the form's 100-per-plan limit.
+
+---
+
+## 7. TL;DR on the auth confusion
 
 - **`setup` is the only thing that logs in.** It's a separate Playwright project, run first.
-- It **reuses** `.auth/<role>.json` whenever that session still authenticates against
-  `/maps` — login is skipped silently.
-- It only opens a **visible browser for a human SSO** when there's no valid session.
+- It **reuses** `.auth/<role>.json` whenever the Season is still live and the session still
+  authenticates — normally via a ~2 s token refresh, falling back to a ~30 s `/maps` probe.
+  Login is skipped silently.
+- It only **logs in again** when there's no valid session — scripted when a credential is
+  stored, with a visible window so a human can finish anything the script doesn't recognise.
 - **`chromium`/`firefox` (the real tests) never log in** — they just load the saved session as
   `storageState` and run.
 - The 5-second "settle" waits exist because the SPA redirects expired sessions to `/login`
   *after* page load; reading the URL too early would falsely pass.
-- If authed tests start failing on login → `pnpm auth:qa` to refresh the session. Never
-  commit `.auth/`.
+- If authed tests start failing on login, or on missing data with a "Season details not found
+  in storage" warning → `pnpm auth:qa`. Never commit `.auth/`.

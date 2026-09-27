@@ -19,15 +19,73 @@ Write E2E tests for the VannBrosPhaseTwo Farm web app that fit this repo's exist
 
 ## Repo layout & conventions (learn these before writing)
 
-- **Config:** `playwright.config.ts`. `baseURL` = `https://agrierp-vann-qa.folio3.site` (QA only). Browser = Desktop Firefox. Reporter = html.
-- **Projects:**
-  - `setup` — runs `tests/auth.setup.ts` (headed, human-assisted Microsoft/Azure login), saves storage state to `playwright/.auth/auth-session.json`.
-  - `firefox` — runs `tests/authenticated/**`, depends on `setup`, loads the saved `storageState`.
-  - `firefox-guest` — runs `tests/public/**` with an empty storage state (no auth).
+- **Config:** `playwright.config.ts`. `baseURL` = `https://agrierp-vann-qa.folio3.site` (QA only). Package `vannbrosphasetwo`, pnpm, CommonJS, `@playwright/test` ^1.60. `outputDir` → `test-results/`, HTML report → `playwright-report/`.
+- **Projects** (five):
+  - `setup` — runs `tests/auth.setup.ts`, logs in **per role**, writes `.auth/<role>.json`.
+    Each run first checks the saved session (~2 s: token refresh at the auth gateway
+    `agrierp-authgateway-qa-api.folio3.site` + one API call, falling back to a ~30 s browser
+    check of `/maps`) and only logs in again if it fails; tests themselves never log in.
+  - `chromium` / `firefox` — `tests/authenticated/**`, depend on `setup`, reuse `.auth/admin.json`.
+    Chromium is primary (the regression workbook scopes the web suite to a Chromium-based
+    browser); Firefox is the second engine.
+  - `chromium-guest` / `firefox-guest` — `tests/public/**`, empty storage state.
+- **Role registry:** `tests/constants/roles.ts`. Test plans: `test-plans/{authenticated,public}/` (markdown, mirror the spec path).
 - **Routes:** centralized in `tests/constants/routes.ts` (`QA_BASE_URL`, `QA_HOST`, `routes`, `routeUrl()`). `routes` groups related paths under a nested object with a `root` key (e.g. `routes.workorders.root`, `routes.maps.root`) — only single, ungrouped paths stay flat (e.g. `routes.login`, `routes.messaging`). `routeUrl()` resolves a path to an absolute URL, needed only where code compares against `page.url()`'s absolute form (e.g. `waitForURL`); specs just pass `routes.x` straight into `page.goto`/`toHaveURL` since `baseURL` is set in config. **Add every new path here**, never hardcode URLs in specs.
 - **Helpers:** `tests/helpers/auth.ts` — `assertQaOnly`, `checkAbortPatterns`, `probeAuthenticated`, `sessionSeasonValid`, `ensureDir`, `captureFailure`, `log`, etc.
 - **Existing specs:** `tests/public/login.spec.ts`, `tests/authenticated/maps.spec.ts`. Match their style.
-- **Scripts:** `pnpm auth:qa` (bootstrap session), `pnpm test:public`, `pnpm test:authed`, `pnpm test`, `pnpm test:ui`, `pnpm test:headed`.
+- **Scripts:** see [Commands](#commands) below.
+
+## Commands
+
+Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`.
+
+- `pnpm test` — everything. `pnpm test:authed` — authenticated specs, both engines
+  (`test:chromium` / `test:firefox` for one). `pnpm test:public` — guest specs only.
+- `pnpm test:fast` — daily loop: Firefox only, no retries. `pnpm test:clean` — everything except
+  `@mutating` (specs that create real work orders on shared QA with no teardown); run it before a
+  UAT cycle, since the workbook scopes the web suite to Chromium.
+- `pnpm auth:qa` — (re)generate sessions. `AUTH_ROLES=supervisor,farmhand pnpm auth:qa`
+  bootstraps extra actors (one interactive SSO prompt each); default is `admin`.
+- `pnpm seed:planned` / `seed:harvest` / `seed:tickets` — create real test data on QA:
+  `pnpm seed:planned --count 5 --plots 10 --materials 2 --resources 3 --assets 2`,
+  `pnpm seed:tickets --tickets 25 --pair "130:LIVINGSTON"` (harvest WOs have no materials).
+  Prints what it created. Flags and limits: `scripts/seed.mts`; seed files: `tests/seed/`.
+  `seed:planned --api` posts the same body straight to the API (`api/planned-work-order.mts`,
+  needs the API token): seconds per WO instead of minutes. Very large WOs (e.g. 99 plots +
+  50 materials + 50 assets) fail on the server either way; see `FINDINGS.md` #29.
+- `pnpm wo:delete WO-1258 WO-1260 [--name TEXT] [--yes]` — delete work orders through the API
+  (e.g. seed leftovers). A dry run unless `--yes` is given. Needs the API token.
+- `pnpm api:smoke [--count N] [--location N] [--season N]` — read-only check that the API token
+  works: lists N work orders (default 2) and reads each one's Summary. Prints which token source
+  it used. Never prints the token.
+- `pnpm typecheck` · `pnpm catalog` · `pnpm coverage[:write]`.
+- Smoke checklist: `pnpm smoke:catalog` (re-extract `test-plans/catalog/smoke-cases.json` from
+  `resources/Vann Brother Smoke check list.xlsx`, IDs stay stable) · `pnpm smoke:coverage[:write]`
+  (report vs. the web-scoped rows → `test-plans/SMOKE-COVERAGE.md`; fails on an orphan, double
+  or non-web `@SMK` tag) · `pnpm test:smoke` (Firefox, every `@SMK`/`@SMK-partial` test except
+  `@mutating`; `test:smoke:all` includes them and creates real data on QA).
+- `pnpm test:ui` / `test:headed` / `test:debug` — interactive variants.
+
+**Token-cheap runs:** add `--reporter=line` and `-g "<title>"` when iterating on one spec; that
+output is far smaller than the MCP `test_run` tool or the HTML report.
+
+## API client (`playwright/api/`)
+
+Small REST client for scripts that act on QA data directly (`client.mts`, plus per-area helpers
+like `work-orders.mts`). QA hosts only. ESM `.mts`, so scripts can import it but the CommonJS
+specs cannot. Token (first usable wins): `VANNBROSPHASETWO_API_TOKEN`, then the gitignored
+`.auth/qa_refresh_token.txt` while unexpired, then the saved UI session `.auth/admin.json`. Setup
+refreshes that session every run, so if the token has expired (~1 h), run `pnpm auth:qa` (~3 s).
+The short token from `POST /api/Auth/signin` gets 401 everywhere. Endpoints: the
+`vannbrosphasetwo-vann-api-qa` skill.
+
+## Traceability tags
+
+Specs tag the regression workbook's own IDs in the test title — `@TC:<id>` (whole expected
+result asserted) or `@TC-partial:<id>` (flow automated, part of the expected result still
+unasserted). `pnpm coverage` reports against `test-plans/catalog/web-cases.json` and fails on a
+tag that matches no case; regenerate the catalogue with `pnpm catalog` when the workbook's scope
+changes. Smoke rows are tagged `@SMK:<id>` / `@SMK-partial:<id>` alongside any `@TC` tags.
 
 ## Where a new spec goes
 

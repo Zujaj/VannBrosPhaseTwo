@@ -73,18 +73,22 @@ export default defineConfig({
         storageState: AUTH_FILE,
       },
     },
-    {
-      // Account triage: attempts one sign-in per QA account to find one the suite can use.
-      // Its own project because it must NOT run with the ordinary guest specs — ~31 sign-ins
-      // is slow and not something a normal suite run should do. Run it with
-      // `pnpm triage:accounts`.
-      name: 'triage',
-      testMatch: /account-triage\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: { cookies: [], origins: [] },
-      },
-    },
+    // Account triage: attempts one sign-in per QA account to find one the suite can use.
+    // Its own project because it must NOT run with the ordinary guest specs — ~31 sign-ins
+    // is slow and not something a normal suite run should do. Registered only while
+    // `pnpm triage:accounts` sets TRIAGE, so a plain `pnpm test` never runs it.
+    ...(process.env.TRIAGE
+      ? [
+          {
+            name: 'triage',
+            testMatch: /account-triage\.spec\.ts/,
+            use: {
+              ...devices['Desktop Chrome'],
+              storageState: { cookies: [], origins: [] },
+            },
+          },
+        ]
+      : []),
     // Test-data seeding (`pnpm seed:planned` / `seed:harvest` / `seed:tickets`). Registered only
     // while scripts/seed.mts sets SEED, so a plain `pnpm test` never creates data. No retries: a
     // retried seed could save the same record twice.

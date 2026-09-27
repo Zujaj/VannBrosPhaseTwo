@@ -1,5 +1,12 @@
 {
   "enabledPlugins": {
     "postman@claude-plugins-official": true
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.claude/skills/vannbrosphasetwo-vann-api-qa/openapi.json)",
+      "Read(./.claude/skills/vannbrosphasetwo-finops-api/collection.finops.json)",
+      "Read(./playwright/playwright-report/**)"
+    ]
   }
 }

@@ -2,18 +2,14 @@
   "name": "vannbrosphasetwo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test",
     "test:ui": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --ui",
     "test:debug": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --debug",
     "test:headed": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --headed",
-    "test:headed:debug": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --headed --debug",
-    "test:headed:ui": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --headed --ui",
     "auth:qa": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=setup",
     "test:public": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=chromium-guest --project=firefox-guest",
     "test:authed": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=chromium --project=firefox",
-    "serve": "~/lightpanda serve --host 127.0.0.1 --port 9222",
     "test:chromium": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=chromium",
     "test:firefox": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=firefox",
     "test:fast": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=firefox --retries=0",
@@ -34,19 +30,18 @@
     "creds:import": "node scripts/import-credentials.mts",
     "wo:delete": "node scripts/delete-work-orders.mts",
     "api:smoke": "node scripts/api-smoke.mts",
-    "triage:accounts": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=triage --workers=1"
+    "triage:accounts": "TRIAGE=1 PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=triage --workers=1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "fs-extra": "^11.3.5",
-    "path": "^0.12.7",
     "@playwright/test": "^1.62.1",
-    "@types/node": "^26.2.0",
     "@types/fs-extra": "^11.0.4",
-    "typescript": "^7.0.2",
-    "pdf-parse": "^2.4.5"
+    "@types/node": "^26.2.0",
+    "fs-extra": "^11.3.5",
+    "pdf-parse": "^2.4.5",
+    "typescript": "^7.0.2"
   }
 }
