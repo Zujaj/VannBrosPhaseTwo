@@ -1,5 +1,7 @@
 export const QA_BASE_URL = 'https://agrierp-vann-qa.folio3.site';
 export const QA_HOST = 'agrierp-vann-qa.folio3.site';
+/** REST backend (vannbrosphasetwo-vann-api-qa skill). QA only, like the web host. */
+export const QA_API_BASE_URL = 'https://agrierp-vann-api-qa.folio3.site';
 
 /**
  * The tenant/environment to pick in the auth gateway's "Choose Environment" dialog, which

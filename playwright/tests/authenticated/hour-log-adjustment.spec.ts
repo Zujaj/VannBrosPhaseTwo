@@ -8,18 +8,21 @@ import { HourLogRequestsPage } from '../pages/hour-log-requests.page';
  * All non-mutating: the requests are raised by operators on mobile, and these cases only open
  * the review drawer and its Adjust / Reject panels — nothing is approved or rejected.
  *
- * Needs a work order with at least one pending request. `HLA_WORK_ORDER_ID` picks it
- * (default 31307 = WO-1283, which had pending requests on 2026-09-28); find another with
+ * Opt-in: runs only when `HLA_WORK_ORDER_ID` names a work order with at least one pending
+ * request (31307 = WO-1283 had some on 2026-09-28); find one with
  * `GET /api/WorkOrder/{id}/HourLogChangeRequests/PendingByResource` (`pendingCount > 0`).
  */
-const WORK_ORDER_ID = process.env.HLA_WORK_ORDER_ID ?? '31307';
+const WORK_ORDER_ID = process.env.HLA_WORK_ORDER_ID;
 
 test.describe('@HLA Hour Log Change Requests — manager review (web)', () => {
+  // Opt-in: the same checks run deterministically on a fresh seeded WO in
+  // hour-log-decisions.spec.ts. This file is for spot-checking a REAL work order during UAT.
+  test.skip(!WORK_ORDER_ID, 'set HLA_WORK_ORDER_ID to review a real work order (e.g. 31307 = WO-1283)');
   // One heavy WO detail page shared by every case; five workers loading it at once time out on QA.
   test.describe.configure({ mode: 'serial' });
 
   test.beforeEach(async ({ hourLogRequestsPage }) => {
-    await hourLogRequestsPage.gotoWorkOrder(WORK_ORDER_ID);
+    await hourLogRequestsPage.gotoWorkOrder(WORK_ORDER_ID!);
     test.skip(
       !(await hourLogRequestsPage.hasPendingRequests()),
       `WO id ${WORK_ORDER_ID} has no pending hour log requests; set HLA_WORK_ORDER_ID`,
@@ -97,7 +100,7 @@ test.describe('@HLA Hour Log Change Requests — manager review (web)', () => {
     await expect(hourLogRequestsPage.drawer().getByText(reqNo, { exact: true })).toBeVisible();
     await expect(card.getByRole('button', { name: /Approve \d+h:\d{2}m/ })).toBeVisible();
 
-    await hourLogRequestsPage.gotoWorkOrder(WORK_ORDER_ID);
+    await hourLogRequestsPage.gotoWorkOrder(WORK_ORDER_ID!);
     await expect(hourLogRequestsPage.toReviewChips().first()).toHaveText(before);
   });
 

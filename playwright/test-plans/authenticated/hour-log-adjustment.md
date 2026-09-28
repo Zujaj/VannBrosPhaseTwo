@@ -5,10 +5,17 @@
 - **Source of truth:** `vannbrosphasetwo-knowledge/references/hour-log-adjustment.md`
 - **API contract:** `vannbrosphasetwo-vann-api-qa` → `reference/WorkOrder.md` (`HourLogChangeRequests*`, `HourAdjustmentsHistory`)
 - **Automation status:** **Partially automated**:
-  - `hour-log-adjustment.spec.ts` (read-only): HLA-B01, B06, B07 and B08 are automated, and B02 is partial (the Logged-by-app and Change panels are not asserted).
-  - `hour-log-decisions.spec.ts` (`@mutating`): HLA-B04, B05 and B09 are automated on a **fresh WO**. It is seeded by `pnpm seed:hourlog` (admin creates the WO and sets it to In Progress; operator Agrierp 07 raises the requests) and deleted in `afterAll`.
-  - The seed needs the operator's token in `.auth/qa_operator_token.txt`; the spec skips without it.
-  - Mobile cases (section A) are manual.
+  - **`hour-log-decisions.spec.ts`** (`@mutating`, fresh WO per run) is the main suite:
+    - `pnpm seed:hourlog` has the admin create the WO and set it to In Progress; operator Agrierp 07 raises 3 requests. `afterAll` deletes the WO.
+    - API cases: B17, B15, A15, B16, C03, A09 and A10. **A08 is an expected failure** because QA accepts a request with no machine (defect #2).
+    - UI cases: B01, B02 (partial), B06, B07 and B08, then the decisions B04, B05 (partial) and B09.
+  - **`hour-log-adjustment.spec.ts`** is opt-in, for spot-checking a *real* WO during UAT: `HLA_WORK_ORDER_ID=<id>`.
+  - Operator token: the saved `operator` session, bootstrapped once with `AUTH_ROLES=operator pnpm auth:qa`; later `pnpm auth:qa` runs refresh it.
+  - Not automated:
+    - the rest of section A (mobile UI);
+    - B03 (change to an app-logged entry; seeding a logged entry is flaky on QA);
+    - B10–B14 (overlap and isolation; the Create Adjustment prompt has not been seen live);
+    - C01, C02, C04 and C05.
 - **Live verification:** section B web labels verified live 2026-09-28 (WO-1283, id 31307). Mobile
   cases and the Create Adjustment prompt still use the PSD v1.0 wording. The spec reads the WO
   from `HLA_WORK_ORDER_ID` (default `31307`) and skips when it has no pending request.
@@ -130,6 +137,11 @@ Role: Machine Operator · Platform: Mobile · Type: Negative · Automation: Manu
 can be probed with `POST …/HourLogChangeRequests` and missing or inverted values. It **should**
 return 400; a 200 is a finding, since the mobile check alone does not protect the backend.
 
+> **Automation (A05–A10):** the server-side half of A09 and A10 is automated at API level in
+> `hour-log-decisions.spec.ts`, and the messages match the table exactly. A08 is an expected failure there: QA
+> accepts a request with no machine (knowledge ref, QA findings #2). A05–A07 and the mobile UI
+> behaviour are manual.
+
 ### HLA-A11 — Implement is optional
 
 | Field | Content |
@@ -184,7 +196,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Machine Operator · **Platform** Mobile · **Priority** P1 |
 | **Steps** | 1. On an **In Progress** WO, check that **Add New Request** and **edit** are available. 2. Move the WO to **Review**. 3. Reopen the tab. |
 | **Expected result** | In **Review**, no new request can be raised: **Add New Request** and **edit** are unavailable. API probe: a `POST` for a Review WO should be refused. |
-| **Type** | Negative · **API seed** `POST …/HourLogChangeRequests` against a Review WO · **Automation** Manual |
+| **Type** | Negative · **API seed** `POST …/HourLogChangeRequests` against a Review WO · **Automation** Automated at API level — `hour-log-decisions.spec.ts` (raise in Review → 400 `This job can only be adjusted while the work order is In Progress.`); mobile UI manual |
 
 ### HLA-A16 — Offline save and sync
 
@@ -239,7 +251,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Expected result** | The table has `Resource Name` · `Resource Type` · `Tracking Log` · `Progress` · `Spent Hours` · **Hour Log Changes** columns. R1 shows `2 To Review`, and R2 has no chip. The chip can also show on **Machine** resource rows. The count matches `GET /api/WorkOrder/{id}/HourLogChangeRequests/PendingByResource`. |
 | **Type** | Smoke / Functional |
 | **API seed** | 2× `POST …/HourLogChangeRequests` for R1 |
-| **Automation** | **Automated** — `HLA-B01` in the spec (non-mutating; uses existing pending requests, no seed) |
+| **Automation** Automated — `hour-log-decisions.spec.ts` (fresh WO, exact `3 To Review`) | **Automated** — `HLA-B01` in the spec (non-mutating; uses existing pending requests, no seed) |
 
 ### HLA-B02 — Drawer content for a change request
 
@@ -253,7 +265,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Expected result** | The drawer is titled **Hour Log Change Requests**, with subtitle `<Resource> (<code>) · <WO> · N Needs Review` (e.g. `Agrierp 07 (07) · WO-1283 · 2 Needs Review`), and shows one card per pending request. The card shows `REQ-nnnn`, an `IOS` badge, `<field code> (<project>) · MM/DD/YYYY` (e.g. `320 (PRJ_000067) · 09/09/2026`) and a **Machine:** line. Panels: **LOGGED BY APP** (app's times/duration), **Requested** `hh:mm AM - hh:mm PM` / `Nh:MMm` (e.g. `06:01 PM - 10:46 PM` / `4h:45m`, browser local time), **CHANGE** (difference on spent hours). The reason text follows. Actions: **Approve &lt;Nh:MMm&gt;** (e.g. `Approve 4h:45m`), **Adjust**, **Reject**. Live 2026-09-28 showed no `Job Log-…` or `by <raised by>` line, and only the **Requested** panel on new-entry requests. |
 | **Type** | Smoke / Functional |
 | **API seed** | `POST …/HourLogChangeRequests` with `workOrderLineId`, `mobileDeviceType: 1` |
-| **Automation** | **Partial** — `HLA-B02-partial` asserts the title, `N Needs Review` count = chip count, card count, `REQ-nnnn`, device badge, **Machine:**, **Requested** times and the three buttons; the **LOGGED BY APP** / **CHANGE** panels are not asserted (no change-request data on QA yet) |
+| **Automation** Partial — `hour-log-decisions.spec.ts` (REQ no., Android badge, Machine:, Requested times, reason, Approve duration; Logged-by-app/Change panels need B03 data) | **Partial** — `HLA-B02-partial` asserts the title, `N Needs Review` count = chip count, card count, `REQ-nnnn`, device badge, **Machine:**, **Requested** times and the three buttons; the **LOGGED BY APP** / **CHANGE** panels are not asserted (no change-request data on QA yet) |
 
 ### HLA-B03 — New-entry request shows "Not logged"
 
@@ -298,7 +310,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** **P1** |
 | **Steps** | **Adjust**; fill **Remarks\***; set **Job End\*** equal to **Job Start\***, then earlier; try to approve. |
 | **Expected result** | `The Job End Must Be After The Job Start` appears and **Approve Hours** is disabled; nothing is decided (the request stays `Needs Review`). Also: **Approve Hours** is disabled while **Remarks\*** is empty and enabled once filled. |
-| **Type** | Negative · **API probe** `PUT …/Decide` outcome 4 with inverted times should return 400 · **Automation** **Automated** — `HLA-B06` (non-mutating; sets end = start, never submits) |
+| **Type** | Negative · **API probe** `PUT …/Decide` outcome 4 with inverted times should return 400 · **Automation** Automated — `hour-log-decisions.spec.ts` |
 
 ### HLA-B07 — Adjust: Cancel changes nothing
 
@@ -309,7 +321,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P3 |
 | **Steps** | **Adjust** → change the values → **Cancel**. |
 | **Expected result** | **Set The Hours Yourself** collapses, the card shows its `REQ-nnnn` and **Approve &lt;Nh:MMm&gt;** again, and after reloading the WO the `N To Review` chip is unchanged. Spent Hours is unchanged. |
-| **Type** | Functional · **Automation** **Automated** — `HLA-B07` (non-mutating) |
+| **Type** | Functional · **Automation** Automated — `hour-log-decisions.spec.ts` (+ API still Unapproved) |
 
 ### HLA-B08 — Reject needs a reason
 
@@ -320,7 +332,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P2 |
 | **Steps** | **Reject**; leave **Reason Shown To The Operator** empty; try **Confirm Reject**; then type a reason; then **Cancel**. |
 | **Expected result** | **Reject This Change** shows `Logged Hours Stay As The Spent Hours`. **Confirm Reject** is disabled while the reason is empty and enabled once one is typed. **Cancel** collapses the section; the request stays pending. |
-| **Type** | Negative · **API probe** `PUT …/Decide` outcome 3 with no `rejectionReason` should return 400 · **Automation** **Automated** — `HLA-B08` (non-mutating; never confirms) |
+| **Type** | Negative · **API probe** `PUT …/Decide` outcome 3 with no `rejectionReason` should return 400 · **Automation** Automated — `hour-log-decisions.spec.ts` (+ API still Unapproved) |
 
 ### HLA-B09 — Reject a change request
 
@@ -400,7 +412,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | A user who both raises requests and holds the decide permission · **Platform** Web · **Priority** P1 |
 | **Steps** | Raise a request as user U, then open the drawer as U. |
 | **Expected result** | **Approve**, **Adjust** and **Reject** are unavailable or refused for U's own request. API probe: `PUT …/Decide` with U's token returns 403 or 400. |
-| **Type** | Permission / Negative · **Automation** API-verified 2026-09-28 — the raiser's `Decide` call answers **401**; not in a spec |
+| **Type** | Permission / Negative · **Automation** Automated — `hour-log-decisions.spec.ts` (API: raiser's Decide → 401, request stays Unapproved) |
 
 ### HLA-B16 — WO completion blocked while requests are pending
 
@@ -412,7 +424,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Preconditions** | A WO in **Review** with a pending request raised while it was In Progress |
 | **Steps** | **Work Order Completed** → **Approve**. |
 | **Expected result** | Completion is refused with a message about the pending hour log adjustment requests, and the WO stays in **Review**. After deciding the request, completion succeeds (`Done`). |
-| **Type** | Negative · **Automation** Not automated — **`@mutating`** (completing posts to ERP; run on a throwaway WO only) |
+| **Type** | Negative · **Automation** Automated — `hour-log-decisions.spec.ts` (API: Done refused — `This work order has a pending hour-log change request…`) |
 
 ### HLA-B17 — REQ number sequence
 
@@ -423,7 +435,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P3 |
 | **Steps** | Seed 3 requests in a row and open the drawer. |
 | **Expected result** | The numbers are `REQ-nnnn`, zero-padded, consecutive and unique (e.g. `REQ-0151`, `REQ-0152`, `REQ-0153`; QA was at `REQ-015x` on 2026-09-28). |
-| **Type** | Functional · **API seed** 3× `POST …/HourLogChangeRequests` · **Automation** Planned |
+| **Type** | Functional · **API seed** 3× `POST …/HourLogChangeRequests` · **Automation** Automated — `hour-log-decisions.spec.ts` (API: seeded numbers `REQ-nnnn`, ascending, unique) |
 
 ---
 
@@ -460,7 +472,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web / API · **Priority** **P1 smoke** |
 | **Steps** | After HLA-B04, B05 and B09, query `GET /api/WorkOrder/HourAdjustmentsHistory?WorkOrderId=<id>&ResourceId=<R1>` and check the audit view against the WO. |
 | **Expected result** | One entry per decision. Each holds the original, requested and decided hours, the machines and implements, the reason, the manager note (Adjust), the rejection reason (Reject), redistribution applied (B11), decided by and decided at. Entries cannot be edited. |
-| **Type** | Smoke / Functional · **Automation** API-automatable |
+| **Type** | Smoke / Functional · **Automation** Automated — `hour-log-decisions.spec.ts` (API: `HistoryLog` has `HourLogChangeRequestRaised` (Mobile) + `…Approved/Adjusted/Rejected` (Web) per request) |
 
 ### HLA-C04 — Mobile reflects the decision and the manager's note
 
