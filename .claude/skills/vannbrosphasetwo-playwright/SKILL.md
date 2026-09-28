@@ -56,8 +56,9 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
 - `pnpm seed:hourlog [--json]` — fresh In Progress planned WO with three pending hour log change
   requests raised by the operator Agrierp 07 (Hour Log Adjustment). `--status <woId>` reads the
   decisions back, and `--delete <woId>` sets the WO back to To Do and deletes it. It needs the admin
-  token and the operator's token (`.auth/qa_operator_token.txt`, pasted by a person, lasts about an
-  hour; the admin can't decide a request they raised). Used by `@mutating`
+  and an operator (the admin can't decide a request they raised). The operator token comes from
+  `.auth/operator.json`: bootstrap it once with `AUTH_ROLES=operator pnpm auth:qa`, and every later
+  `pnpm auth:qa` refreshes it silently (a pasted `.auth/qa_operator_token.txt` also works while unexpired). Used by `@mutating`
   `hour-log-decisions.spec.ts`, which skips without the operator token.
 - `pnpm wo:delete WO-1258 WO-1260 [--name TEXT] [--yes]` — delete work orders through the API
   (e.g. seed leftovers). A dry run unless `--yes` is given. Needs the API token.

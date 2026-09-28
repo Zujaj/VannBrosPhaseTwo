@@ -57,7 +57,7 @@ test.describe('@HLA @mutating Hour Log Change Requests — manager decisions on 
     } catch (e) {
       // The operator's token is pasted by a person and lasts ~1 h; without it nothing can be seeded.
       const msg = String((e as { stderr?: string }).stderr ?? (e as Error).message);
-      test.skip(/operator token/.test(msg), 'no valid operator token — see scripts/seed-hour-log.mts');
+      test.skip(/no live operator token/.test(msg), 'no live operator token — run `AUTH_ROLES=operator pnpm auth:qa` once');
       throw e;
     }
     seed = JSON.parse(out.split('\n').pop()!) as Seed;

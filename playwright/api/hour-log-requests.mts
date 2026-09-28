@@ -103,7 +103,12 @@ export async function seedHourLogWorkOrder(
   try {
     return await prepare(admin, operator, workOrderId, requests);
   } catch (e) {
-    throw new Error(`WO id ${workOrderId} created but not fully seeded (delete it: pnpm wo:delete): ${(e as Error).message}`);
+    // Don't leave a half-seeded WO on shared QA.
+    const cleanup = await deleteHourLogWorkOrder(admin, workOrderId).then(
+      () => 'deleted it',
+      (d: Error) => `could not delete it (${d.message.slice(0, 120)}) — run pnpm seed:hourlog --delete ${workOrderId}`,
+    );
+    throw new Error(`seeding WO id ${workOrderId} failed, ${cleanup}: ${(e as Error).message}`);
   }
 }
 

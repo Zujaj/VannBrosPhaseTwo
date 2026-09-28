@@ -14,7 +14,7 @@ import {
   sessionFileHasAuth,
   sessionSeasonValid,
 } from './helpers/auth';
-import { ROLE_PROFILES, rolesToBootstrap, type Role } from './constants/roles';
+import { ROLE_PROFILES, ROLES, rolesToBootstrap, type Role } from './constants/roles';
 import { credentialsFor, maskUsername } from './helpers/credentials';
 import { classifyBlocker, signIn, type SignInBlocker } from './helpers/signIn';
 import { routeGoogleMapsViaNode } from './helpers/googleMaps';
@@ -241,5 +241,21 @@ for (const role of rolesToBootstrap()) {
   setup(`authenticate (${role})`, async ({ browser }) => {
     setup.setTimeout(HUMAN_AUTH_TIMEOUT_MS + 60_000);
     await bootstrapRole(role, browser);
+  });
+}
+
+/**
+ * Keep every OTHER actor that already holds a saved session fresh, silently: token refresh only
+ * (~2 s), never a login prompt, never a failure — a dead session just logs how to renew it. This
+ * is what lets API tooling act as a second user unattended, e.g. the operator that raises hour
+ * log change requests for `seed:hourlog` (bootstrapped once with `AUTH_ROLES=operator`).
+ */
+const bootstrapped = new Set<Role>(rolesToBootstrap());
+for (const role of ROLES.filter(
+  (r) => !bootstrapped.has(r) && ROLE_PROFILES[r].bootstrappable && sessionFileHasAuth(authFileFor(r)),
+)) {
+  setup(`refresh saved session (${role})`, async () => {
+    if (await refreshSession(authFileFor(role))) log(`[${role}] Saved session refreshed.`);
+    else log(`[${role}] WARNING: saved session could not be refreshed; renew it with AUTH_ROLES=${role} pnpm auth:qa.`);
   });
 }

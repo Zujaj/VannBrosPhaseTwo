@@ -7,8 +7,9 @@
  *   pnpm seed:hourlog --status 31342 --json   read back each request's status, no writes
  *   pnpm seed:hourlog --delete 31342          move the WO back to To Do and delete it
  *
- * Needs both tokens: the admin one (api/client.mts) and the operator one
- * (`.auth/qa_operator_token.txt` or `VANNBROSPHASETWO_OPERATOR_TOKEN`).
+ * Needs two actors: the admin (api/client.mts) and the operator — `ApiClient.asOperator()` reads
+ * the saved `operator` session (bootstrap once with `AUTH_ROLES=operator pnpm auth:qa`; every
+ * later `pnpm auth:qa` refreshes it silently), or a pasted `.auth/qa_operator_token.txt`.
  */
 import { parseArgs } from 'util';
 import { ApiClient } from '../api/client.mts';
