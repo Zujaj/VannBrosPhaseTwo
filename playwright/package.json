@@ -28,6 +28,7 @@
     "seed:planned": "node scripts/seed.mts planned",
     "seed:harvest": "node scripts/seed.mts harvest",
     "seed:tickets": "node scripts/seed.mts tickets",
+    "seed:hourlog": "node scripts/seed-hour-log.mts",
     "creds:import": "node scripts/import-credentials.mts",
     "wo:delete": "node scripts/delete-work-orders.mts",
     "api:smoke": "node scripts/api-smoke.mts",

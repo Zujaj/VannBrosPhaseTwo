@@ -53,6 +53,12 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
   `seed:planned --api` posts the same body straight to the API (`api/planned-work-order.mts`,
   needs the API token): seconds per WO instead of minutes. Very large WOs (e.g. 99 plots +
   50 materials + 50 assets) fail on the server either way; see `FINDINGS.md` #29.
+- `pnpm seed:hourlog [--json]` — fresh In Progress planned WO with three pending hour log change
+  requests raised by the operator Agrierp 07 (Hour Log Adjustment). `--status <woId>` reads the
+  decisions back, and `--delete <woId>` sets the WO back to To Do and deletes it. It needs the admin
+  token and the operator's token (`.auth/qa_operator_token.txt`, pasted by a person, lasts about an
+  hour; the admin can't decide a request they raised). Used by `@mutating`
+  `hour-log-decisions.spec.ts`, which skips without the operator token.
 - `pnpm wo:delete WO-1258 WO-1260 [--name TEXT] [--yes]` — delete work orders through the API
   (e.g. seed leftovers). A dry run unless `--yes` is given. Needs the API token.
 - `pnpm api:smoke [--count N] [--location N] [--season N]` — read-only check that the API token

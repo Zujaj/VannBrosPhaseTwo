@@ -58,6 +58,44 @@ export class HourLogRequestsPage extends BasePage {
       .then(() => true, () => false);
   }
 
+  /** The Resources-table row for one resource, e.g. `Agrierp 07`. */
+  resourceRow(name: string): Locator {
+    return this.resourcesTable().getByRole('row').filter({ has: this.page.getByRole('cell', { name: new RegExp(`^${name}\\b`) }) });
+  }
+
+  chipFor(resourceName: string): Locator {
+    return this.resourceRow(resourceName).getByRole('link', { name: /^\s*\d+ To Review\s*$/ });
+  }
+
+  /** Spent Hours cell text (`NNh:MMm`) for a resource row. */
+  async spentHours(resourceName: string): Promise<string> {
+    const text = await this.resourceRow(resourceName).getByRole('cell').filter({ hasText: /\d+h:\d{2}m/ }).first().innerText();
+    return text.match(/\d+h:\d{2}m/)![0];
+  }
+
+  /**
+   * Click a deciding button, then clear the Create Adjustment overlap prompt with Continue if the
+   * decision triggers it (it only appears when the decided time overlaps an entry that shares a
+   * machine — PSD "Overlap and Redistribution", not yet observed live).
+   */
+  async decide(button: Locator) {
+    const decided = this.page.waitForResponse((r) => /\/HourLogChangeRequests\/\d+\/decide/i.test(r.url()), { timeout: 30000 });
+    await button.click();
+    const cont = this.page.getByRole('button', { name: 'Continue', exact: true });
+    if (await cont.waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false)) await cont.click();
+    const res = await decided;
+    if (!res.ok()) {
+      const body = await res.text();
+      // Hours left behind by DELETED work orders still block decisions over the same time and
+      // are invisible to every read endpoint (hour-log-requests.mts). Name it rather than time out.
+      if (/overlaps these hours and cannot be overridden/.test(body)) {
+        throw new Error(`Decide refused by an orphaned hour log (known QA defect — rerun picks another slot): ${body.slice(0, 300)}`);
+      }
+      throw new Error(`Decide failed ${res.status()}: ${body.slice(0, 300)}`);
+    }
+    await this.waitForLoaderGone();
+  }
+
   drawerHeading(): Locator {
     return this.page.getByRole('heading', { name: HourLogRequestsPage.DRAWER_TITLE, level: 2 });
   }

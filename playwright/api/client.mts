@@ -36,6 +36,13 @@ import path from 'path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 export const TOKEN_FILE = path.join(ROOT, '.auth', 'qa_refresh_token.txt');
 export const SESSION_FILE = path.join(ROOT, '.auth', 'admin.json');
+/**
+ * A second actor's token, for flows one user cannot do alone — e.g. an operator raises an hour
+ * log change request that the admin then decides (self-approval is refused). Gitignored; the
+ * user pastes the operator's Firebase ID token here (same way as the admin one) or exports
+ * `VANNBROSPHASETWO_OPERATOR_TOKEN`.
+ */
+export const OPERATOR_TOKEN_FILE = path.join(ROOT, '.auth', 'qa_operator_token.txt');
 const DEFAULT_BASE = 'https://agrierp-vann-api-qa.folio3.site/api';
 // QA only, same rule as the UI suite: refuse any host that is not a QA host.
 const QA_HOST = /^https:\/\/agrierp-[a-z-]*qa[a-z-]*\.folio3\.site(\/|$)/;
@@ -138,10 +145,14 @@ export class ApiClient {
   private readonly auth: string;
   private readonly timeoutMs: number;
 
-  constructor({ base = process.env.VANNBROSPHASETWO_API_BASE || process.env.AGRIERP_API_BASE || DEFAULT_BASE, timeoutMs = 60_000 } = {}) {
+  constructor({
+    base = process.env.VANNBROSPHASETWO_API_BASE || process.env.AGRIERP_API_BASE || DEFAULT_BASE,
+    timeoutMs = 60_000,
+    token,
+  }: { base?: string; timeoutMs?: number; token?: string } = {}) {
     if (!QA_HOST.test(base)) throw new Error(`refusing non-QA API base: ${base}`);
     this.base = base.replace(/\/$/, '');
-    this.auth = readToken();
+    this.auth = token ? `Bearer ${token.trim().replace(/^Bearer\s+/i, '')}` : readToken();
     this.timeoutMs = timeoutMs;
   }
 
@@ -152,6 +163,25 @@ export class ApiClient {
   /** `timeoutMs` overrides the client default for one slow call (e.g. a large WO save). */
   post<T = unknown>(route: string, body: unknown, { timeoutMs }: { timeoutMs?: number } = {}): Promise<T> {
     return this.send<T>('POST', route, {}, body, timeoutMs);
+  }
+
+  put<T = unknown>(route: string, body: unknown): Promise<T> {
+    return this.send<T>('PUT', route, {}, body);
+  }
+
+  patch<T = unknown>(route: string, body: unknown): Promise<T> {
+    return this.send<T>('PATCH', route, {}, body);
+  }
+
+  /** Client acting as the operator (see OPERATOR_TOKEN_FILE). Throws when no token is saved. */
+  static asOperator(opts: { base?: string; timeoutMs?: number } = {}): ApiClient {
+    const token =
+      process.env.VANNBROSPHASETWO_OPERATOR_TOKEN ||
+      (existsSync(OPERATOR_TOKEN_FILE) ? readFileSync(OPERATOR_TOKEN_FILE, 'utf8') : '');
+    if (!token.trim()) throw new Error(`no operator token: save one to ${OPERATOR_TOKEN_FILE}`);
+    const exp = Number(JSON.parse(Buffer.from(token.trim().split('.')[1] ?? '', 'base64url').toString() || '{}').exp);
+    if (exp && exp * 1000 < Date.now()) throw new Error(`operator token expired at ${new Date(exp * 1000).toISOString()}; paste a fresh one into ${OPERATOR_TOKEN_FILE}`);
+    return new ApiClient({ ...opts, token });
   }
 
   delete<T = unknown>(route: string): Promise<T> {

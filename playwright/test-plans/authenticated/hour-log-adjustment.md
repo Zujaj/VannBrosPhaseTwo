@@ -4,13 +4,15 @@
 - **Product spec:** `resources/product-specifications-document/AgriERP FSCM - Hour Log Adjustment.pdf` (PSD v1.0, Aug 17 2026)
 - **Source of truth:** `vannbrosphasetwo-knowledge/references/hour-log-adjustment.md`
 - **API contract:** `vannbrosphasetwo-vann-api-qa` → `reference/WorkOrder.md` (`HourLogChangeRequests*`, `HourAdjustmentsHistory`)
-- **Automation status:** **Partially automated** — HLA-B01, B06, B07, B08 automated; B02 partial
-  (Logged-by-app/Change panels not asserted); decisions (approve/adjust/reject) not automated:
-  mutating on shared QA. Mobile cases (section A) are manual.
+- **Automation status:** **Partially automated**:
+  - `hour-log-adjustment.spec.ts` (read-only): HLA-B01, B06, B07 and B08 are automated, and B02 is partial (the Logged-by-app and Change panels are not asserted).
+  - `hour-log-decisions.spec.ts` (`@mutating`): HLA-B04, B05 and B09 are automated on a **fresh WO**. It is seeded by `pnpm seed:hourlog` (admin creates the WO and sets it to In Progress; operator Agrierp 07 raises the requests) and deleted in `afterAll`.
+  - The seed needs the operator's token in `.auth/qa_operator_token.txt`; the spec skips without it.
+  - Mobile cases (section A) are manual.
 - **Live verification:** section B web labels verified live 2026-09-28 (WO-1283, id 31307). Mobile
   cases and the Create Adjustment prompt still use the PSD v1.0 wording. The spec reads the WO
   from `HLA_WORK_ORDER_ID` (default `31307`) and skips when it has no pending request.
-- **Last updated:** 2026-09-28
+- **Last updated:** 2026-09-28 (decision automation added)
 
 **Scope:** the operator raises an hour change request on **mobile** (a change to a logged entry,
 or a new entry for a run the app never recorded). The manager decides it on **web** in the
@@ -274,7 +276,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** **P1 smoke** |
 | **Steps** | 1. Note R1's **Spent Hours**. 2. Open the drawer and click **Approve &lt;Nh:MMm&gt;** (e.g. `Approve 6h:45m`). |
 | **Expected result** | The request leaves the pending list, and the chip count drops by 1 (or disappears). R1's **Spent Hours** rises by `1h:09m` without a page reload. The API shows status **Approved** (2) with final = requested times. |
-| **Type** | Smoke / Functional · **API seed** HLA-B02 seed · **Automation** Not automated — **`@mutating`** on shared QA |
+| **Type** | Smoke / Functional · **API seed** HLA-B02 seed · **Automation** Automated — `hour-log-decisions.spec.ts` (fresh WO; asserts card gone, API **Approved**, chip 3→2, Spent Hours changed) |
 
 ### HLA-B05 — Adjust times, assets and note
 
@@ -285,7 +287,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P1 |
 | **Steps** | 1. Click **Adjust** and check that **Set The Hours Yourself** appears. 2. Open **Machine**: the current machine is selected (shown as a `×` chip); add a 2nd. 3. Open **Implement** (`Select Implement` when empty) and pick one. 4. Set **Job Start\*** `06:00 AM`, keep **Job End\*** `12:30 PM`. 5. In **Remarks\*** (**Note For The Operator**) enter `Yard time is not counted — approving from 6:00.` 6. Click **Approve Hours**. |
 | **Expected result** | **Approve Hours** stays disabled until **Remarks\*** is filled (Remarks are mandatory on live, unlike the PSD's optional note). After approving: status **Adjusted** (4), final = `6:00 AM – 12:30 PM`, and **Spent Hours** reflects `6h 30m` for that entry. The machines and implements saved are the adjusted set, and the note is stored as `approverRemarks`. |
-| **Type** | Functional · **Automation** Not automated — **`@mutating`** on shared QA (the non-mutating part — Remarks gating **Approve Hours** — is asserted in `HLA-B06`) |
+| **Type** | Functional · **Automation** Automated (note + Approve Hours → API **Adjusted**, `approverRemarks` stored); time/asset edits not yet asserted |
 
 ### HLA-B06 — Adjust: job end must be after job start (web)
 
@@ -329,7 +331,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** **P1 smoke** |
 | **Steps** | **Reject** → **Reason Shown To The Operator** `Yard time is not productive time on this work order.` → **Confirm Reject**. |
 | **Expected result** | The request leaves the pending list with status **Rejected** (3). The entry stays `6:12 AM – 11:48 AM` (`5h:36m`), and **Spent Hours** is unchanged. The reason is visible to the operator on mobile (HLA-C04). |
-| **Type** | Smoke / Functional · **Automation** Not automated — **`@mutating`** on shared QA |
+| **Type** | Smoke / Functional · **Automation** Automated (reason → API **Rejected**, `rejectionReason` stored; chip gone once all decided) |
 
 ### HLA-B10 — Reject a new-entry request adds nothing
 
@@ -398,7 +400,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | A user who both raises requests and holds the decide permission · **Platform** Web · **Priority** P1 |
 | **Steps** | Raise a request as user U, then open the drawer as U. |
 | **Expected result** | **Approve**, **Adjust** and **Reject** are unavailable or refused for U's own request. API probe: `PUT …/Decide` with U's token returns 403 or 400. |
-| **Type** | Permission / Negative · **Automation** API-automatable (needs a second actor's token) |
+| **Type** | Permission / Negative · **Automation** API-verified 2026-09-28 — the raiser's `Decide` call answers **401**; not in a spec |
 
 ### HLA-B16 — WO completion blocked while requests are pending
 

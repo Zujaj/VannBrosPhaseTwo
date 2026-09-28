@@ -159,3 +159,24 @@ never double-counted).
 | Overlapping entries | `GET /api/WorkOrder/HourLogChangeRequests/{requestId}/ExistingHourLogs` |
 | Decide | `PUT /api/WorkOrder/HourLogChangeRequests/{requestId}/Decide` — `outcome` (`ApprovalStatus`: 1 Unapproved, 2 Approved, 3 Rejected, 4 Adjusted), `adjustedStart/EndDateTime`, `machineResourceIds`, `implementResourceIds`, `approverRemarks` (manager note), `rejectionReason`, `confirmOverride` (= Continue on the overlap prompt) |
 | Audit / history | `GET /api/WorkOrder/HourAdjustmentsHistory?WorkOrderId=&ResourceId=` |
+
+## QA findings & API behaviour (verified 2026-09-28)
+
+Seeding and automation: `pnpm seed:hourlog` (`playwright/api/hour-log-requests.mts`) and the
+`@mutating` `hour-log-decisions.spec.ts`. They need two actors: admin (`Crop Planner`) and operator
+`f3-agrierp-07` (resource **Agrierp 07**, id 609). The operator's token goes in
+`playwright/.auth/qa_operator_token.txt`.
+
+| # | Behaviour | Verdict |
+|---|---|---|
+| 1 | Hours from **deleted** work orders (`LogAdj-nnnn`) stay on the resource and **block later decisions** over the same time (400 `An existing hour log entry overlaps these hours and cannot be overridden…`). No read endpoint shows them: not `ExistingHourLogs`, `existingHourLogsTotalCount` or `HourAdjustmentsHistory`, so the Create Adjustment prompt can't show them either. | **Defect.** Orphaned hour logs are invisible yet blocking. |
+| 2 | `POST HourLogChangeRequests` with `machineResourceIds: []` is **accepted**; `REQ-0147` on WO-1283 is a real example. The PSD requires at least one machine. | **Defect** (server-side validation missing). |
+| 3 | `PUT …/Decide` `{outcome: 2}` without `adjustedStart/EndDateTime` returns an **empty 500**. The web app always sends both, even for a plain Approve. | Minor defect (should be a 400 validation error). |
+| 4 | Server validation messages match the PSD verbatim: `The job end must be after the job start.` and `Add a short reason — your manager needs it to approve.` | As specified. |
+| 5 | The raiser calling `Decide` on their own request gets **401**. | Self-approval restriction holds. |
+| 6 | `PendingByResource` counts requests against every **machine** in the request too, so machine rows also show `N To Review`. | Not in the PSD; confirm intent. |
+| 7 | The operator's `PUT WorkOrder/WorkOrderStart` gets 401. The admin's `POST WorkOrder/Status {statusID: 3}` moves a WO to In Progress, and `{statusID: 2}` moves it back to To Do even with requests on it. | Test-setup path. Deleting a WO is only allowed in Queue/Draft/To Do. |
+| 8 | The operator's `POST WorkOrder/HourLogs` intermittently returns 500 (`Invalid response received from cloud function…`), and stores server-chosen times when it succeeds. | Flaky on QA. |
+| 9 | Decisions on requests dated weeks back (or on a WO whose start date was pushed back 30 days) returned an empty 500. | Needs investigation. |
+| 10 | Overnight request `21:00 → 00:00` was stored as `21:00 – 23:59` (`LogAdj`), which matches the midnight split rule. | As specified. |
+
