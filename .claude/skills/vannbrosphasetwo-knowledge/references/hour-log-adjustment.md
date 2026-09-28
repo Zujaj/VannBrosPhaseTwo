@@ -167,23 +167,25 @@ never double-counted).
 
 ## QA findings & API behaviour (verified 2026-09-28)
 
-Seeding and automation: `pnpm seed:hourlog` (`playwright/api/hour-log-requests.mts`) and the
+Seeding and automation: WOs only ever move **forward** (To Do → In Progress → Review). Never
+send a started WO back to To Do or delete it, even though the API allows it (#1).
+`pnpm seed:hourlog` (`playwright/api/hour-log-requests.mts`) and the
 `@mutating` `hour-log-decisions.spec.ts`. They need two actors: admin (`Crop Planner`) and operator
 `f3-agrierp-07` (resource **Agrierp 07**, id 609). The operator's token goes in
 `playwright/.auth/qa_operator_token.txt`.
 
 | # | Behaviour | Verdict |
 |---|---|---|
-| 1 | Hours from **deleted** work orders (`LogAdj-nnnn`) stay on the resource and **block later decisions** over the same time (400 `An existing hour log entry overlaps these hours and cannot be overridden…`). No read endpoint shows them: not `ExistingHourLogs`, `existingHourLogsTotalCount` or `HourAdjustmentsHistory`, so the Create Adjustment prompt can't show them either. | **Defect.** Orphaned hour logs are invisible yet blocking. |
+| 1 | The API lets a started WO go **back** to To Do (`POST WorkOrder/Status {statusID: 2}`) and then be deleted, even with decided hours. It also allows Review → In Progress. The product flow is forward-only; an approved or started WO cannot return to To Do. The deleted WO's decided `LogAdj-nnnn` hours survive and block later decisions over that time (400 `…cannot be overridden by this decision…`). Found because our first teardown used this path; the tests no longer do. FINDINGS #36. | **Defect** (API does not enforce the lifecycle). |
 | 2 | `POST HourLogChangeRequests` with `machineResourceIds: []` is **accepted**; `REQ-0147` on WO-1283 is a real example. The PSD requires at least one machine. | **Defect** (server-side validation missing). |
 | 3 | Scripted `PUT …/Decide` with `{outcome: 2}` (Approve) returns an **empty 500**, even with the exact body the web app sends (`adjustedStart/EndDateTime` included). The same Approve from the web UI succeeds, and a scripted **Reject** (`outcome: 3`) works. The cause is unknown; it may depend on a header the app adds. The specs therefore decide through the UI. | **Open.** Needs a backend look. |
 | 4 | Server validation messages match the PSD verbatim: `The job end must be after the job start.` and `Add a short reason — your manager needs it to approve.` | As specified. |
 | 5 | The raiser calling `Decide` on their own request gets **401**. | Self-approval restriction holds. |
 | 6 | `PendingByResource` counts requests against every **machine** in the request too, so machine rows also show `N To Review`. | Not in the PSD; confirm intent. |
-| 7 | The operator's `PUT WorkOrder/WorkOrderStart` gets 401. The admin's `POST WorkOrder/Status {statusID: 3}` moves a WO to In Progress, and `{statusID: 2}` moves it back to To Do even with requests on it. | Test-setup path. Deleting a WO is only allowed in Queue/Draft/To Do. |
+| 7 | The operator's `PUT WorkOrder/WorkOrderStart` gets 401. The admin's `POST WorkOrder/Status {statusID: 3}` starts a WO, and `{statusID: 4}` moves it on to Review. Deleting is only allowed in Queue/Draft/To Do, so a seeded WO is never deleted once started. Each test run leaves one `QA HLA <timestamp>` WO in **Review**. | Test-setup path (forward-only). |
 | 8 | The operator's `POST WorkOrder/HourLogs` intermittently returns 500 (`Invalid response received from cloud function…`), and stores server-chosen times when it succeeds. | Flaky on QA. |
 | 9 | Scripted decisions on requests dated weeks back also returned an empty 500. This is probably the same issue as #3, not a date rule. | Open (see #3). |
 | 10 | Overnight request `21:00 → 00:00` was stored as `21:00 – 23:59` (`LogAdj`), which matches the midnight split rule. | As specified. |
 | 11 | Completion gate: `POST WorkOrder/Status {statusID: 5}` with a pending request returns **400** `This work order has a pending hour-log change request. Decide it before completing or posting this work order.` | As specified (B16). |
-| 12 | Raising a request while the WO is in **Review** returns **400** `This job can only be adjusted while the work order is In Progress.` A WO can be set back from Review to In Progress. | As specified (A15). |
+| 12 | Raising a request while the WO is in **Review** returns **400** `This job can only be adjusted while the work order is In Progress.` | As specified (A15). |
 | 13 | **Audit trail** is `GET /api/HistoryLog?EntityID=<requestId>`, not `HourAdjustmentsHistory` (0 rows for the WO). Each request gets `HourLogChangeRequestRaised` (platform Mobile) and `HourLogChangeRequestApproved` / `…Adjusted` / `…Rejected` (platform Web). The `eventPayload` holds the request number, times, reason, status and decider. It is also in `EventTrail` (entity `WorkOrderHourLogChangeRequest`). | As specified (C03). |

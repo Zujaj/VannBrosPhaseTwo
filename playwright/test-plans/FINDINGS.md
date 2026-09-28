@@ -965,32 +965,34 @@ single-select `app-f3-select`; it sends `cropVarietyIDs=<id>` on `GET /api/workO
 `WOOD COLONY` narrowed 895 records to 7. The Select Plots panel has **no** Variety column. Only
 the form's own `Select Plot` grid has one.
 
-## 36. Hour Log Adjustment: hours from deleted work orders block later decisions, invisibly
+## 36. The API lets a started work order go back to To Do (and be deleted), orphaning its decided hours
 
-**Verified:** 2026-09-28, API + web (Firefox, Chromium). **Severity:** High. **Type:** defect.
+**Verified:** 2026-09-28, API. **Severity:** Medium (data integrity; not reachable through the
+normal UI flow). **Type:** defect. **Rewritten 2026-09-28:** an earlier version blamed the
+hour-log decision check. The real cause was our own test teardown using this transition.
 
-A decided request writes `LogAdj-nnnn` hour log entries for the resource. After their work order
-is deleted, those entries stay. Any later decision for the same resource over the same time is
-then refused, and nothing on the read side shows why.
+In the product a work order moves forward only. An approved or started WO cannot return to To Do.
+The API does not enforce that: `POST /api/WorkOrder/Status {statusID: 2}` moves an **In Progress**
+WO with decided hour log requests back to To Do, and `DELETE /api/WorkOrder/{id}` then deletes it.
+`{statusID: 3}` also moves a WO from **Review** back to In Progress. Our first teardown did exactly
+this.
 
-**Steps to reproduce** (`pnpm seed:hourlog` does steps 1–2):
-1. As the admin, create a planned WO with resource **Agrierp 07** and set it to **In Progress**.
-2. As operator `f3-agrierp-07`, raise a request for a time window, e.g. 27 Sep 06:00–09:00 UTC.
-3. On web, **Approve** it. Move the WO to To Do and delete it.
-4. Repeat steps 1–2 with a new WO and the **same** window, then click **Approve &lt;duration&gt;**.
+**Consequence observed:** the decided hours (`LogAdj-nnnn` entries) survive the deleted WO. A
+later decision for the same resource and time is refused with 400 `An existing hour log entry
+overlaps these hours and cannot be overridden by this decision: 'LogAdj-0001' … belongs to a work
+order that is no longer open.` No read endpoint shows those entries.
 
-**Expected:** the approval succeeds, or the **Create Adjustment** prompt lists the overlapping
-entries so the manager can redistribute them.
+**Steps to reproduce (API only):**
+1. Create a WO with **Agrierp 07** and set it to In Progress.
+2. As the operator, raise a request, then Approve it on web.
+3. `POST /api/WorkOrder/Status {id, statusID: 2}` is accepted, and the WO shows **To Do**.
+4. `DELETE /api/WorkOrder/{id}` is accepted.
 
-**Actual:** `PUT /api/WorkOrder/HourLogChangeRequests/{id}/Decide` returns **400** `An existing hour
-log entry overlaps these hours and cannot be overridden by this decision: 'LogAdj-0001' (…),
-'LogAdj-0002' (…) … belongs to a work order that is no longer open.` The drawer shows no prompt
-and the request stays pending. The blocking entries are invisible in every read endpoint:
-`ExistingHourLogs?resourceId=`, `existingHourLogsTotalCount`, `HourAdjustmentsHistory`, and
-`HourLogs` (which needs a WorkOrderId). So a manager cannot find or clear them.
+**Expected:** step 3 is refused, because a started WO (and certainly one with approved hours)
+cannot go back to To Do. **Actual:** it is accepted, which also makes step 4 possible.
 
-**Impact:** deleting a WO with decided hours permanently blocks that operator's time.
-**Workaround in tests:** each run seeds a random slot in the last 5 days (`api/hour-log-requests.mts`).
+**Tests now:** the seed and spec only move WOs forward, and each run ends in **Review**
+(`api/hour-log-requests.mts`, `closeHourLogWorkOrder`).
 
 ## 37. Hour Log Adjustment: the server accepts a change request with no machine
 

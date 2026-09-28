@@ -55,7 +55,8 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
   50 materials + 50 assets) fail on the server either way; see `FINDINGS.md` #29.
 - `pnpm seed:hourlog [--json]` — fresh In Progress planned WO with three pending hour log change
   requests raised by the operator Agrierp 07 (Hour Log Adjustment). `--status <woId>` reads the
-  decisions back, and `--delete <woId>` sets the WO back to To Do and deletes it. It needs the admin
+  decisions back, and `--close <woId>` moves the WO forward to Review. Started WOs are never sent
+  back to To Do or deleted; the product flow is forward-only. Each run leaves one `QA HLA …` WO in Review. It needs the admin
   and an operator (the admin can't decide a request they raised). The operator token comes from
   `.auth/operator.json`: bootstrap it once with `AUTH_ROLES=operator pnpm auth:qa`, and every later
   `pnpm auth:qa` refreshes it silently (a pasted `.auth/qa_operator_token.txt` also works while unexpired). Used by `@mutating`

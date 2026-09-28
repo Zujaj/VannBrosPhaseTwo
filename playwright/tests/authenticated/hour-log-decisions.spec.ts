@@ -6,16 +6,18 @@ import { apiAs } from '../helpers/roleApi';
 /**
  * Hour Log Adjustment on a FRESH work order: the manager's decisions (Approve / Adjust / Reject)
  * in the web drawer, plus the rules around them checked against the API as the right user.
- * Plan: `test-plans/authenticated/hour-log-adjustment.md` — HLA-B17, B15, A15, B16 (API, before
- * any decision), B01, B02, B06, B07, B08 (UI, nothing decided), B04, B05, B09 (UI decisions),
- * then C03 and A08/A09/A10 (API).
+ * Plan: `test-plans/authenticated/hour-log-adjustment.md` — HLA-B17, B15 (API), B01, B02, B06,
+ * B07, B08 (UI, nothing decided), B04, B05, B09 (UI decisions), C03 and A08/A09/A10 (API), and
+ * last A15 + B16 (API, moves the WO to Review).
  *
  * `@mutating`: `beforeAll` runs `pnpm seed:hourlog --json` (api/hour-log-requests.mts), which
  * creates a planned WO on QA, moves it to In Progress, and has the operator (Agrierp 07) raise
- * three requests — one per decision. A request cannot be decided by the user who raised it, so
+ * four requests — one per decision plus a `gate` left pending. A request cannot be decided by the user who raised it, so
  * the seed needs the operator's token as well as the admin's (see scripts/seed-hour-log.mts).
- * `afterAll` deletes the WO (`seed:hourlog --delete`: back to To Do, then delete — QA refuses to
- * delete an In Progress WO). If a run dies first, leftovers are named `QA HLA <timestamp>`.
+ * The WO only moves forward, as in production: each run ends with it in **Review** (the last test
+ * moves it there; `afterAll` runs `seed:hourlog --close` in case it didn't) and leaves it on QA,
+ * named `QA HLA <timestamp>`, with the `gate` request still pending. Started WOs are never sent
+ * back to To Do or deleted — see FINDINGS #36.
  *
  * Outcomes are checked in the UI and against the API (`seed:hourlog --status`); tests titled
  * `(API)` talk to the backend only (tests/helpers/roleApi.ts) and skip the page load.
@@ -30,7 +32,7 @@ interface Seed {
   fieldId: number;
   resourceId: number;
   machineIds: number[];
-  requests: { tag: 'approve' | 'adjust' | 'reject'; id: number; requestNo: string }[];
+  requests: { tag: 'approve' | 'adjust' | 'reject' | 'gate'; id: number; requestNo: string }[];
 }
 
 function script(args: string[]): string {
@@ -74,7 +76,8 @@ test.describe('@HLA @mutating Hour Log Change Requests — manager decisions on 
   });
 
   test.afterAll(() => {
-    if (seed) script(['--delete', String(seed.workOrderId)]);
+    // Forward only: leave the WO in Review (a no-op when the last test already moved it there).
+    if (seed) script(['--close', String(seed.workOrderId)]);
   });
 
   test.beforeEach(async ({ hourLogRequestsPage }) => {
@@ -127,40 +130,20 @@ test.describe('@HLA @mutating Hour Log Change Requests — manager decisions on 
     expect(statusOf(seed.workOrderId, req('approve').id).status).toBe('Unapproved');
   });
 
-  test('HLA-A15 + HLA-B16 (API) in Review no request can be raised and the WO cannot complete while one is pending', async () => {
-    expect((await setStatus(4)).ok, 'move WO to Review').toBe(true);
-    try {
-      const operator = await apiAs('operator');
-      const raised = await operator.post('/api/WorkOrder/HourLogChangeRequests', { data: rawRequest() });
-      const raisedBody = await raised.text();
-      await operator.dispose();
-      expect(raised.status(), raisedBody).toBe(400);
-      expect(raisedBody).toContain('This job can only be adjusted while the work order is In Progress.');
-
-      const done = await setStatus(5);
-      expect(done.status).toBe(400);
-      expect(done.text).toContain(
-        'This work order has a pending hour-log change request. Decide it before completing or posting this work order.',
-      );
-    } finally {
-      expect((await setStatus(3)).ok, 'back to In Progress for the UI decisions').toBe(true);
-    }
-  });
-
-  test('HLA-B01 the Resources table shows Hour Log Changes with "3 To Review" for the operator', async ({ hourLogRequestsPage }) => {
+  test('HLA-B01 the Resources table shows Hour Log Changes with "4 To Review" for the operator', async ({ hourLogRequestsPage }) => {
     const table = hourLogRequestsPage.resourcesTable();
     for (const column of ['Resource Name', 'Resource Type', 'Tracking Log', 'Progress', 'Spent Hours', 'Hour Log Changes']) {
       await expect(table.getByRole('columnheader', { name: column })).toBeVisible();
     }
-    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveText(/^\s*3 To Review\s*$/);
+    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveText(/^\s*4 To Review\s*$/);
   });
 
   test('HLA-B02-partial the drawer lists each pending request with its details', async ({ hourLogRequestsPage }) => {
     await hourLogRequestsPage.openDrawer(hourLogRequestsPage.chipFor(OPERATOR));
     const drawer = hourLogRequestsPage.drawer();
     await expect(drawer.getByText(new RegExp(`${OPERATOR} \\(07\\)`))).toBeVisible();
-    await expect(drawer.getByText(new RegExp(`${seed.sequenceNo}\\W*3 Needs Review`))).toBeVisible();
-    await expect(hourLogRequestsPage.requestCards()).toHaveCount(3);
+    await expect(drawer.getByText(new RegExp(`${seed.sequenceNo}\\W*4 Needs Review`))).toBeVisible();
+    await expect(hourLogRequestsPage.requestCards()).toHaveCount(4);
     for (const r of seed.requests) {
       const card = hourLogRequestsPage.card(r.requestNo);
       await expect(card.getByText(r.requestNo, { exact: true })).toBeVisible();
@@ -216,7 +199,7 @@ test.describe('@HLA @mutating Hour Log Change Requests — manager decisions on 
 
   test('HLA-B04 Approve accepts the requested hours and updates Spent Hours', async ({ hourLogRequestsPage }) => {
     const before = await hourLogRequestsPage.spentHours(OPERATOR);
-    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveText(/^\s*3 To Review\s*$/);
+    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveText(/^\s*4 To Review\s*$/);
     await hourLogRequestsPage.openDrawer(hourLogRequestsPage.chipFor(OPERATOR));
 
     const { requestNo, id } = req('approve');
@@ -228,7 +211,7 @@ test.describe('@HLA @mutating Hour Log Change Requests — manager decisions on 
     expect(statusOf(seed.workOrderId, id).status).toBe('Approved');
 
     await hourLogRequestsPage.gotoWorkOrder(seed.workOrderId);
-    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveText(/^\s*2 To Review\s*$/, { timeout: 30_000 });
+    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveText(/^\s*3 To Review\s*$/, { timeout: 30_000 });
     expect(await hourLogRequestsPage.spentHours(OPERATOR)).not.toBe(before);
   });
 
@@ -262,15 +245,15 @@ test.describe('@HLA @mutating Hour Log Change Requests — manager decisions on 
     expect(row.status).toBe('Rejected');
     expect(row.rejectionReason).toBe(reason);
 
-    // Last pending request decided → the operator's chip is gone.
+    // Only the `gate` request is left pending.
     await hourLogRequestsPage.gotoWorkOrder(seed.workOrderId);
-    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveCount(0, { timeout: 30_000 });
+    await expect(hourLogRequestsPage.chipFor(OPERATOR)).toHaveText(/^\s*1 To Review\s*$/, { timeout: 30_000 });
   });
 
   test('HLA-C03 (API) every raise and decision is written to the audit history', async () => {
     const admin = await apiAs('admin');
-    const expected = { approve: 'Approved', adjust: 'Adjusted', reject: 'Rejected' } as const;
-    for (const r of seed.requests) {
+    const expected: Record<string, string> = { approve: 'Approved', adjust: 'Adjusted', reject: 'Rejected' };
+    for (const r of seed.requests.filter((x) => x.tag !== 'gate')) {
       const res = await admin.get('/api/HistoryLog', { params: { EntityID: r.id, Page: 1, Limit: 20 } });
       const rows = ((await res.json()).data ?? []) as { eventTypeName: string; platformName: string }[];
       const events = rows.filter((x) => /^HourLogChangeRequest/.test(x.eventTypeName));
@@ -311,5 +294,26 @@ test.describe('@HLA @mutating Hour Log Change Requests — manager decisions on 
     }
     await operator.dispose();
     expect(res.status()).toBe(400);
+  });
+
+  test('HLA-A15 + HLA-B16 (API) in Review no request can be raised and the WO cannot complete while one is pending', async () => {
+    // Last test on purpose: the WO moves forward to Review and stays there (never back to To Do /
+    // In Progress). The `gate` request is still pending, so Done must be refused.
+    expect((await setStatus(4)).ok, 'move WO to Review').toBe(true);
+    {
+      const operator = await apiAs('operator');
+      const raised = await operator.post('/api/WorkOrder/HourLogChangeRequests', { data: rawRequest() });
+      const raisedBody = await raised.text();
+      await operator.dispose();
+      expect(raised.status(), raisedBody).toBe(400);
+      expect(raisedBody).toContain('This job can only be adjusted while the work order is In Progress.');
+
+      const done = await setStatus(5);
+      expect(done.status).toBe(400);
+      expect(done.text).toContain(
+        'This work order has a pending hour-log change request. Decide it before completing or posting this work order.',
+      );
+    }
+    expect(statusOf(seed.workOrderId, req('gate').id).status).toBe('Unapproved');
   });
 });

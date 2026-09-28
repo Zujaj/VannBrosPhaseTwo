@@ -6,7 +6,8 @@
 - **API contract:** `vannbrosphasetwo-vann-api-qa` → `reference/WorkOrder.md` (`HourLogChangeRequests*`, `HourAdjustmentsHistory`)
 - **Automation status:** **Partially automated**:
   - **`hour-log-decisions.spec.ts`** (`@mutating`, fresh WO per run) is the main suite:
-    - `pnpm seed:hourlog` has the admin create the WO and set it to In Progress; operator Agrierp 07 raises 3 requests. `afterAll` deletes the WO.
+    - `pnpm seed:hourlog` has the admin create the WO and set it to In Progress; operator Agrierp 07 raises 4 requests (approve, adjust, reject and a `gate` left pending).
+    - The WO only moves forward: the last test (A15 + B16) moves it to **Review**, and it stays on QA as `QA HLA <timestamp>`. It is never sent back to To Do or deleted.
     - API cases: B17, B15, A15, B16, C03, A09 and A10. **A08 is an expected failure** because QA accepts a request with no machine (defect #2).
     - UI cases: B01, B02 (partial), B06, B07 and B08, then the decisions B04, B05 (partial) and B09.
   - **`hour-log-adjustment.spec.ts`** is opt-in, for spot-checking a *real* WO during UAT: `HLA_WORK_ORDER_ID=<id>`.

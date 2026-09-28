@@ -14,9 +14,15 @@
  * answers 500 ("Invalid response received from cloud function") and, when it works, stores
  * its own times rather than the ones sent.
  *
- * Teardown: `deleteHourLogWorkOrder`. Verified end to end on 2026-09-28 (WO-1318). `PUT /api/WorkOrder/WorkOrderStart` answers 401
- * for the operator, hence the admin status change. The operator token comes from
- * `ApiClient.asOperator()`.
+ * Lifecycle only moves FORWARD, as in production: To Do → In Progress → (decisions) → Review.
+ * A WO is never set back to To Do or deleted once started — an approved/started WO cannot return
+ * to To Do in the product, and forcing it through the API orphans its decided hours (FINDINGS #36).
+ * So: a failure while the WO is still To Do deletes it (legitimate); any later failure, and every
+ * finished run, sends it on to **Review** with `closeHourLogWorkOrder` and leaves it there,
+ * named `QA HLA <timestamp>`, for a person to close.
+ *
+ * `PUT /api/WorkOrder/WorkOrderStart` answers 401 for the operator, hence the admin status
+ * change. The operator token comes from `ApiClient.asOperator()`.
  */
 import { ApiClient } from './client.mts';
 import { buildPlannedBody, postWorkOrder } from './planned-work-order.mts';
@@ -60,20 +66,21 @@ export const DEFAULT_REQUESTS: RequestSpec[] = [
   { tag: 'approve', start: 0, end: 1, machines: [0], reason: 'QA HLA approve case' },
   { tag: 'adjust', start: 1.5, end: 2.5, machines: [1], reason: 'QA HLA adjust case' },
   { tag: 'reject', start: 3, end: 3.5, machines: [0, 1], reason: 'QA HLA reject case' },
+  // Left pending on purpose: the completion gate (HLA-B16) needs an undecided request at the end.
+  { tag: 'gate', start: 3.5, end: 3.75, machines: [0], reason: 'QA HLA gate case' },
 ];
 
 /** Hours the default requests span from the slot start. */
 const SLOT_HOURS = 4;
 
 /**
- * Decided hours OUTLIVE their work order: after the WO is deleted its `LogAdj-nnnn` entries stay
- * on the resource, and a later decision over the same time is refused (400 "An existing hour log
- * entry overlaps these hours and cannot be overridden…" — found 2026-09-28). Nothing on the read
- * side shows those orphans: not `existingHourLogsTotalCount`, `ExistingHourLogs?resourceId=`,
- * `HourAdjustmentsHistory`, nor `GET /api/WorkOrder/HourLogs` (400 without a WorkOrderId). So a
- * run cannot look for free time; it picks a random `SLOT_HOURS` window in the last 5 days (~27
- * candidates) to make a clash with an earlier run unlikely, and still skips a window the server
- * does report as busy. Decisions more than a few days back were refused with a bare 500.
+ * Decided hours stay on the resource, and a decision cannot override an entry on a work order
+ * that is no longer open (every earlier run's WO sits in Review) — the server answers 400 "An
+ * existing hour log entry overlaps these hours and cannot be overridden…". Those entries are not
+ * visible to any read endpoint the operator or admin can query for a whole resource
+ * (`GET /api/WorkOrder/HourLogs` needs a WorkOrderId), so a run cannot look for free time: it picks
+ * a random `SLOT_HOURS` window in the last 5 days (~27 candidates) and still skips one the server
+ * reports as busy via `existingHourLogsTotalCount`.
  */
 const MAX_SLOT_TRIES = 12;
 
@@ -100,28 +107,47 @@ export async function seedHourLogWorkOrder(
   const workOrderId = Number(created?.id);
   if (!workOrderId) throw new Error(`WorkOrder create returned no id: ${JSON.stringify(created).slice(0, 300)}`);
 
+  // Everything readable is read while the WO is still To Do, where deleting it is legitimate.
+  let summary: any;
+  let line: any;
+  let machineIds: number[];
   try {
-    return await prepare(admin, operator, workOrderId, requests);
+    summary = dataOf(await admin.get(`WorkOrder/${workOrderId}/Summary`, { locationId: LOCATION_ID, seasonId: SEASON_ID }));
+    machineIds = (summary.assets ?? []).map((a: any) => a.resourceId);
+    const fields = dataOf(await admin.get(`WorkOrder/${workOrderId}/FieldDetails`, { locationId: LOCATION_ID, seasonId: SEASON_ID }));
+    line = fields?.workOrderDetailFields?.[0];
+    if (!line) throw new Error('no field lines');
+    if (machineIds.length < 2) throw new Error(`needs 2 machine assets, got ${machineIds.length}`);
+    await admin.post('WorkOrder/Status', { id: workOrderId, statusID: 3 });
   } catch (e) {
-    // Don't leave a half-seeded WO on shared QA.
-    const cleanup = await deleteHourLogWorkOrder(admin, workOrderId).then(
-      () => 'deleted it',
-      (d: Error) => `could not delete it (${d.message.slice(0, 120)}) — run pnpm seed:hourlog --delete ${workOrderId}`,
+    const cleanup = await admin.delete(`WorkOrder/${workOrderId}`).then(
+      () => 'deleted it (still To Do)',
+      (d: Error) => `could not delete it: ${d.message.slice(0, 120)}`,
     );
-    throw new Error(`seeding WO id ${workOrderId} failed, ${cleanup}: ${(e as Error).message}`);
+    throw new Error(`seeding WO id ${workOrderId} failed before it started, ${cleanup}: ${(e as Error).message}`);
+  }
+
+  try {
+    return await raise(admin, operator, workOrderId, summary.sequenceNo, line, machineIds, requests);
+  } catch (e) {
+    // Started: never back to To Do. Move it on to Review and leave it for a person to close.
+    const closed = await closeHourLogWorkOrder(admin, workOrderId).then(
+      () => 'moved it to Review',
+      (d: Error) => `could not move it to Review: ${d.message.slice(0, 120)}`,
+    );
+    throw new Error(`seeding ${summary.sequenceNo} (id ${workOrderId}) failed after it started, ${closed}: ${(e as Error).message}`);
   }
 }
 
-async function prepare(admin: ApiClient, operator: ApiClient, workOrderId: number, requests: RequestSpec[]): Promise<HourLogSeed> {
-  await admin.post('WorkOrder/Status', { id: workOrderId, statusID: 3 });
-  const summary = dataOf(await admin.get(`WorkOrder/${workOrderId}/Summary`, { locationId: LOCATION_ID, seasonId: SEASON_ID }));
-  if (summary?.status !== 3) throw new Error(`WO ${workOrderId} did not reach In Progress (status ${summary?.status})`);
-  const machineIds: number[] = (summary.assets ?? []).map((a: any) => a.resourceId);
-
-  const fields = dataOf(await admin.get(`WorkOrder/${workOrderId}/FieldDetails`, { locationId: LOCATION_ID, seasonId: SEASON_ID }));
-  const line = fields?.workOrderDetailFields?.[0];
-  if (!line) throw new Error(`WO ${workOrderId} has no field lines`);
-
+async function raise(
+  admin: ApiClient,
+  operator: ApiClient,
+  workOrderId: number,
+  sequenceNo: string,
+  line: any,
+  machineIds: number[],
+  requests: RequestSpec[],
+): Promise<HourLogSeed> {
   const hour = 3600e3;
   const latest = Math.floor(Date.now() / (SLOT_HOURS * hour)) * SLOT_HOURS * hour - 3 * SLOT_HOURS * hour;
   const candidates = Math.floor((4.5 * 24) / SLOT_HOURS);
@@ -157,7 +183,7 @@ async function prepare(admin: ApiClient, operator: ApiClient, workOrderId: numbe
   function summaryOf(seeded: SeededRequest[], slot: Date): HourLogSeed {
     return {
       workOrderId,
-      sequenceNo: summary.sequenceNo,
+      sequenceNo,
       workOrderLineId: line.workOrderLineID,
       fieldId: line.fieldID,
       fieldCode: line.fieldCode,
@@ -170,13 +196,15 @@ async function prepare(admin: ApiClient, operator: ApiClient, workOrderId: numbe
 }
 
 /**
- * Remove a seeded WO. QA only deletes WOs in Queue/Draft/To Do ("Work order can only be deleted
- * in Queue, Draft, or TODO state."), so move it back to To Do first — accepted even with pending
- * or decided hour log requests (verified 2026-09-28).
+ * End a seeded run the way production does: move the WO forward to Review (the step the mobile
+ * app takes when the job ends). Never back to To Do. Requests may still be pending — a person
+ * closing it decides them, since Done is refused while any is pending.
  */
-export async function deleteHourLogWorkOrder(admin: ApiClient, workOrderId: number): Promise<void> {
-  await admin.post('WorkOrder/Status', { id: workOrderId, statusID: 2 });
-  await admin.delete(`WorkOrder/${workOrderId}`);
+export async function closeHourLogWorkOrder(admin: ApiClient, workOrderId: number): Promise<void> {
+  const summary = dataOf(await admin.get(`WorkOrder/${workOrderId}/Summary`, { locationId: LOCATION_ID, seasonId: SEASON_ID }));
+  if (summary?.status === 4 || summary?.status === 5) return;
+  if (summary?.status !== 3) throw new Error(`WO ${workOrderId} is ${summary?.statusName}, not In Progress; left as is`);
+  await admin.post('WorkOrder/Status', { id: workOrderId, statusID: 4 });
 }
 
 /** Every request on the WO, newest first, as the drawer lists them. */
