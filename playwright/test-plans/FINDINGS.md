@@ -964,3 +964,76 @@ Two more Variety controls behave differently. The list's `Set Filters → Variet
 single-select `app-f3-select`; it sends `cropVarietyIDs=<id>` on `GET /api/workOrder`, and
 `WOOD COLONY` narrowed 895 records to 7. The Select Plots panel has **no** Variety column. Only
 the form's own `Select Plot` grid has one.
+
+## 36. Hour Log Adjustment: hours from deleted work orders block later decisions, invisibly
+
+**Verified:** 2026-09-28, API + web (Firefox, Chromium). **Severity:** High. **Type:** defect.
+
+A decided request writes `LogAdj-nnnn` hour log entries for the resource. After their work order
+is deleted, those entries stay. Any later decision for the same resource over the same time is
+then refused, and nothing on the read side shows why.
+
+**Steps to reproduce** (`pnpm seed:hourlog` does steps 1–2):
+1. As the admin, create a planned WO with resource **Agrierp 07** and set it to **In Progress**.
+2. As operator `f3-agrierp-07`, raise a request for a time window, e.g. 27 Sep 06:00–09:00 UTC.
+3. On web, **Approve** it. Move the WO to To Do and delete it.
+4. Repeat steps 1–2 with a new WO and the **same** window, then click **Approve &lt;duration&gt;**.
+
+**Expected:** the approval succeeds, or the **Create Adjustment** prompt lists the overlapping
+entries so the manager can redistribute them.
+
+**Actual:** `PUT /api/WorkOrder/HourLogChangeRequests/{id}/Decide` returns **400** `An existing hour
+log entry overlaps these hours and cannot be overridden by this decision: 'LogAdj-0001' (…),
+'LogAdj-0002' (…) … belongs to a work order that is no longer open.` The drawer shows no prompt
+and the request stays pending. The blocking entries are invisible in every read endpoint:
+`ExistingHourLogs?resourceId=`, `existingHourLogsTotalCount`, `HourAdjustmentsHistory`, and
+`HourLogs` (which needs a WorkOrderId). So a manager cannot find or clear them.
+
+**Impact:** deleting a WO with decided hours permanently blocks that operator's time.
+**Workaround in tests:** each run seeds a random slot in the last 5 days (`api/hour-log-requests.mts`).
+
+## 37. Hour Log Adjustment: the server accepts a change request with no machine
+
+**Verified:** 2026-09-28, API. **Severity:** Medium. **Type:** defect.
+**Test:** `hour-log-decisions.spec.ts` HLA-A08, currently an expected failure.
+
+**Steps:** as the operator, `POST /api/WorkOrder/HourLogChangeRequests` with
+`machineResourceIds: []` and every other field valid.
+
+**Expected:** 400 `Select at least one machine.` (PSD, Validation Rules: at least one machine is mandatory).
+**Actual:** 200, and the request is created. `REQ-0147` on WO-1283 is a real one from mobile.
+
+End ≤ start and a missing reason are validated server-side with the PSD's wording. Only this
+rule is missing, so any client that skips the check can create machine-less hours.
+
+## 38. Hour Log Adjustment: scripted Approve returns an empty 500 (needs a backend look)
+
+**Verified:** 2026-09-28, API. **Severity:** unknown. **Type:** investigate.
+
+`PUT /api/WorkOrder/HourLogChangeRequests/{id}/Decide` with `{"outcome":2,"confirmOverride":false,
+"adjustedStartDateTime":…,"adjustedEndDateTime":…}` returns **500** with an empty error body. That
+is byte-for-byte the body the web app sends, yet the same Approve from the web drawer succeeds.
+Scripted **Reject** (`outcome: 3`) works. Without the adjusted times, Approve also returns 500
+instead of a 400 validation error. We probably don't send a header the web app adds; please check
+the server log for these requests (2026-09-28 ~10:16 UTC, REQ-0200). Specs decide through the UI
+meanwhile.
+
+## 39. Operator hour logging intermittently fails with a cloud-function error
+
+**Verified:** 2026-09-28, API. **Severity:** Medium. **Type:** defect (QA environment).
+
+`POST /api/WorkOrder/HourLogs` as the operator returned **500** `Invalid response received from
+cloud function. Please check if response matches the destination object.` on most attempts. When
+it succeeded, the stored entry used server-chosen times (`02:52–02:54`, scheme `Adjustment`), not the
+ones sent. This blocks seeding an app-logged entry, so change requests against an existing entry
+(HLA-B03, the "Logged by app" and "Change" panels) and the overlap prompt (HLA-B11–B13) cannot be
+automated yet.
+
+## 40. Hour Log Adjustment: machine resources also get "N To Review" chips (product question)
+
+**Verified:** 2026-09-28, web + API. **Type:** question for product.
+
+`PendingByResource` counts a request against the operator **and every machine in it**. So in the
+Resources table, machine rows (e.g. `Agrierp 10`, Machine) also show `N To Review` and open a drawer
+of the same requests. The PSD only describes the chip against the resource that raised the
+request. Is counting it against machines intended?
