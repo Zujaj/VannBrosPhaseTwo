@@ -27,6 +27,11 @@ Two request kinds:
   Request**, **Edit**, **Approve**, **Adjust** and **Reject** are all unavailable.
 - Mobile **Hour Log Adjustment** tab is **not visible** to **Supervisor**, **Admin** and **Manager**
   roles — it is for Machine Operators (field staff, permission-based).
+- **Raising requests needs a role permission:** Work Orders module (`3`) privilege **`23`**, as
+  returned by `GET /api/User/rolePermissions`. Without it, *every* `HourLogChangeRequests`
+  endpoint returns **401** for that user, including listing their own requests (`…/Mine`), while
+  other endpoints still work. Seen 2026-09-28 when agrierp07's role briefly lost it (`[1,18,19,20]`
+  → `[1,18,19,20,23]` once restored). A 401 there means check the role, not the token.
 - **Self-approval restriction:** a user cannot approve/adjust/reject their own request. Deciding
   is a separate permission from raising.
 
