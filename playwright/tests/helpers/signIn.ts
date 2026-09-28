@@ -18,16 +18,17 @@ import type { Credential } from './credentials';
  *   3. Azure AD — the email again (tenant-dependent) and then the password.
  *   4. "Stay signed in?", when the tenant shows it.
  *
- * The whole walk currently runs twice; see the loop in `signIn` for why.
+ * One walk is enough since the dev fix of 2026-09-28; a second is kept only as a logged safety
+ * net — see the loop in `signIn`.
  *
  * Best-effort by design: never throws, never asserts. Callers decide what a given end state
  * means — the setup falls through to its human-assisted wait, the triage tool classifies
  * whichever screen it landed on.
  */
 
-/** Budget for the whole scripted sign-in, both passes. Past this the caller takes over. */
+/** Budget for the whole scripted sign-in, retry included. Past this the caller takes over. */
 const LOGIN_BUDGET_MS = 180_000;
-/** Full walks through the flow before the caller takes over. See the loop in `signIn`. */
+/** Full walks through the flow before the caller takes over: one, plus a logged retry. See `signIn`. */
 const SIGN_IN_PASSES = 2;
 const STEP_TIMEOUT_MS = 25_000;
 
@@ -191,15 +192,21 @@ export async function signIn(
   try {
     await page.goto(routeUrl(routes.login), { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
-    // The QA app currently needs the whole flow TWICE. The first pass always ends back on
-    // `/login?returnUrl=/maps?sessionId=...`: the web build reads `custumToken` from the
-    // gateway's `/auth/token-exchange` response, which now names it `customToken`, so it calls
-    // `signInWithCustomToken(undefined)` and bounces. A second pass from that page lands on
-    // `/maps`. Verified live 2026-09-27. Harmless once fixed: a first pass that reaches `/maps`
-    // skips the retry.
+    // One pass should land on `/maps`. Until 2026-09-28 the QA app needed the whole flow TWICE:
+    // the web build read `custumToken` from the gateway's `/auth/token-exchange` response, which
+    // names it `customToken`, so it called `signInWithCustomToken(undefined)` and bounced back to
+    // `/login?returnUrl=/maps?sessionId=...` (verified live 2026-09-27). The devs fixed it on
+    // 2026-09-28. The retry stays as a safety net, but it now says so out loud: a silent second
+    // pass would hide that regression.
     for (let pass = 1; pass <= SIGN_IN_PASSES; pass += 1) {
       await attempt();
       if (new URL(page.url()).pathname.startsWith(routes.maps.root)) break;
+      if (pass < SIGN_IN_PASSES) {
+        console.warn(
+          `[sign-in] Pass ${pass} ended on ${new URL(page.url()).pathname} instead of /maps; retrying. ` +
+            'If this repeats, the double-login bug (custumToken/customToken) may be back.',
+        );
+      }
     }
   } catch (error) {
     onIncomplete?.((error as Error).message.split('\n')[0]);
