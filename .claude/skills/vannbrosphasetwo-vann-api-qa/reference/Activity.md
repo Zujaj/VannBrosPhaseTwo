@@ -23,7 +23,7 @@ Planned activities (work-order blocks): CRUD, filtering, unplanned/harvest-centr
 | PUT | [`/api/Activity/cancelActivities`](#op-activity-cancelactivities) | Activity_CancelActivities |
 | GET | [`/api/Activity/UnplannedActivitiesWithoutOperation`](#op-activity-getunplannedactivitieswithoutoperation) | Activity_GetUnplannedActivitiesWithoutOperation |
 | GET | [`/api/Activity/cultivationsForAdhocWorkOrder`](#op-activity-getcultivationsforadhocworkorder) | Activity_GetCultivationsForAdhocWorkOrder |
-| GET | [`/api/Activity/blocks`](#op-activity-getcultivationsforblocksforadhoc) | Activity_GetCultivationsForBlocksForAdhoc |
+| POST | [`/api/Activity/blocks`](#op-activity-getcultivationsforblocksforadhoc) | Activity_GetCultivationsForBlocksForAdhoc |
 | GET | [`/api/Activity/harvestCentralBlocks`](#op-activity-getcultivationsforblockswithpicks) | Activity_GetCultivationsForBlocksWithPicks |
 | POST | [`/api/Activity/{activityID}/HourLog`](#op-activity-createactivityhourlog) | Activity_CreateActivityHourLog |
 | PUT | [`/api/Activity/{activityID}/HourLog/{hourLogID}`](#op-activity-updateactivityhourlog) | Activity_UpdateActivityHourLog |
@@ -329,38 +329,13 @@ Request body: _none_
 Responses: `200` body not described (spec says `file`)
 
 <a id="op-activity-getcultivationsforblocksforadhoc"></a>
-### GET `/api/Activity/blocks`
+### POST `/api/Activity/blocks`
 
 operationId `Activity_GetCultivationsForBlocksForAdhoc`
 
-| Param | In | Type | Required | Notes |
-|---|---|---|---|---|
-| `FarmID` | query | int64 |  | non-nullable (omitted → server default, e.g. 0/false) |
-| `OperationID` | query | int64 |  | non-nullable (omitted → server default, e.g. 0/false) |
-| `LocationID` | query | int64 |  | non-nullable (omitted → server default, e.g. 0/false) |
-| `SeasonID` | query | int64 |  | non-nullable (omitted → server default, e.g. 0/false) |
-| `WorkOrderID` | query | int64 |  |  |
-| `StartDate` | query | string (date-time) |  |  |
-| `EndDate` | query | string (date-time) |  |  |
-| `BatchCode` | query | string |  |  |
-| `searchText` | query | string |  |  |
-| `excludeDateRange` | query | boolean |  |  |
-| `Scheme` | query | string |  |  |
-| `CropVarietyIDs` | query | int64[] |  | array: repeat the key (`?K=1&K=2`) |
-| `CropName` | query | string |  |  |
-| `FieldArea` | query | string |  |  |
-| `FieldCode` | query | string |  |  |
-| `CustomerName` | query | string |  |  |
-| `BlockBatchSearch` | query | string |  |  |
-| `ParentWarehouseCode` | query | string |  |  |
-| `OpsEndDateSearch` | query | string |  |  |
-| `OpsStartDateSearch` | query | string |  |  |
-| `Page` | query | int32 |  | non-nullable (omitted → server default, e.g. 0/false) |
-| `Limit` | query | int32 |  | non-nullable (omitted → server default, e.g. 0/false) |
-| `OrderByFieldName` | query | string |  |  |
-| `IsASC` | query | boolean |  | non-nullable (omitted → server default, e.g. 0/false) |
+Parameters: _none_
 
-Request body: _none_
+Request body `filter` (application/json), **required**: [UnpalnnedActivityFilterAPIModel](#schema-unpalnnedactivityfilterapimodel)
 
 Responses: `200` body not described (spec says `file`)
 
@@ -1001,6 +976,17 @@ Enum (integer). Send the **value**.
 | `6` | Cancelled |
 | `7` | New |
 
+<a id="schema-activitytypescheme"></a>
+### ActivityTypeScheme
+
+Enum (integer). Send the **value**.
+
+| Value | Name |
+|---|---|
+| `1` | Planned |
+| `2` | Adhoc |
+| `3` | TrialPlanting |
+
 <a id="schema-activityworkorderdetailsapimodel"></a>
 ### ActivityWorkOrderDetailsAPIModel
 
@@ -1141,6 +1127,40 @@ Required: `id`
 |---|---|---|---|
 | `id` | int64 | yes |  |
 | `name` | string |  |  |
+
+<a id="schema-unpalnnedactivityfilterapimodel"></a>
+### UnpalnnedActivityFilterAPIModel
+
+Extends [ActivitySearchAPIFilter](#schema-activitysearchapifilter) (inherited fields included below).
+
+Required: `page`, `limit`, `isASC`, `farmID`, `operationID`, `locationID`, `seasonID`
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `page` | int32 | yes | from ActivitySearchAPIFilter |
+| `limit` | int32 | yes | from ActivitySearchAPIFilter |
+| `orderByFieldName` | string |  | from ActivitySearchAPIFilter |
+| `isASC` | boolean | yes | from ActivitySearchAPIFilter |
+| `cropName` | string |  | from ActivitySearchAPIFilter |
+| `fieldArea` | string |  | from ActivitySearchAPIFilter |
+| `fieldCode` | string |  | from ActivitySearchAPIFilter |
+| `customerName` | string |  | from ActivitySearchAPIFilter |
+| `blockBatchSearch` | string |  | from ActivitySearchAPIFilter |
+| `parentWarehouseCode` | string |  | from ActivitySearchAPIFilter |
+| `opsEndDateSearch` | string |  | from ActivitySearchAPIFilter |
+| `opsStartDateSearch` | string |  | from ActivitySearchAPIFilter |
+| `farmID` | int64 | yes |  |
+| `operationID` | int64 | yes |  |
+| `locationID` | int64 | yes |  |
+| `seasonID` | int64 | yes |  |
+| `workOrderID` | int64 |  |  |
+| `startDate` | string (date-time) |  |  |
+| `endDate` | string (date-time) |  |  |
+| `batchCode` | string |  |  |
+| `searchText` | string |  |  |
+| `excludeDateRange` | boolean |  |  |
+| `scheme` | [ActivityTypeScheme](#schema-activitytypescheme) |  |  |
+| `cropVarietyIDs` | int64[] |  |  |
 
 <a id="schema-workorderblockstype"></a>
 ### WorkOrderBlocksType

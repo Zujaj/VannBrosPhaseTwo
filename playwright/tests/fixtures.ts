@@ -9,6 +9,7 @@ import { MessagingPage } from './pages/messaging.page';
 import { MapsPage } from './pages/maps.page';
 import { HarvestCentralPage } from './pages/harvest-central.page';
 import { PlotPage } from './pages/settings-plot.page';
+import { HourLogRequestsPage } from './pages/hour-log-requests.page';
 import { routeGoogleMapsViaNode } from './helpers/googleMaps';
 
 /**
@@ -33,6 +34,7 @@ export const test = base.extend<{
   mapsPage: MapsPage;
   harvestCentralPage: HarvestCentralPage;
   plotPage: PlotPage;
+  hourLogRequestsPage: HourLogRequestsPage;
 }>({
   context: async ({ context }, use) => {
     await routeGoogleMapsViaNode(context);
@@ -67,6 +69,9 @@ export const test = base.extend<{
   },
   plotPage: async ({ page }, use) => {
     await use(new PlotPage(page));
+  },
+  hourLogRequestsPage: async ({ page }, use) => {
+    await use(new HourLogRequestsPage(page));
   },
 });
 

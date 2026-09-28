@@ -1337,168 +1337,24 @@
       }
     },
     "/api/Activity/blocks": {
-      "get": {
+      "post": {
         "tags": [
           "Activity"
         ],
         "operationId": "Activity_GetCultivationsForBlocksForAdhoc",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
         "parameters": [
           {
-            "type": "integer",
-            "name": "FarmID",
-            "in": "query",
-            "format": "int64",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "OperationID",
-            "in": "query",
-            "format": "int64",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "LocationID",
-            "in": "query",
-            "format": "int64",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "SeasonID",
-            "in": "query",
-            "format": "int64",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "WorkOrderID",
-            "in": "query",
-            "format": "int64",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "StartDate",
-            "in": "query",
-            "format": "date-time",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "EndDate",
-            "in": "query",
-            "format": "date-time",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "BatchCode",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "searchText",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "boolean",
-            "name": "excludeDateRange",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "Scheme",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "array",
-            "name": "CropVarietyIDs",
-            "in": "query",
-            "collectionFormat": "multi",
-            "x-nullable": true,
-            "items": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "type": "string",
-            "name": "CropName",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "FieldArea",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "FieldCode",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "CustomerName",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "BlockBatchSearch",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "ParentWarehouseCode",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "OpsEndDateSearch",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "string",
-            "name": "OpsStartDateSearch",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "integer",
-            "name": "Page",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "Limit",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "string",
-            "name": "OrderByFieldName",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "type": "boolean",
-            "name": "IsASC",
-            "in": "query",
+            "name": "filter",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UnpalnnedActivityFilterAPIModel"
+            },
             "x-nullable": false
           }
         ],
@@ -18446,6 +18302,18 @@
           },
           {
             "type": "string",
+            "name": "IrrigationMethodCode",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "string",
+            "name": "IrrigationSourceCode",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "string",
             "name": "Name",
             "in": "query",
             "x-nullable": true
@@ -26542,6 +26410,85 @@
         }
       }
     },
+    "UnpalnnedActivityFilterAPIModel": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActivitySearchAPIFilter"
+        },
+        {
+          "type": "object",
+          "required": [
+            "farmID",
+            "operationID",
+            "locationID",
+            "seasonID"
+          ],
+          "properties": {
+            "farmID": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "operationID": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "locationID": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "seasonID": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "workOrderID": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "startDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "endDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "batchCode": {
+              "type": "string"
+            },
+            "searchText": {
+              "type": "string"
+            },
+            "excludeDateRange": {
+              "type": "boolean"
+            },
+            "scheme": {
+              "$ref": "#/definitions/ActivityTypeScheme"
+            },
+            "cropVarietyIDs": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ActivityTypeScheme": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Planned",
+        "Adhoc",
+        "TrialPlanting"
+      ],
+      "enum": [
+        1,
+        2,
+        3
+      ]
+    },
     "ActivityHourLogsAPIModel": {
       "allOf": [
         {
@@ -29404,20 +29351,6 @@
             }
           }
         }
-      ]
-    },
-    "ActivityTypeScheme": {
-      "type": "integer",
-      "description": "",
-      "x-enumNames": [
-        "Planned",
-        "Adhoc",
-        "TrialPlanting"
-      ],
-      "enum": [
-        1,
-        2,
-        3
       ]
     },
     "Operation": {

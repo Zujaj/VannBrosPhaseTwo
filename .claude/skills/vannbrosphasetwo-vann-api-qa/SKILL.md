@@ -107,7 +107,7 @@ this skill's `openapi.json`. Then it runs `scripts/generate.mjs` (Node ≥ 20, n
 ## Tag index
 
 <!-- BEGIN TAG INDEX (generated) -->
-_72 tags · 558 operations · 460 paths · 415 definitions · spec sha256 `ba59ef18ae04`_
+_72 tags · 558 operations · 460 paths · 416 definitions · spec sha256 `5b0ee34ec904`_
 
 | Tag | Ops | What it covers |
 |---|---|---|

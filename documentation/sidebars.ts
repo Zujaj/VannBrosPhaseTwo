@@ -34,6 +34,7 @@ const sidebars: SidebarsConfig = {
             'user-journeys/work-orders/create-inspection-work-order',
             'user-journeys/work-orders/create-harvest-work-order',
             'user-journeys/work-orders/approve-work-order',
+            'user-journeys/work-orders/hour-log-adjustment',
           ],
         },
         {

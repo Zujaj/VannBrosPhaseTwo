@@ -48,6 +48,7 @@ This SKILL.md is the index. Read the matching reference file in `references/` fo
 | Reviewing posted journals in D365 (item, expense, transfer, return-transfer, return-item); postings & inventory sync | `references/journals-postings.md` |
 | Observations / Points of Interest (POI); POI categories; communication center / chat | `references/observations-chat.md` |
 | Plots / fields — **Settings > Plot** list, the **Add Plot** form and its fields, plot ↔ FinOps sync (`PlotJobField`) | `references/plots-fields.md` |
+| **Hour Log Adjustment** — operator raises hour change requests on mobile; manager Approves / Adjusts / Rejects in the **Hour Log Change Requests** drawer (Resources table → `to review` chip); overlap **Create Adjustment** prompt; validations; API | `references/hour-log-adjustment.md` |
 
 ## Roles (the conceptual model)
 
@@ -124,4 +125,4 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/s
 
 Derived from `resources/VB Phase Two Introduction.pdf` and `resources/user-manuals/*.pdf` (V1.0 manuals, Vann Brothers tenant). When in doubt about a flow, the original PDF for that feature is the ground truth.
 
-Features added after the V1.0 manuals are written up from their Azure DevOps work items under `resources/work-items/*.md` (each names its ADO id, acceptance criteria and QA history).
+Features added after the V1.0 manuals are written up from their Azure DevOps work items under `resources/work-items/*.md` or their product specification documents under `resources/product-specifications-document/*.pdf` (each names its ADO id, acceptance criteria and QA history).

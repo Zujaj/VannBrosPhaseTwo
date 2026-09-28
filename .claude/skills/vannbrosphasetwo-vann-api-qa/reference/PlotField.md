@@ -22,6 +22,8 @@ operationId `PlotField_Get`
 | `FarmID` | query | int64 |  |  |
 | `LocationID` | query | int64 |  |  |
 | `Code` | query | string |  |  |
+| `IrrigationMethodCode` | query | string |  |  |
+| `IrrigationSourceCode` | query | string |  |  |
 | `Name` | query | string |  |  |
 | `FarmName` | query | string |  |  |
 | `LocationName` | query | string |  |  |
