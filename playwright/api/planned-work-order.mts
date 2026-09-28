@@ -6,7 +6,7 @@
  * materials, 3 resources, 50 assets). Each row below is derived from the list the form's picker
  * loads, and every derived row matched the captured one:
  *
- *   plots      GET  /api/activity/blocks                  (farm + operation + date window)
+ *   plots      POST /api/activity/blocks                  (farm + operation + date window)
  *   materials  POST /api/Material/GetPaginatedMaterials   (50 per page; "DO NOT USE" skipped)
  *   resources  GET  /api/resource/GetPaginatedResources   (group types 1, 4, 5; supervisor skipped)
  *   assets     GET  /api/asset                            (50 per page)
@@ -99,13 +99,15 @@ export async function buildPlannedBody(api: ApiClient, req: PlannedRequest) {
   if (!priority) throw new Error(`priority "${req.priority}" is not in fixtures/priorities.json`);
   const w = dateWindow();
 
-  const blocksBody = await api.get('activity/blocks', {
+  // POST since the 2026-09-28 deploy (was GET with query params; GET now answers 400).
+  const blocksBody = await api.post('activity/blocks', {
     page: 1,
     limit: 1000,
-    locationId: LOCATION_ID,
-    seasonId: SEASON_ID,
-    farmId: farm.id,
-    operationId: task.id,
+    isASC: false,
+    locationID: LOCATION_ID,
+    seasonID: SEASON_ID,
+    farmID: farm.id,
+    operationID: task.id,
     startDate: w.blocksStart,
     endDate: w.blocksEnd,
   });
