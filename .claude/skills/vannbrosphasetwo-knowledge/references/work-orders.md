@@ -85,6 +85,17 @@ Effects (verbatim): "The work order status will change to 'Done.'" and "Any mate
 
 **Label drift on the Harvest flow (live 2026-08-27):** harvest WO details render the button as **`Workorder Completed`** (one word), the row action as **`Delete Workorder`**, and the comments field as **`Approver Comments`**. Assert the per-flow string; don't carry the Planned spellings across. See [`work-orders-harvest.md`](./work-orders-harvest.md).
 
+## After approval — verifying the FinOps sync
+
+Approval does not write to D365 directly; a batch job picks the approved WO up. Verify in two places (QA knowledge, 2026-09-28):
+
+1. **Sync Console → `Sync History V2`** — QA URL `https://agrierp-vann-qa.folio3.site/sync-console/sync-history-v2` (Playwright: `routes.syncConsole.syncHistoryV2`; bare `/sync-console` redirects to `user-app-version`). Breadcrumb `Home > Sync Console > Sync-history-v2`. Filters: `Select Connection`, `Select Log Level`, `Select Log Type`, `Select Range`, `Services(All)`, a free-text box, `Reset` / `Apply` — typing `expense` + **Apply** narrows to the relevant rows (live 2026-09-28: 10000 → 494 records, all `PlanningLinePostingHourLogJob`). Automated read-only in `playwright/tests/authenticated/sync-console.spec.ts` (`@TC-partial:SD-020`, `@TC-partial:SD-008`). Columns: `Store Name`, `Service Name`, `Log Type`, `Status`, `Date (UTC +05:00)`, `Message`.
+   - Expected row: Store Name **`FinOps Sync`**, Service Name **`PlanningLinePostingHourLogJob`**, Log Type `Connector`, Status `Info`, Message:
+     `Starting sync for Expense Journal with Work order id 31226, Operation 'VBS-008862', Project 'PRJ_000109'` (live grid text has no trailing period, verified 2026-09-28)
+   - Completion row: `Expense Journal with Work Order '31306' synced to FinOps. record has been successfully synced.`
+   - The `Work order id` is the **internal numeric ID** (e.g. `31226`), not the `WO-###` shown in the UI (that is only the sequence number) — resolve it via the API (vannbrosphasetwo-vann-api-qa) when matching. A single WO emits **one "Starting sync" row per Operation/Project pair** (e.g. WO 31214 → seven rows, `VBS-008731`…`VBS-008736`, across PRJ_000078/79/109/110/112/128).
+2. **D365 F&O → Project management and accounting > Journals > Expense** — an expense journal is created for the WO: `Journal batch number` `VBS-JB-…`, Name **`PEJ`**, Description **`Project Expense Journal`**. The captured list was on Show = **`Not posted`**; switch Show if it isn't there. Review details in [`journals-postings.md`](./journals-postings.md).
+
 ## Messages / toasts
 
 - **Live (verified 2026-06-10), title-case:** `Work Order WO-640 | Almond Prep 06/08/2026-1 Saved Successfully` (toast title `Success`, body as quoted).

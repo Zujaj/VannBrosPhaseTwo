@@ -29,6 +29,7 @@ Journal/voucher IDs are prefixed `VBS-` (e.g. `VBS-000086`, `VBS-000546`, `VBS-0
 - List columns (item): `Name`, `Journal`, `Description` ("Project Item Journal"), `Lines`, `Posted`, `In...`. Tabs: Overview, General, Setup, Blocking, History, Store inventory.
 - **Expense journal** path: PM&A > Journals > Expense. Columns: `Journal batch number`, `Name` (PEJ/PEJ2), `Description` ("Project Expense Journal"), `Posted`, `Posted on`, `Log`, `Modified by`, `Rejected by`. Has **Approval** action + **Rejected by** state. Checkbox "Show user-created only".
 - Filter cue: sort `Journal` (item) or `Journal batch number` (expense) Z to A for the latest.
+- **Expense journal from WO approval:** an approved work order is pushed by the **`PlanningLinePostingHourLogJob`** (Store `FinOps Sync`) and produces a `PEJ` / "Project Expense Journal" batch (`VBS-JB-…`). Batch numbers observed on QA use the `VBS-JB-` prefix, and fresh ones can appear under Show = **`Not posted`**. Trace it first in the Sync Console (`/sync-console/sync-history-v2`, filter `expense`) — see "After approval — verifying the FinOps sync" in [`work-orders.md`](./work-orders.md).
 
 ## Transfer Journal (dispatch)
 

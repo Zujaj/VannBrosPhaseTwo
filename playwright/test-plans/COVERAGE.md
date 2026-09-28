@@ -19,14 +19,14 @@ under *Manual* rather than held against automation.
 | 07 WO - Harvest | 8 | 0 | 2 | 0.0% | 7 | 0 | 1 |
 | 08 Harvest Central | 38 | 3 | 2 | 7.9% | 16 | 2 | 9 |
 | 09 Template Management | 69 | 9 | 1 | 13.0% | 32 | 5 | 6 |
-| 10 Communication Center | 44 | 5 | 1 | 11.4% | 17 | 2 | 10 |
+| 10 Communication Center | 44 | 5 | 3 | 11.4% | 17 | 2 | 10 |
 | 11 Settings | 34 | 6 | 3 | 17.6% | 13 | 2 | 6 |
 | 12 Users, Roles & Perms | 39 | 0 | 0 | 0.0% | 25 | 0 | 11 |
-| 13 Sync Console & D365 | 12 | 2 | 2 | 16.7% | 8 | 2 | 13 |
+| 13 Sync Console & D365 | 12 | 2 | 3 | 16.7% | 8 | 2 | 13 |
 | 15 Attachments & PDF | 31 | 7 | 3 | 22.6% | 21 | 7 | 3 |
 | 16 Weather & Tracking | 16 | 1 | 0 | 6.3% | 9 | 0 | 0 |
 | 17 Cross-Cutting & NFR | 7 | 1 | 1 | 14.3% | 7 | 1 | 22 |
-| **TOTAL** | **505** | **84** | **41** | **16.6%** | **268** | **46** | **128** |
+| **TOTAL** | **505** | **84** | **44** | **16.6%** | **268** | **46** | **128** |
 
 ## Fully covered cases
 
@@ -159,11 +159,14 @@ automating a new case - the navigation and setup already exist.
 | HC-010 | P2 | Verify the Harvest Detail column set | Columns include the select checkbox, Harvest Ticket No, Manual Ticket No, Linked Project, Load Type, Standard Quantity, Actual Weight, Driver Name, Truck License Plate, Front and Rear Trailer Plate and audit columns. | `tests/authenticated/harvest-central.spec.ts` |
 | TM-004 | P2 | Verify the column set | Columns are Name, Status, Type, Attribute Count, Default, Location, Created By, Created At, Modified By, Modified At and Actions. | `tests/authenticated/template-management.spec.ts` |
 | CC-008 | P1 | Verify opening a conversation loads its message history | The thread opens with messages in chronological order, own and others' messages visually distinct, each with sender and timestamp. | `tests/authenticated/communication-center.spec.ts` |
+| CC-021 | P1 | Verify an image can be attached and sent | The image uploads with progress, renders inline in the thread and can be opened full size and downloaded. | `tests/authenticated/communication-center-uploads.spec.ts` |
+| CC-022 | P1 | Verify a document can be attached and sent | The document uploads, is listed with name and size, and downloads without corruption. | `tests/authenticated/communication-center-uploads.spec.ts` |
 | ST-001 | P2 | Verify the User Settings page loads | The route resolves to the user settings page and the General > Home Settings section renders with the saved values. | `tests/authenticated/settings.spec.ts` |
 | ST-002 | P1 | Verify the Default Location dropdown | The grower/location list the user is entitled to is shown, is searchable, and the current default is preselected. | `tests/authenticated/settings.spec.ts` |
 | ST-012 | P2 | Verify search on the Sites screen | Only sites matching the search term are displayed; clearing the search restores the list. | `tests/authenticated/settings.spec.ts` |
 | SD-001 | P2 | Verify the Sync Console landing and sub-navigation | The console loads with sub-navigation for Connections, Service Status, Sync History, API Packet Logs and Messages. | `tests/authenticated/sync-console.spec.ts` |
 | SD-004 | P1 | Verify the Service Status page content | The grid shows Service ID, Store Name, Service Name, Synchronization Frequency, Fetch Marker, Sync Direction and job status. | `tests/authenticated/sync-console.spec.ts` |
+| SD-008 | P1 | Verify Sync History filters | Each filter narrows the results correctly, filters combine with AND logic, and Reset clears them all. | `tests/authenticated/sync-console.spec.ts` |
 | AP-024 | P1 | Verify PDF generation for a harvest work order | The PDF generates and contains the picked summary, block progress, assets and resources sections. | `tests/authenticated/attachments-pdf.spec.ts` |
 | AP-028 | P1 | Verify the map displays in the PDF | The map renders clearly and legibly in the PDF. Known defect area - verify clarity and that the map is not blank. | `tests/authenticated/attachments-pdf.spec.ts` |
 | AP-036 | P1 | Verify material template data matches in the PDF | Every material, rate, unit and application value matches the template definition. | `tests/authenticated/attachments-pdf.spec.ts` |

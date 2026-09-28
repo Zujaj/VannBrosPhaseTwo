@@ -38,7 +38,7 @@ This SKILL.md is the index. Read the matching reference file in `references/` fo
 
 | If the task is about… | Read |
 |---|---|
-| Work orders — concept, lifecycle/statuses, list, common create-form fields, approval, toasts (shared hub; links to the per-type flows) | `references/work-orders.md` |
+| Work orders — concept, lifecycle/statuses, list, common create-form fields, approval, post-approval FinOps sync check (Sync Console / expense journal), toasts (shared hub; links to the per-type flows) | `references/work-orders.md` |
 | Creating a **Planned (standard)** WO — plot + materials (Rate/acre) + resources + assets; the `+ Add Plot` plot picker | `references/work-orders-planned.md` |
 | Creating a **Tank Mix** WO — Unit/Mix Method/Per, Liquid Application params, Material Template | `references/work-orders-tank-mix.md` |
 | Creating an **Inspection** WO — Inspection Template required; plot + resources only | `references/work-orders-inspection.md` |

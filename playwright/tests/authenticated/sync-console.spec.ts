@@ -5,7 +5,8 @@ import { routes } from '../constants/routes';
  * Sync Console. Workbook tab `13 Sync Console & D365`.
  *
  * Read-only: the console's pages and their content. The integration cases (SD-003, SD-007,
- * SD-013..SD-024) need a D365 round-trip or a posting batch and stay manual, and SD-006
+ * SD-013..SD-024) need a D365 round-trip or a posting batch and stay manual. The exception is
+ * SD-020, which checks the web-side Sync History log for expense postings but not D365. SD-006
  * ("Stop All Services" asks for confirmation) is not automated — see FINDINGS.md.
  *
  * The console is admin-only; the non-admin half of that gate (GN-036, SD access) needs a
@@ -109,4 +110,104 @@ test('@TC:SD-012 the message statistics view loads without error', async ({ page
   await expect(page.locator('body')).not.toContainText(
     /unhandled|something went wrong|an error occurred|404|NG0[0-9]{3}/i,
   );
+});
+
+/**
+ * SD-008: "Verify Sync History filters" (connection, log level, log type, date range, keyword,
+ * then Reset).
+ *
+ * Only the keyword filter and Reset are automated. The dropdown filters (connection, log level,
+ * log type, range) and their AND-combination are still manual. Partial for that reason.
+ */
+test('@TC-partial:SD-008 the Sync History keyword filter narrows the grid and Reset clears it', async ({
+  page,
+  listPage,
+}) => {
+  await page.goto(routes.syncConsole.syncHistoryV2, { waitUntil: 'domcontentloaded' });
+  await listPage.waitForGridSettled();
+  await expect(listPage.rows.first()).toBeVisible({ timeout: 45000 });
+  await expect(page.getByRole('heading', { name: 'Sync History V2' })).toBeVisible();
+
+  await listPage.expectColumns([
+    'Store Name',
+    'Service Name',
+    'Log Type',
+    'Status',
+    'Date (UTC +05:00)',
+    'Message',
+  ]);
+
+  const total = async () => (await listPage.recordCount())?.total ?? -1;
+  const unfiltered = await total();
+  expect(unfiltered, 'Sync History footer never reported a record count').toBeGreaterThan(0);
+
+  const keyword = page.getByRole('textbox', { name: 'Search Keyword' });
+  await keyword.fill('expense');
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await listPage.waitForGridSettled();
+
+  await expect
+    .poll(total, { timeout: 30000, message: 'keyword filter did not narrow the grid' })
+    .toBeLessThan(unfiltered);
+  expect(await total()).toBeGreaterThan(0);
+
+  // Every row the filter returns carries the keyword somewhere in it.
+  for (const text of await listPage.rows.allInnerTexts()) {
+    expect(text, 'a row without the keyword survived the filter').toMatch(/expense/i);
+  }
+
+  await page.getByRole('button', { name: 'Reset' }).click();
+  await listPage.waitForGridSettled();
+  await expect(keyword).toHaveValue('');
+  await expect
+    .poll(total, { timeout: 30000, message: 'Reset did not restore the unfiltered grid' })
+    .toBe(unfiltered);
+});
+
+/**
+ * SD-020: "Verify expense job posting". The expected result is that "The expense posts to
+ * the correct project and account in D365."
+ *
+ * An approved work order's expense lines go to FinOps through
+ * `PlanningLinePostingHourLogJob`, which logs one row per Operation/Project pair in Sync
+ * History V2 (e.g. `Starting sync for Expense Journal with Work order id 31226, Operation
+ * 'VBS-008862', Project 'PRJ_000109'`) and then `Expense Journal with Work Order '31306'
+ * synced to FinOps. record has been successfully synced.`. The `Work order id` is the
+ * internal ID, not the `WO-###` sequence number.
+ *
+ * Read-only: this asserts that the job has run and logs in that shape, against existing
+ * history. It does not approve a WO, and it cannot see the D365 side (a `PEJ`
+ * "Project Expense Journal" batch under PM&A > Journals > Expense), so it stays partial.
+ */
+test('@TC-partial:SD-020 expense journal postings are logged by PlanningLinePostingHourLogJob', async ({
+  page,
+  listPage,
+}) => {
+  await page.goto(routes.syncConsole.syncHistoryV2, { waitUntil: 'domcontentloaded' });
+  await listPage.waitForGridSettled();
+  await expect(listPage.rows.first()).toBeVisible({ timeout: 45000 });
+
+  await page.getByRole('textbox', { name: 'Search Keyword' }).fill('expense');
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await listPage.waitForGridSettled();
+
+  // Wait for the filtered result rather than the unfiltered page it replaces.
+  await expect
+    .poll(async () => (await listPage.columnValues('Service Name')).join('|'), { timeout: 30000 })
+    .toMatch(/^PlanningLinePostingHourLogJob(\|PlanningLinePostingHourLogJob)*$/);
+
+  const stores = await listPage.columnValues('Store Name');
+  const messages = await listPage.columnValues('Message');
+  expect(stores.every((s) => s === 'FinOps Sync'), `unexpected stores: ${[...new Set(stores)]}`)
+    .toBe(true);
+
+  const started = /^Starting sync for Expense Journal with Work order id \d+, Operation 'VBS-\d+', Project 'PRJ_\d+'\.?$/;
+  const synced = /^Expense Journal with Work Order '\d+' synced to FinOps\. record has been successfully synced\.$/;
+  for (const message of messages) {
+    expect(message, 'expense row in an unrecognised format').toMatch(
+      new RegExp(`${started.source}|${synced.source}`),
+    );
+  }
+  expect(messages.some((m) => started.test(m)), 'no "Starting sync" row on the first page')
+    .toBe(true);
 });
