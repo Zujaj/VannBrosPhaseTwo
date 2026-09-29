@@ -1039,3 +1039,42 @@ automated yet.
 Resources table, machine rows (e.g. `Agrierp 10`, Machine) also show `N To Review` and open a drawer
 of the same requests. The PSD only describes the chip against the resource that raised the
 request. Is counting it against machines intended?
+
+## 41. Communication Center never loads the conversation list on web (ADO #26428)
+
+**Cases:** CC-001, CC-008, CC-021..CC-023 (and every case that opens a conversation).
+**Verified:** 2026-09-29, web (Firefox and Chromium). **Severity:** Medium (as filed).
+**Type:** defect, already filed as ADO [#26428](https://dev.azure.com/AgriERPProduct/Vann%20Brothers/_workitems/edit/26428)
+("Chat Module | Continuously loading on Apps").
+
+**Communication Center** (`/messaging`) paints the `Messages` pane but stays on its loading
+placeholders ("Skeleton Text") for over 60 s; no `app-chathead-card` ever renders, so no
+conversation can be opened. The console shows three bare `ERROR Error` entries from the vendor
+bundle, and no chat request is seen in the network log (only Firebase installation/remote-config
+calls). Reproducible on a fresh admin session.
+
+`@TC:CC-001` and `@TC-partial:CC-008` in `communication-center.spec.ts` fail on this in both
+engines. The attachment tests in `communication-center-uploads.spec.ts` (CC-021..CC-023, now
+uploading the real files in `fixtures/Test Data/`) cannot run until it is fixed, and the dedicated
+test conversation (`E2E_CHAT_CONVERSATION`) cannot be created until then.
+
+#26428 was filed with one line and a screenshot. It was left as is at the tester's request; the
+details above can be added to it if dev asks for a repro.
+
+## 42. Spent Hours: saving hours for a resource with no logged hours returns 500 (ADO #26431)
+
+**Verified:** 2026-09-29, web + HAR. **Severity:** High (as filed). **Type:** defect, filed as ADO
+[#26431](https://dev.azure.com/AgriERPProduct/Vann%20Brothers/_workitems/edit/26431).
+
+On WO-1366 (`/workorders/31390`, In Progress), the admin opened **Spent Hours** for
+**Agrierp 10 (10)** (Machine, no hours logged on the WO), picked plot `332 (PRJ_000079)`,
+09/29/2026 12:00 PM – 02:00 PM, and clicked **Save**. `POST /api/workOrder/HourLogs` returned
+**500** `{"errorMessage":["Nullable object must have a value."]}` and nothing was stored (a later
+`GET …/HourLogs?ResourceId=612&WorkOrderId=31390` returns `recordsTotal: 0`).
+
+The body sends `"jobId": null` and `"rows": null` (`scheme: 3`, `hourLogType: 9`); a resource with
+no logged hours has no job to link to, so `jobId` is the likely null. Not yet checked: whether a
+Farm Hand resource with no logged hours (e.g. Agrierp 07) fails the same way.
+
+Also seen in the same request: 12:00 PM local was sent as `07:00:00.000` with no timezone marker
+(browser at UTC+5). Possibly related to #39, where the server stored times other than the ones sent.
