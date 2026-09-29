@@ -5,7 +5,8 @@
  * Two actors, because a request is tied to the token that raised it and the raiser cannot
  * decide it (the operator's `Decide` call answers 401):
  *
- *   admin     POST /api/WorkOrder                      planned WO: 1 plot, operator + 2 machines
+ *   admin     POST /api/WorkOrder                      planned WO: 1 plot, operator + 1 other Farm
+ *                                                      Hand (never raises a request) + 2 machines
  *             POST /api/WorkOrder/Status {statusID: 3}  → In Progress (requests need it)
  *   operator  POST /api/WorkOrder/HourLogChangeRequests one request per `RequestSpec`, all
  *             "new entry" requests inside a time slot the operator has no hour logs in
@@ -47,6 +48,10 @@ export interface SeededRequest {
   tag: string;
   id: number;
   requestNo: string;
+  /** UTC ISO times as sent. */
+  start: string;
+  end: string;
+  machineIds: number[];
 }
 
 export interface HourLogSeed {
@@ -56,7 +61,11 @@ export interface HourLogSeed {
   fieldId: number;
   fieldCode: string;
   resourceId: number;
+  /** A second Farm Hand on the WO who raises nothing: the "other resource" in isolation checks. */
+  otherResource: { id: number; name: string };
   machineIds: number[];
+  /** Drawer / dropdown labels, `<name> (<code>)`, same order as `machineIds`. */
+  machineLabels: string[];
   /** UTC start of the run's free slot. */
   slotStart: string;
   requests: SeededRequest[];
@@ -68,6 +77,17 @@ export const DEFAULT_REQUESTS: RequestSpec[] = [
   { tag: 'reject', start: 3, end: 3.5, machines: [0, 1], reason: 'QA HLA reject case' },
   // Left pending on purpose: the completion gate (HLA-B16) needs an undecided request at the end.
   { tag: 'gate', start: 3.5, end: 3.75, machines: [0], reason: 'QA HLA gate case' },
+  // Overlaps `approve` on machine 0 once that is approved → the Create Adjustment prompt (HLA-B11/B12).
+  // On both machines, so it shares only machine 0 with `approve`.
+  { tag: 'overlap', start: 0.5, end: 1.25, machines: [0, 1], reason: 'QA HLA overlap case' },
+  // Overlaps `approve` in time on machine 1 only (HLA-B13), then rejected (no prompt on reject).
+  { tag: 'othermachine', start: 0.25, end: 0.5, machines: [1], reason: 'QA HLA othermachine case' },
+  // Approved with a double click (one decision only). Ends where `adjust`'s adjusted time starts.
+  { tag: 'double', start: 2.5, end: 2.75, machines: [1], reason: 'QA HLA double case' },
+  // Adjusted with every machine removed (must be refused).
+  { tag: 'nomachine', start: 3.75, end: 4, machines: [1], reason: 'QA HLA nomachine case' },
+  // Adjusted to start one minute inside `double` (approved by then) → prompt, then Cancel.
+  { tag: 'adjustoverlap', start: 2.75, end: 3, machines: [1], reason: 'QA HLA adjustoverlap case' },
 ];
 
 /** Hours the default requests span from the slot start. */
@@ -79,7 +99,7 @@ const SLOT_HOURS = 4;
  * existing hour log entry overlaps these hours and cannot be overridden…". Those entries are not
  * visible to any read endpoint the operator or admin can query for a whole resource
  * (`GET /api/WorkOrder/HourLogs` needs a WorkOrderId), so a run cannot look for free time: it picks
- * a random `SLOT_HOURS` window in the last 5 days (~27 candidates) and still skips one the server
+ * a random `SLOT_HOURS` window in the last 20 days (~117 candidates; every run uses one up) and still skips one the server
  * reports as busy via `existingHourLogsTotalCount`.
  */
 const MAX_SLOT_TRIES = 12;
@@ -92,7 +112,10 @@ export async function seedHourLogWorkOrder(
   { name = `QA HLA ${new Date().toISOString()}`, requests = DEFAULT_REQUESTS } = {},
 ): Promise<HourLogSeed> {
   const body: any = await buildPlannedBody(admin, { name, plots: 1, materials: 0, resources: 1, assets: 2 });
+  const other = body.resources.find((r: any) => r.resourceId !== OPERATOR_RESOURCE_ID);
+  if (!other) throw new Error('buildPlannedBody gave no Farm Hand besides the operator');
   body.resources = [
+    other,
     {
       resourceId: OPERATOR_RESOURCE_ID,
       id: 0,
@@ -111,9 +134,15 @@ export async function seedHourLogWorkOrder(
   let summary: any;
   let line: any;
   let machineIds: number[];
+  let machineLabels: string[];
+  let otherResource: { id: number; name: string };
   try {
     summary = dataOf(await admin.get(`WorkOrder/${workOrderId}/Summary`, { locationId: LOCATION_ID, seasonId: SEASON_ID }));
     machineIds = (summary.assets ?? []).map((a: any) => a.resourceId);
+    machineLabels = (summary.assets ?? []).map((a: any) => `${a.resource.name} (${a.resource.code})`);
+    const o = (summary.resources ?? []).find((r: any) => r.resourceId !== OPERATOR_RESOURCE_ID);
+    if (!o) throw new Error('second resource missing from the WO');
+    otherResource = { id: o.resourceId, name: o.resource.name };
     const fields = dataOf(await admin.get(`WorkOrder/${workOrderId}/FieldDetails`, { locationId: LOCATION_ID, seasonId: SEASON_ID }));
     line = fields?.workOrderDetailFields?.[0];
     if (!line) throw new Error('no field lines');
@@ -128,7 +157,8 @@ export async function seedHourLogWorkOrder(
   }
 
   try {
-    return await raise(admin, operator, workOrderId, summary.sequenceNo, line, machineIds, requests);
+    const seed = await raise(admin, operator, workOrderId, summary.sequenceNo, line, machineIds, requests);
+    return { ...seed, otherResource, machineLabels };
   } catch (e) {
     // Started: never back to To Do. Move it on to Review and leave it for a person to close.
     const closed = await closeHourLogWorkOrder(admin, workOrderId).then(
@@ -147,10 +177,10 @@ async function raise(
   line: any,
   machineIds: number[],
   requests: RequestSpec[],
-): Promise<HourLogSeed> {
+): Promise<Omit<HourLogSeed, 'otherResource' | 'machineLabels'>> {
   const hour = 3600e3;
   const latest = Math.floor(Date.now() / (SLOT_HOURS * hour)) * SLOT_HOURS * hour - 3 * SLOT_HOURS * hour;
-  const candidates = Math.floor((4.5 * 24) / SLOT_HOURS);
+  const candidates = Math.floor((19.5 * 24) / SLOT_HOURS);
   const first = Math.floor(Math.random() * candidates);
   for (let attempt = 0; attempt < MAX_SLOT_TRIES; attempt++) {
     const slot = new Date(latest - ((first + attempt) % candidates) * SLOT_HOURS * hour);
@@ -171,7 +201,14 @@ async function raise(
           mobileDeviceType: 2,
         }),
       );
-      seeded.push({ tag: r.tag, id: res.id, requestNo: res.requestNo });
+      seeded.push({
+        tag: r.tag,
+        id: res.id,
+        requestNo: res.requestNo,
+        start: at(r.start),
+        end: at(r.end),
+        machineIds: r.machines.map((i) => machineIds[i]),
+      });
     }
     const listed = await listRequests(admin, workOrderId);
     const clash = listed.some((r) => seeded.some((x) => x.id === r.id) && r.existingHourLogsTotalCount > 0);
@@ -180,7 +217,7 @@ async function raise(
   }
   throw new Error(`no ${SLOT_HOURS}h window free of hour logs for resource ${OPERATOR_RESOURCE_ID} after ${MAX_SLOT_TRIES} tries`);
 
-  function summaryOf(seeded: SeededRequest[], slot: Date): HourLogSeed {
+  function summaryOf(seeded: SeededRequest[], slot: Date) {
     return {
       workOrderId,
       sequenceNo,

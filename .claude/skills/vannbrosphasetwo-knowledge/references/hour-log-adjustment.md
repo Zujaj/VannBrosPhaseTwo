@@ -90,14 +90,17 @@ Navigation: **Work Orders** → open the WO (`/workorders/<id>`) → **Resources
 
 ### Hour Log Change Requests drawer (right-side `app-aside`)
 
-- Heading **Hour Log Change Requests** (was `Hour Log Change Request`, singular, earlier the same
-  day — changed by a redeploy). Subtitle `Agrierp 07 (07) · WO-1283 · 2 Needs Review` (the `·`
+- Heading **Hour Log Change Requests** / **Hour Log Change Request**: it has flipped between the
+  two across redeploys (plural 2026-09-28 afternoon, singular again 2026-09-29), so match both. Subtitle `Agrierp 07 (07) · WO-1283 · 2 Needs Review` (the `·`
   separators are CSS, not text). **Close** (×) top-right.
 - Card: **`REQ-0151`** + device badge **`IOS`** (icon + text); `320 (PRJ_000067) · 09/09/2026`
   (field code, project, date — no `Job Log-nnnn`, no "N days ago / by <name>" on live);
   `Machine: <name> (<code>)`; a **Requested** panel (`06:01 PM - 10:46 PM`, `4h:45m`) — for
   new-entry requests only this panel shows (no "Logged by app" / "Change" panels observed yet);
   the operator's reason; buttons **`Approve 4h:45m`** (green) · **`Adjust`** (blue) · **`Reject`** (red).
+  A request on two machines lists each as its own `<name> (<code>)` line.
+- Cards are ordered **newest request first**. A decided request leaves the drawer, and the subtitle
+  count drops.
 - Times display in the browser's local time zone (API returns UTC, e.g. `13:01Z` → `06:01 PM` PKT).
 
 **Adjust** → heading **Set The Hours Yourself**: **Machine** (selected assets as `× ` chips) and
@@ -106,9 +109,25 @@ Navigation: **Work Orders** → open the WO (`/workorders/<id>`) → **Resources
 Operator** — **mandatory** (PSD calls it an optional note); **Approve Hours** (disabled until
 Remarks is filled; no duration on this button, unlike the mock) · **Cancel**.
 End ≤ start → **`The Job End Must Be After The Job Start`** and **Approve Hours** disables.
+The form opens pre-filled with the request's machines and times, and has **no Field selector** and
+no duration field. Machine options are the WO's machine assets (ng-multiselect with `Select All` and
+`Search`); adding one keeps the others. **Unticking every machine leaves Approve Hours enabled, and
+the server saves the entry with no machine** (FINDINGS #43).
 
 **Reject** → heading **Reject This Change**, text **Logged Hours Stay As The Spent Hours**,
 textbox **Reason Shown To The Operator**, **Confirm Reject** (disabled until a reason) · **Cancel**.
+A spaces-only reason enables the button, but Confirm then shows **`Reason Is Required`** and
+disables it (API: 400 `Add a reason for rejecting this request.`).
+
+**Resources table after decisions:** Spent Hours (`00h:00m`, `1h:45m`) counts approved/adjusted
+hours only and updates without a reload. A resource with no pending request shows `—` in **Hour Log
+Changes**. The row's **Hours Logged** link opens a **Spent Hours** drawer (`Create` button, one block
+per entry: `Plot`, `Job ID` `LogAdj-nnnn`, `Start Date & Time` / `End Date & Time`
+`MM/DD/YYYY hh:mm AM`, `Hours`, `Hour Log Status`, `Approval Status`, `Comments` = the request's
+reason or the manager's note).
+
+**Who can decide:** a Farm Hand operator (Agrierp 07) opening `/workorders/<id>` is sent back to
+`/workorders`, and their `PUT …/Decide` answers 401.
 
 ### Live vs PSD (drift to know)
 
@@ -127,20 +146,33 @@ Data observations (API, WO-1283): `REQ-0147` has **no machine** although the PSD
 least one; overnight requests (e.g. `20:03 → 01:04`) are stored as a single request — the split
 at midnight applies to the hour log, not the request.
 
-### Create Adjustment prompt (overlap — web only) — PSD, not yet observed live
+### Create Adjustment prompt (overlap — web only) — verified live 2026-09-29
 
-Runs on Approve/Adjust when the decided time intersects another entry of the **same resource**
-that **shares a machine**. Modal **Create Adjustment**:
+Approve/Adjust calls `PUT …/Decide` with `confirmOverride: false`. When the decided time
+intersects an approved entry of the **same resource**, the server answers **409** (body `message`
+plus `overlaps[]`) and the web opens the modal **Create Adjustment**:
 
-> The Selected Time Overlaps With Existing Job Time For The Same Resource And Machine
+> The Selected Time Overlaps with Existing Job Time For The Same Resource And Machine
 
-Table **Existing Overlapping Entries**: `Work Order` · `Plot` · `Machine` · `Time`
-(e.g. `WO-533` · `108` · `John Deere 8R 410 (AST-0121)` · `04/24/2026 06:45 AM - 08:30 AM`).
+Table (**Existing Overlapping Entries**): `Work Order` · `Plot` · `Machine` · `Start Date` ·
+`End Date`, e.g. `QA HLA …` · `Test_Field` · `2002 CAT 962G LOADER TRACTOR (K46)` ·
+`09/28/2026 01:00 PM` · `09/28/2026 02:00 PM`. The operator's own entry is listed too (its name
+shows in the `Machine` column).
 
-> If You Continue The System Will Redistribute Hours For All Impacted Overlapping Entries. Do You Want To Continue?
+> If You Continue The System Will Redistribute Hours For All Impacted Overlapping Entries Do You Want To Continue
 
-Buttons **Cancel** (nothing decided) / **Continue** (redistributes all impacted entries so time is
-never double-counted).
+Buttons **Cancel** (nothing decided, no audit entry) / **Continue** (re-sends Decide with
+`confirmOverride: true`).
+
+Observed behaviour (live differs from the PSD):
+- **Continue** removes the overlapped entry **whole** for the operator and the machine, not just the
+  overlapping minutes. `HourAdjustmentsHistory` records the removed entry, and the decision's
+  HistoryLog payload has `OverrideConfirmed: true` (FINDINGS #44, CL-02).
+- The prompt also appears when only the **operator** overlaps and the machine differs (FINDINGS #45).
+  Touching times (end = next start) do not prompt; a one-minute overlap does. Pending requests are
+  not treated as entries. Reject never prompts.
+- The web opens this prompt (with an empty table) for **any** failed Decide call, including a
+  network failure or a 400 `…cannot be overridden…` (FINDINGS #46).
 
 ## Business rules
 
@@ -178,7 +210,7 @@ send a started WO back to To Do or delete it, even though the API allows it (#1)
 |---|---|---|
 | 1 | The API lets a started WO go **back** to To Do (`POST WorkOrder/Status {statusID: 2}`) and then be deleted, even with decided hours. It also allows Review → In Progress. The product flow is forward-only; an approved or started WO cannot return to To Do. The deleted WO's decided `LogAdj-nnnn` hours survive and block later decisions over that time (400 `…cannot be overridden by this decision…`). Found because our first teardown used this path; the tests no longer do. FINDINGS #36. | **Defect** (API does not enforce the lifecycle). |
 | 2 | `POST HourLogChangeRequests` with `machineResourceIds: []` is **accepted**; `REQ-0147` on WO-1283 is a real example. The PSD requires at least one machine. | **Defect** (server-side validation missing). |
-| 3 | Scripted `PUT …/Decide` with `{outcome: 2}` (Approve) returns an **empty 500**, even with the exact body the web app sends (`adjustedStart/EndDateTime` included). The same Approve from the web UI succeeds, and a scripted **Reject** (`outcome: 3`) works. The cause is unknown; it may depend on a header the app adds. The specs therefore decide through the UI. | **Open.** Needs a backend look. |
+| 3 | Scripted `PUT …/Decide` with `{outcome: 2}` (Approve) returns an **empty 500**, even with the exact body the web app sends (`adjustedStart/EndDateTime` included). The same Approve from the web UI succeeds, and a scripted **Reject** (`outcome: 3`) works. The cause is unknown; it may depend on a header the app adds. The specs therefore decide through the UI. | **Open.** Needs a backend look. 2026-09-29: scripted Decide (admin token) approved normally, so this looks resolved. |
 | 4 | Server validation messages match the PSD verbatim: `The job end must be after the job start.` and `Add a short reason — your manager needs it to approve.` | As specified. |
 | 5 | The raiser calling `Decide` on their own request gets **401**. | Self-approval restriction holds. |
 | 6 | `PendingByResource` counts requests against every **machine** in the request too, so machine rows also show `N To Review`. | Not in the PSD; confirm intent. |
@@ -188,4 +220,7 @@ send a started WO back to To Do or delete it, even though the API allows it (#1)
 | 10 | Overnight request `21:00 → 00:00` was stored as `21:00 – 23:59` (`LogAdj`), which matches the midnight split rule. | As specified. |
 | 11 | Completion gate: `POST WorkOrder/Status {statusID: 5}` with a pending request returns **400** `This work order has a pending hour-log change request. Decide it before completing or posting this work order.` | As specified (B16). |
 | 12 | Raising a request while the WO is in **Review** returns **400** `This job can only be adjusted while the work order is In Progress.` | As specified (A15). |
-| 13 | **Audit trail** is `GET /api/HistoryLog?EntityID=<requestId>`, not `HourAdjustmentsHistory` (0 rows for the WO). Each request gets `HourLogChangeRequestRaised` (platform Mobile) and `HourLogChangeRequestApproved` / `…Adjusted` / `…Rejected` (platform Web). The `eventPayload` holds the request number, times, reason, status and decider. It is also in `EventTrail` (entity `WorkOrderHourLogChangeRequest`). | As specified (C03). |
+| 13 | **Audit trail** is `GET /api/HistoryLog?EntityID=<requestId>`. `HourAdjustmentsHistory?WorkOrderId=&ResourceId=` lists only entries removed by an overlap Continue (0 rows otherwise). Each request gets `HourLogChangeRequestRaised` (platform Mobile) and `HourLogChangeRequestApproved` / `…Adjusted` / `…Rejected` (platform Web). The `eventPayload` holds the request number, times, reason, status and decider. It is also in `EventTrail` (entity `WorkOrderHourLogChangeRequest`). | As specified (C03). |
+| 14 | `GET /api/WorkOrder/HourLogs` answers 400 `Model state is invalid!` unless it gets `WorkOrderId`, `WorkOrderLineId` **and** `ResourceId`. A decided request writes a `LogAdj-nnnn` entry (`schemeName: Adjustment`) for the operator and one per machine. (verified 2026-09-29) | Read path for tests. |
+| 15 | `HourLogChangeRequestCreateAPIModel` has no field for the entry being changed, so every request raised through the API is a **new entry**. The LOGGED BY APP / CHANGE panels cannot be produced from a script. (2026-09-29) | Limits B03 / WD-003. |
+| 16 | A decision on an already-decided request is refused, and a double-click on Approve decides once (one audit event). Adjust with **no machine** is accepted (FINDINGS #43). (2026-09-29) | #43 is a defect. |

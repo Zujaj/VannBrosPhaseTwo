@@ -1,34 +1,44 @@
 # Test Plan — Hour Log Adjustment (Hour Log Change Requests)
 
-- **Spec:** `playwright/tests/authenticated/hour-log-adjustment.spec.ts`
+- **Specs:** `playwright/tests/authenticated/hour-log-decisions.spec.ts` (main, `@mutating`) and
+  `hour-log-adjustment.spec.ts` (opt-in, read-only)
 - **Product spec:** `resources/product-specifications-document/AgriERP FSCM - Hour Log Adjustment.pdf` (PSD v1.0, Aug 17 2026)
+- **QA workbook (web):** `resources/Vann Brothers test cases/Vann Brothers test cases/Hour_Log_Adjustment_Web_Test_Cases.xlsx`
 - **Source of truth:** `vannbrosphasetwo-knowledge/references/hour-log-adjustment.md`
 - **API contract:** `vannbrosphasetwo-vann-api-qa` → `reference/WorkOrder.md` (`HourLogChangeRequests*`, `HourAdjustmentsHistory`)
-- **Automation status:** **Partially automated**:
-  - **`hour-log-decisions.spec.ts`** (`@mutating`, fresh WO per run) is the main suite:
-    - `pnpm seed:hourlog` has the admin create the WO and set it to In Progress; operator Agrierp 07 raises 4 requests (approve, adjust, reject and a `gate` left pending).
-    - The WO only moves forward: the last test (A15 + B16) moves it to **Review**, and it stays on QA as `QA HLA <timestamp>`. It is never sent back to To Do or deleted.
-    - API cases: B17, B15, A15, B16, C03, A09 and A10. **A08 is an expected failure** because QA accepts a request with no machine (defect #2).
-    - UI cases: B01, B02 (partial), B06, B07 and B08, then the decisions B04, B05 (partial) and B09.
+- **Automation status:** web side **mostly automated** (workbook: 57 of 93 browser-automatable web
+  cases fully, 16 partly; see [Workbook alignment (web)](#workbook-alignment-web)):
+  - **`hour-log-decisions.spec.ts`** (`@mutating`, fresh WO per run, 27 tests, ~5 min; green on
+    Firefox 2026-09-29, the 26 before the WC-001 UI test also on Chromium) is the main suite:
+    - `pnpm seed:hourlog` has the admin create the WO (operator Agrierp 07, a second Farm Hand who
+      raises nothing, two machines) and set it to In Progress. The operator then raises one request
+      per case: `approve`, `adjust`, `reject`, `gate` (left pending), `overlap`, `othermachine`,
+      `double`, `nomachine` and `adjustoverlap`. They sit in a random 4-hour slot from the last 20 days.
+    - The WO only moves forward: the A15 + B16 test moves it to **Review**, and it stays on QA as
+      `QA HLA <timestamp>`, with every request decided. It is never sent back to To Do or deleted,
+      and never completed to Done (Done posts to D365; see WC-003/WC-004 below).
+    - **Expected failures** (`test.fail`, known QA defects): A08 (raise with no machine, knowledge
+      ref #2), HLA-AD-008 (FINDINGS #43), HLA-B13 / OV-006 (#45), HLA-UI-006 (#46).
+    - Occasional QA-data failure: a decision refused with `An existing hour log entry overlaps these
+      hours and cannot be overridden…`. Hours from other WOs sit in the random slot, and no endpoint
+      exposes them in advance. The error names this; rerun.
   - **`hour-log-adjustment.spec.ts`** is opt-in, for spot-checking a *real* WO during UAT: `HLA_WORK_ORDER_ID=<id>`.
   - Operator token: the saved `operator` session, bootstrapped once with `AUTH_ROLES=operator pnpm auth:qa`; later `pnpm auth:qa` runs refresh it.
-  - Not automated:
-    - the rest of section A (mobile UI);
-    - B03 (change to an app-logged entry; seeding a logged entry is flaky on QA);
-    - B10–B14 (overlap and isolation; the Create Adjustment prompt has not been seen live);
-    - C01, C02, C04 and C05.
-- **Live verification:** section B web labels verified live 2026-09-28 (WO-1283, id 31307). Mobile
-  cases and the Create Adjustment prompt still use the PSD v1.0 wording. The spec reads the WO
-  from `HLA_WORK_ORDER_ID` (default `31307`) and skips when it has no pending request.
-- **Last updated:** 2026-09-28 (decision automation added)
+  - Not automated: section A (mobile UI), B03 (no API to raise a change to an existing entry), C01,
+    C02, C04, C05, and the workbook cases listed under
+    [Not automated](#not-automated-and-why).
+- **Live verification:** section B web labels verified live 2026-09-28 (WO-1283) and 2026-09-29
+  (WO-1369, id 31393), including the Create Adjustment prompt. Mobile cases still use the PSD v1.0
+  wording.
+- **Last updated:** 2026-09-29 (workbook web gaps filled; overlap, audit and isolation automated)
 
 **Scope:** the operator raises an hour change request on **mobile** (a change to a logged entry,
 or a new entry for a run the app never recorded). The manager decides it on **web** in the
 **Hour Log Change Requests** drawer: **Approve**, **Adjust** or **Reject**. The **Create
 Adjustment** prompt resolves overlapping time. Decided hours flow back to mobile, into the audit
-log, and to D365 for labour costing. New scope: the regression workbook has no case for it, so
-nothing here carries a `@TC:` tag. Specs are tagged **`@HLA`**, and `--grep @HLA` runs exactly
-this set.
+log, and to D365 for labour costing. Specs are tagged **`@HLA`**, and `--grep @HLA` runs exactly
+this set. The web cases also carry `@TC:` / `@TC-partial:` tags for the QA team's workbook; see
+[Workbook alignment (web)](#workbook-alignment-web).
 
 **P1 smoke cases:** HLA-A03, HLA-A04, HLA-B01, HLA-B02, HLA-B04, HLA-B06, HLA-B09, HLA-B11, HLA-C03.
 
@@ -252,7 +262,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Expected result** | The table has `Resource Name` · `Resource Type` · `Tracking Log` · `Progress` · `Spent Hours` · **Hour Log Changes** columns. R1 shows `2 To Review`, and R2 has no chip. The chip can also show on **Machine** resource rows. The count matches `GET /api/WorkOrder/{id}/HourLogChangeRequests/PendingByResource`. |
 | **Type** | Smoke / Functional |
 | **API seed** | 2× `POST …/HourLogChangeRequests` for R1 |
-| **Automation** Automated — `hour-log-decisions.spec.ts` (fresh WO, exact `3 To Review`) | **Automated** — `HLA-B01` in the spec (non-mutating; uses existing pending requests, no seed) |
+| **Automation** | **Automated**: `hour-log-decisions.spec.ts` (fresh WO: all columns incl. **Company**, exact `9 To Review`, `—` and no chip for the second Farm Hand, Spent Hours 0 while all are pending); `hour-log-adjustment.spec.ts` checks a real WO |
 
 ### HLA-B02 — Drawer content for a change request
 
@@ -266,7 +276,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Expected result** | The drawer is titled **Hour Log Change Requests**, with subtitle `<Resource> (<code>) · <WO> · N Needs Review` (e.g. `Agrierp 07 (07) · WO-1283 · 2 Needs Review`), and shows one card per pending request. The card shows `REQ-nnnn`, an `IOS` badge, `<field code> (<project>) · MM/DD/YYYY` (e.g. `320 (PRJ_000067) · 09/09/2026`) and a **Machine:** line. Panels: **LOGGED BY APP** (app's times/duration), **Requested** `hh:mm AM - hh:mm PM` / `Nh:MMm` (e.g. `06:01 PM - 10:46 PM` / `4h:45m`, browser local time), **CHANGE** (difference on spent hours). The reason text follows. Actions: **Approve &lt;Nh:MMm&gt;** (e.g. `Approve 4h:45m`), **Adjust**, **Reject**. Live 2026-09-28 showed no `Job Log-…` or `by <raised by>` line, and only the **Requested** panel on new-entry requests. |
 | **Type** | Smoke / Functional |
 | **API seed** | `POST …/HourLogChangeRequests` with `workOrderLineId`, `mobileDeviceType: 1` |
-| **Automation** Partial — `hour-log-decisions.spec.ts` (REQ no., Android badge, Machine:, Requested times, reason, Approve duration; Logged-by-app/Change panels need B03 data) | **Partial** — `HLA-B02-partial` asserts the title, `N Needs Review` count = chip count, card count, `REQ-nnnn`, device badge, **Machine:**, **Requested** times and the three buttons; the **LOGGED BY APP** / **CHANGE** panels are not asserted (no change-request data on QA yet) |
+| **Automation** | **Automated** except the LOGGED BY APP / CHANGE panels (not reachable, see B03): title, close X, subtitle count, newest-first order, and per card REQ no., badge, machines, Requested times, reason and the three buttons |
 
 ### HLA-B03 — New-entry request shows "Not logged"
 
@@ -278,7 +288,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Preconditions** | A new-entry request (`3:05 PM – 4:40 PM`) is pending |
 | **Steps** | Open the drawer. |
 | **Expected result** | Per PSD: the header line ends `· new entry`, **LOGGED BY APP** reads **Not logged**, **CHANGE** = `+1h 35m`. Live 2026-09-28: new-entry requests show only the **Requested** panel (`3:05 PM - 4:40 PM` / `1h:35m`) and no `new entry` marker; the button reads **Approve 1h:35m**. |
-| **Type** | Functional · **API seed** `POST …/HourLogChangeRequests` without `workOrderLineId` · **Automation** Planned |
+| **Type** | Functional · **API seed** `POST …/HourLogChangeRequests` without `workOrderLineId` · **Automation** Not reachable: the create API has no field for the entry being changed, so B03's "change" cannot be seeded. New-entry cards show only **Requested** (asserted in B02) |
 
 ### HLA-B04 — Approve as submitted
 
@@ -289,7 +299,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** **P1 smoke** |
 | **Steps** | 1. Note R1's **Spent Hours**. 2. Open the drawer and click **Approve &lt;Nh:MMm&gt;** (e.g. `Approve 6h:45m`). |
 | **Expected result** | The request leaves the pending list, and the chip count drops by 1 (or disappears). R1's **Spent Hours** rises by `1h:09m` without a page reload. The API shows status **Approved** (2) with final = requested times. |
-| **Type** | Smoke / Functional · **API seed** HLA-B02 seed · **Automation** Automated — `hour-log-decisions.spec.ts` (fresh WO; asserts card gone, API **Approved**, chip 3→2, Spent Hours changed) |
+| **Type** | Smoke / Functional · **API seed** HLA-B02 seed · **Automation** Automated: `hour-log-decisions.spec.ts` (no prompt while overlapping requests are only pending, drawer count −1, Spent Hours +exactly the request without reload, final = requested, hour log for operator and machine, other resource untouched, a second decision refused, **Hours Logged** shows the entry) |
 
 ### HLA-B05 — Adjust times, assets and note
 
@@ -300,7 +310,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P1 |
 | **Steps** | 1. Click **Adjust** and check that **Set The Hours Yourself** appears. 2. Open **Machine**: the current machine is selected (shown as a `×` chip); add a 2nd. 3. Open **Implement** (`Select Implement` when empty) and pick one. 4. Set **Job Start\*** `06:00 AM`, keep **Job End\*** `12:30 PM`. 5. In **Remarks\*** (**Note For The Operator**) enter `Yard time is not counted — approving from 6:00.` 6. Click **Approve Hours**. |
 | **Expected result** | **Approve Hours** stays disabled until **Remarks\*** is filled (Remarks are mandatory on live, unlike the PSD's optional note). After approving: status **Adjusted** (4), final = `6:00 AM – 12:30 PM`, and **Spent Hours** reflects `6h 30m` for that entry. The machines and implements saved are the adjusted set, and the note is stored as `approverRemarks`. |
-| **Type** | Functional · **Automation** Automated (note + Approve Hours → API **Adjusted**, `approverRemarks` stored); time/asset edits not yet asserted |
+| **Type** | Functional · **Automation** Automated: adds the 2nd machine (1st stays), start +15 min, note → **Adjusted** with those times, both machines, the note, and a 0.75 h entry. Pre-fill is checked in B07 |
 
 ### HLA-B06 — Adjust: job end must be after job start (web)
 
@@ -311,7 +321,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** **P1** |
 | **Steps** | **Adjust**; fill **Remarks\***; set **Job End\*** equal to **Job Start\***, then earlier; try to approve. |
 | **Expected result** | `The Job End Must Be After The Job Start` appears and **Approve Hours** is disabled; nothing is decided (the request stays `Needs Review`). Also: **Approve Hours** is disabled while **Remarks\*** is empty and enabled once filled. |
-| **Type** | Negative · **API probe** `PUT …/Decide` outcome 4 with inverted times should return 400 · **Automation** Automated — `hour-log-decisions.spec.ts` |
+| **Type** | Negative · **API probe** `PUT …/Decide` outcome 4 with inverted times should return 400 · **Automation** Automated: `hour-log-decisions.spec.ts` (end = start and end < start; no Field selector) |
 
 ### HLA-B07 — Adjust: Cancel changes nothing
 
@@ -322,7 +332,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P3 |
 | **Steps** | **Adjust** → change the values → **Cancel**. |
 | **Expected result** | **Set The Hours Yourself** collapses, the card shows its `REQ-nnnn` and **Approve &lt;Nh:MMm&gt;** again, and after reloading the WO the `N To Review` chip is unchanged. Spent Hours is unchanged. |
-| **Type** | Functional · **Automation** Automated — `hour-log-decisions.spec.ts` (+ API still Unapproved) |
+| **Type** | Functional · **Automation** Automated: values changed then Cancel; API still Unapproved with the requested times |
 
 ### HLA-B08 — Reject needs a reason
 
@@ -333,7 +343,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P2 |
 | **Steps** | **Reject**; leave **Reason Shown To The Operator** empty; try **Confirm Reject**; then type a reason; then **Cancel**. |
 | **Expected result** | **Reject This Change** shows `Logged Hours Stay As The Spent Hours`. **Confirm Reject** is disabled while the reason is empty and enabled once one is typed. **Cancel** collapses the section; the request stays pending. |
-| **Type** | Negative · **API probe** `PUT …/Decide` outcome 3 with no `rejectionReason` should return 400 · **Automation** Automated — `hour-log-decisions.spec.ts` (+ API still Unapproved) |
+| **Type** | Negative · **API probe** `PUT …/Decide` outcome 3 with no `rejectionReason` should return 400 · **Automation** Automated: also a spaces-only reason → `Reason Is Required`; API still Unapproved, no audit entry |
 
 ### HLA-B09 — Reject a change request
 
@@ -344,7 +354,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** **P1 smoke** |
 | **Steps** | **Reject** → **Reason Shown To The Operator** `Yard time is not productive time on this work order.` → **Confirm Reject**. |
 | **Expected result** | The request leaves the pending list with status **Rejected** (3). The entry stays `6:12 AM – 11:48 AM` (`5h:36m`), and **Spent Hours** is unchanged. The reason is visible to the operator on mobile (HLA-C04). |
-| **Type** | Smoke / Functional · **Automation** Automated (reason → API **Rejected**, `rejectionReason` stored; chip gone once all decided) |
+| **Type** | Smoke / Functional · **Automation** Automated: **Rejected**, reason stored, no entry added, Spent Hours unchanged, chip = remaining pending |
 
 ### HLA-B10 — Reject a new-entry request adds nothing
 
@@ -355,7 +365,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P2 |
 | **Steps** | Reject the HLA-B03 request with a reason. |
 | **Expected result** | No entry is added to the resource's hour log (`GET /api/WorkOrder/HourLogs` count unchanged), and Spent Hours is unchanged. |
-| **Type** | Functional · **Automation** Not automated — **`@mutating`** on shared QA |
+| **Type** | Functional · **Automation** Covered by B09: every seeded request is a new entry |
 
 ### HLA-B11 — Create Adjustment prompt: Continue redistributes
 
@@ -367,7 +377,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Preconditions** | R1 has an entry `06:45 AM – 08:30 AM` on machine M1 (possibly on another WO). A pending request for R1 on M1 overlaps it. |
 | **Steps** | 1. Click **Approve &lt;Nh:MMm&gt;** (or **Adjust** → **Approve Hours**). 2. Read the modal. 3. Click **Continue**. |
 | **Expected result** | The **Create Adjustment** modal shows `The Selected Time Overlaps With Existing Job Time For The Same Resource And Machine`. The **Existing Overlapping Entries** table (`Work Order` · `Plot` · `Machine` · `Time`) lists the clashing entry, matching `GET …/{requestId}/ExistingHourLogs`. The modal text continues `If You Continue The System Will Redistribute Hours For All Impacted Overlapping Entries. Do You Want To Continue?` On **Continue**, the request is decided and the impacted entries are redistributed so no minute on M1 is counted twice. The audit records redistribution applied. |
-| **Type** | Smoke / Functional · **API seed** 2 overlapping requests, or a logged entry + a request · **Automation** Not automated — **`@mutating`**; prompt wording is PSD, not yet seen live |
+| **Type** | Smoke / Functional · **API seed** 2 overlapping requests, or a logged entry + a request · **Automation** Automated (`HLA-B11 + HLA-B12`): prompt wording, columns (`Work Order · Plot · Machine · Start Date · End Date`), the clashing row, then Continue → Approved with `OverrideConfirmed`, no overlapping entries left, superseded entry in `HourAdjustmentsHistory`, Spent Hours = entries. Live: the overlapped entry is removed whole (FINDINGS #44). Also `HLA-OV-012` (Adjust one minute into approved time → prompt → Cancel) |
 
 ### HLA-B12 — Create Adjustment prompt: Cancel decides nothing
 
@@ -378,7 +388,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Role** | Manager / Admin · **Platform** Web · **Priority** P1 |
 | **Steps** | As HLA-B11, but click **Cancel**. |
 | **Expected result** | The modal closes. The request stays pending, and neither entry changes. |
-| **Type** | Negative · **Automation** Planned, non-mutating |
+| **Type** | Negative · **Automation** Automated in `HLA-B11 + HLA-B12` (Cancel → still pending, no audit entry) |
 
 ### HLA-B13 — No prompt when the overlap is on a different machine
 
@@ -390,7 +400,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Preconditions** | R1 has an entry on M1. The request overlaps it in time but uses M2 only. |
 | **Steps** | **Approve &lt;Nh:MMm&gt;**. |
 | **Expected result** | No prompt; the request is approved directly. |
-| **Type** | Edge · **Automation** Not automated — **`@mutating`** |
+| **Type** | Edge · **Automation** Automated, **expected failure**: the prompt appears because the operator's own entry overlaps (FINDINGS #45) |
 
 ### HLA-B14 — Per-resource isolation
 
@@ -402,7 +412,7 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | **Preconditions** | R1 and R2 on the same WO share a machine and overlapping time |
 | **Steps** | Approve R1's request (with Continue if prompted). Compare R2's entries before and after. |
 | **Expected result** | R2's hour log entries and **Spent Hours** are identical before and after. Only R1's log changes. |
-| **Type** | Functional / Negative · **API** `GET /api/WorkOrder/HourLogs` for R2 before and after · **Automation** Not automated — **`@mutating`** |
+| **Type** | Functional / Negative · **API** `GET /api/WorkOrder/HourLogs` for R2 before and after · **Automation** Automated for a second Farm Hand who raises nothing (B04 and the overlap test: no entries, Spent Hours unchanged). A shared machine across two operators needs a second operator token |
 
 ### HLA-B15 — Self-approval restriction
 
@@ -508,3 +518,88 @@ return 400; a 200 is a finding, since the mobile check alone does not protect th
 | B) Web — Manager | 17 (B01–B17) |
 | C) Cross-cutting | 5 (C01–C05) |
 | **Total** | **40** |
+
+---
+
+## Workbook alignment (web)
+
+The QA team's workbook `Hour_Log_Adjustment_Test_Cases.xlsx` (246 cases, PSD v1.0) was filtered
+to its **95 Web cases** in the web workbook above. Its column **Q** says, per case, which test covers
+it (generated from the spec titles) or why none does. `pnpm catalog` loads it into
+`test-plans/catalog/web-cases.json` (tab **Hour Log Adjustment**), and `pnpm coverage` reports it.
+Mobile, Integration and ERP cases stay in the full workbook, and section A and C04/C05 here cover
+them.
+
+The tests in `hour-log-decisions.spec.ts` that have no plan ID of their own are titled with the
+workbook ID: HLA-RL-008, HLA-UI-006, HLA-RJ-009, HLA-AP-006, HLA-OV-012, HLA-AD-008 and HLA-WS-006.
+
+### Plan case → workbook IDs
+
+A full tag (`@TC:`) means the test asserts the whole expected result (against live wording where it
+differs from the PSD). A partial tag (`@TC-partial:`) means part of it is not asserted.
+
+| Test | `@TC` (full) | `@TC-partial` |
+|---|---|---|
+| HLA-B15 (API) | — | RL-010, RL-011, RL-012 (API 401 + no audit; the operator has no decide permission, unlike the workbook's user X) |
+| HLA-RL-008 | RL-008 | — |
+| HLA-B01 | WR-001, WR-002, WR-003, WR-004 | — |
+| HLA-B02 | FS-003, WR-005, WD-001, WD-005 – WD-008, WD-011 | WD-002 (no Job Log / age / "by" line live), WD-010 (order only, 9 requests) |
+| HLA-B06 | AD-010, AD-011, AD-013, AD-016 | AD-001 |
+| HLA-B07 | AD-002, AD-014 | — |
+| HLA-B08 | RJ-002, RJ-003, RJ-007 | RJ-001 (subtitle differs) |
+| HLA-UI-006 | — | UI-006 (expected failure, #46) |
+| HLA-B04 | AP-001 – AP-003, WR-006, WR-008, WR-011, WD-009, OV-015, PR-001 | AP-005, RL-009 (decided-by is set and is not the raiser), AP-007 (API second decision) |
+| HLA-B13 | OV-006 (expected failure, #45) | — |
+| HLA-RJ-009 | RJ-009 | — |
+| HLA-B11 + B12 | OV-003, OV-004, OV-008, OV-017, AU-006, PR-002 | OV-001 (Start/End Date columns, not Time) |
+| HLA-AP-006 | AP-006 | — |
+| HLA-OV-012 | OV-010, OV-012 | — |
+| HLA-B05 | AD-003, AD-006, AD-015, OV-009 | — |
+| HLA-AD-008 | AD-008 (expected failure, #43) | — |
+| HLA-B09 | RJ-005 | RJ-004 (a new entry has no original) |
+| HLA-C03 (API) | AU-001 – AU-003, AU-007, DD-001, DD-002 | AU-004 (per request, no WO audit view), AU-005 (API only), DD-003 |
+| HLA-A15 + B16 (API) | — | — (A15 and the API half of B16) |
+| HLA-B16 (UI) | WC-001 (**Mark As Done** → **Approve This Work Order** → Approve → alert with the pending-request message; WO stays Review) | — |
+| HLA-WS-006 | WS-006, WR-007 | — |
+
+### Not automated, and why
+
+| Workbook case | Why |
+|---|---|
+| WC-003, WC-004 | **On hold:** completing the WO to Done posts to D365. You approved it on 2026-09-29, but Claude Code's permission check blocked the edit. To enable it, allow it in the permission settings, then add a final test that calls `markAsDone()` after HLA-WS-006 and expects status **Done**. |
+| WC-002, WR-010, OV-007, RL-013 | Need a second operator who can raise requests (or a manager who is also an operator). QA has one operator token. |
+| WD-003, AP-004, OV-014 | Not reachable: the create API has no field for the entry being changed, so every request is a new entry. |
+| WD-004, AD-005, AD-012 | Live differs from the PSD: new-entry cards show only **Requested**; Adjust's button reads **Approve Hours** with no duration, and there is no duration field. |
+| AD-004, AD-009 | The seeded WO has no implements. |
+| OV-013 | Blocked by FINDINGS #45 (any overlap on the operator prompts). |
+| OV-002, OV-005, OV-011, VL-022, NT-004 | Planned. |
+| FS-005, UI-004 | Manual (tenant-wide Feature Set toggle; browser matrix). |
+
+### Where the workbook disagrees with live QA
+
+The workbook follows the PSD mock-ups. Live QA (2026-09-28/29) differs as below. The specs assert
+**live**; raise the rest with the QA team, since several answer open Clarifications.
+
+| Workbook case | Workbook expects | Live QA |
+|---|---|---|
+| WR-002, WR-006, WD-001 | `2 to review`, `2 needs review` | Title case: `N To Review`, `N Needs Review` |
+| WD-001 | Title `Hour Log Change Requests` | Singular `Hour Log Change Request` again on 2026-09-29 (it has flipped between the two) |
+| WD-002 | `Field 342 · Job Log-0002 · Jul 29`, `19 days ago`, `by Carston Gunter` | `<field code> (<project>) · MM/DD/YYYY`; no Job Log, age or "by" line |
+| WD-004 | `new entry` tag, `NOT LOGGED —` panel | Only the **Requested** panel |
+| WD-005 | Machines separated by `·` | Each machine on its own line as `<name> (<code>)` |
+| WD-007, AP-003 | `Approve 6h 45m` | `Approve 6h:45m`; Spent Hours reads `1h:45m` / `00h:00m` |
+| WD-010 (CL-14) | Order to confirm | Newest request first; decided requests leave the drawer (WD-009) |
+| AD-001, AD-005 | Adjust button `Approve Xh Ym`, optional note | **Approve Hours**; note is **Remarks\*** (`Note For The Operator`) |
+| AD-013 (CL-20) | Note optional or mandatory? | **Mandatory**: Approve Hours stays disabled until Remarks\* is filled |
+| AD-010, AD-011 | `The job end must be after the job start.` | `The Job End Must Be After The Job Start` |
+| AD-008 (CL-19) | Blocked, message to confirm | **Not blocked**: Approve Hours stays enabled and the server saves no machine (#43) |
+| RJ-002, RJ-003 (CL-19) | A validation message | Confirm Reject disabled while empty; a spaces-only reason shows `Reason Is Required` on Confirm (API: `Add a reason for rejecting this request.`) |
+| RJ-001, RJ-005 (CL-21) | `The app's 5h 36m stays as the spent hours.` | `Logged Hours Stay As The Spent Hours` (same for new entries) |
+| OV-001 | Table `Work Order · Plot · Machine · Time` | `Work Order · Plot · Machine · Start Date · End Date`; the operator's own entry is listed as a row too |
+| OV-004 (CL-02) | Redistribute, algorithm to confirm | The overlapped entry is **removed whole**, including its non-overlapping part (#44) |
+| OV-006 | No prompt for a different machine | Prompt shown: the operator's own entry counts (#45) |
+| UI-006 | Error message, retry possible | The Create Adjustment prompt opens (empty) instead; retry still works (#46) |
+| RL-008 | Actions not available | The operator is sent from the WO detail back to `/workorders` |
+| RL-010 – RL-012 | Hidden/disabled or error | API `PUT …/Decide` by the raiser returns **401** |
+| WC-001 | "message stating pending hour log adjustment requests" | Header button **Mark As Done** (not `Work Order Completed`) → dialog **Approve This Work Order** → **Approve** → alert `This work order has a pending hour-log change request. Decide it before completing or posting this work order.` |
+| WR-011 | "Log shows the updated entry" | **Hours Logged** opens a **Spent Hours** drawer: Job ID `LogAdj-nnnn`, Start/End Date & Time, Hours, Approval Status |

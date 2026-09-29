@@ -39,7 +39,7 @@ test.describe('@HLA Hour Log Change Requests — manager review (web)', () => {
     await expect(hourLogRequestsPage.toReviewChips().first()).toHaveText(/^\s*[1-9]\d* To Review\s*$/);
   });
 
-  test('HLA-B02-partial the chip opens the drawer with one card per pending request', async ({
+  test('HLA-B02-partial @TC-partial:HLA-WD-002 the chip opens the drawer with one card per pending request', async ({
     page,
     hourLogRequestsPage,
   }) => {
@@ -66,7 +66,7 @@ test.describe('@HLA Hour Log Change Requests — manager review (web)', () => {
     await page.getByText('Close').or(page.locator('[title="Close"]')).first().click().catch(() => {});
   });
 
-  test('HLA-B06 Adjust refuses a job end that is not after the job start', async ({ hourLogRequestsPage }) => {
+  test('HLA-B06 @TC:HLA-AD-011 @TC-partial:HLA-AD-001 Adjust refuses a job end that is not after the job start', async ({ hourLogRequestsPage }) => {
     await hourLogRequestsPage.openDrawer(hourLogRequestsPage.toReviewChips().first());
     const { card } = await hourLogRequestsPage.firstCard();
     await hourLogRequestsPage.openAdjust(card);
@@ -104,7 +104,7 @@ test.describe('@HLA Hour Log Change Requests — manager review (web)', () => {
     await expect(hourLogRequestsPage.toReviewChips().first()).toHaveText(before);
   });
 
-  test('HLA-B08 Confirm Reject stays disabled until a reason is entered', async ({ hourLogRequestsPage }) => {
+  test('HLA-B08 @TC:HLA-RJ-002 @TC-partial:HLA-RJ-001 Confirm Reject stays disabled until a reason is entered', async ({ hourLogRequestsPage }) => {
     await hourLogRequestsPage.openDrawer(hourLogRequestsPage.toReviewChips().first());
     const { card } = await hourLogRequestsPage.firstCard();
     await hourLogRequestsPage.openReject(card);

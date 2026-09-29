@@ -5,6 +5,7 @@ Extract the Vann Brothers regression workbook into a checked-in JSON catalogue.
     python3 scripts/extract-cases.py
 
 Reads `resources/Vann Brothers test cases/.../AgriFarm_VannBrothers_Regression_Suite_Web_iOS.xlsx`
+plus the Hour Log Adjustment web workbook (`Hour_Log_Adjustment_Web_Test_Cases.xlsx`, same folder)
 and writes `test-plans/catalog/web-cases.json`.
 
 Why a catalogue rather than reading the .xlsx directly from the coverage script: the
@@ -32,6 +33,14 @@ WORKBOOK = (
     / 'Vann Brothers test cases'
     / 'AgriFarm_VannBrothers_Regression_Suite_Web_iOS.xlsx'
 )
+# Hour Log Adjustment: its own workbook, already filtered to Platform = Web. One "Test Cases"
+# tab, header row 1, IDs like HLA-WR-002 (module code in the middle).
+HLA_WORKBOOK = WORKBOOK.with_name('Hour_Log_Adjustment_Web_Test_Cases.xlsx')
+HLA_TAB = 'Hour Log Adjustment'
+HLA_COLUMNS = {
+    'A': 'id', 'B': 'subProcess', 'J': 'platform', 'D': 'prerequisite', 'C': 'title',
+    'E': 'steps', 'G': 'expected', 'H': 'priority', 'I': 'type',
+}
 OUT = Path(__file__).resolve().parents[1] / 'test-plans' / 'catalog' / 'web-cases.json'
 
 # Column letters, from the header row each module tab repeats.
@@ -66,9 +75,23 @@ def main():
                 case[key] = cells.get(letter, '')
             cases.append(case)
 
+    if HLA_WORKBOOK.exists():
+        for name, rows in read_workbook(HLA_WORKBOOK):
+            if name != 'Test Cases':
+                continue
+            for cells in rows[1:]:
+                if not cells.get('A'):
+                    continue
+                case = {'tab': HLA_TAB, 'module': HLA_TAB}
+                for letter, key in HLA_COLUMNS.items():
+                    case[key] = cells.get(letter, '')
+                case['estimateMinutes'] = ''
+                cases.append(case)
+
     payload = {
         '_meta': {
             'source': str(WORKBOOK.relative_to(REPO_ROOT)),
+            'extraSources': [str(HLA_WORKBOOK.relative_to(REPO_ROOT))] if HLA_WORKBOOK.exists() else [],
             'generatedBy': 'playwright/scripts/extract-cases.py',
             'totalCases': len(cases),
             'webCases': sum(1 for c in cases if 'Web' in c['platform']),

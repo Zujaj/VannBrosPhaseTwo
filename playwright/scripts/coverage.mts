@@ -87,7 +87,7 @@ function taggedCases(): { full: Map<string, string[]>; partial: Map<string, stri
   const partial = new Map<string, string[]>();
   for (const file of specFiles(TESTS_DIR)) {
     const rel = path.relative(ROOT, file);
-    for (const m of readFileSync(file, 'utf-8').matchAll(/@TC(-partial)?:([A-Z]{2,3}-\d{3})/g)) {
+    for (const m of readFileSync(file, 'utf-8').matchAll(/@TC(-partial)?:((?:[A-Z]{2,3}-)?[A-Z]{2,3}-\d{3})/g)) {
       const target = m[1] ? partial : full;
       const files = target.get(m[2]) ?? [];
       if (!files.includes(rel)) files.push(rel);

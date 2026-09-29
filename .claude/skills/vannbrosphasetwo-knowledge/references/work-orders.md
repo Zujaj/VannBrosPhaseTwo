@@ -78,7 +78,7 @@ Each selection modal: a level-2 heading (the form's own section title reuses the
 
 1. After the WO is completed in the field (mobile), in the web Work Orders list select the WO and click the **eye icon** (`View Work Order Detail`).
 2. Review detail (right panel: `General`, `Plots`, `Materials`, `Resources`). Detail read-only fields include: `Start Date`, `End Date`, `Progress`, `Supervisor`, `Farm`, `Work Order Type`, `Task Type`, `Task`, `Crop Stage`, `Assets`, `Material Template`, `Inspection Template`, `Submitted By`, `Responsible`, `Created By`, `Notes`, `Approve Comments`. Plots grid: `Plot`, `Customer Name`, `Progress`, `Crop Variety`, `Total Area - ac`, `Operational Area - ac`, `Spent Hours`, `Attachments` (`View Attachment(s)`).
-3. Click **`Work Order Completed`** (top-right, "Mark as Completed").
+3. Click **`Work Order Completed`** (top-right, "Mark as Completed"). **Live 2026-09-29 (planned WO in Review): the header button reads `Mark As Done`**, and the dialog heading is `Approve This Work Order`, with the textbox **`Description`** (`Enter Text`) and **`Cancel`** / **`Approve`**. With an hour log change request still pending, Approve is refused with the alert `This work order has a pending hour-log change request. Decide it before completing or posting this work order.`
 4. In **`Approve this Work Order`** dialog enter comments in **`Description`** (placeholder `Enter Text`) → **`Approve`** (or `Cancel`).
 
 Effects (verbatim): "The work order status will change to 'Done.'" and "Any material and machine consumption recorded will be posted to ERP."

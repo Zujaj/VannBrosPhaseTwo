@@ -1078,3 +1078,64 @@ Farm Hand resource with no logged hours (e.g. Agrierp 07) fails the same way.
 
 Also seen in the same request: 12:00 PM local was sent as `07:00:00.000` with no timezone marker
 (browser at UTC+5). Possibly related to #39, where the server stored times other than the ones sent.
+
+## 43. Hour Log Adjustment: Adjust approves hours with no machine
+
+**Verified:** 2026-09-29, web + API (WO-1369, id 31393, REQ-0269). **Type:** defect (not filed).
+
+In the drawer, **Adjust** → untick every machine in **Machine** → fill **Remarks\*** → **Approve
+Hours** is enabled. Clicking it sends `PUT …/HourLogChangeRequests/269/decide` and gets **200**. The
+request becomes **Adjusted** with `machines: []`, and the operator gets an approved entry
+(`LogAdj-0001`, 1 h) with no machine attached. This is the web twin of the raise-side gap (knowledge
+ref "QA findings" #2). The PSD requires at least one machine, and the workbook (HLA-AD-008) expects
+the approve to be blocked.
+
+**Test:** `hour-log-decisions.spec.ts` HLA-AD-008, an expected failure (it stops at the enabled
+button, so it decides nothing).
+
+## 44. Hour Log Adjustment: Continue on Create Adjustment drops the whole overlapped entry (question, CL-02)
+
+**Verified:** 2026-09-29, web + API (WO-1369, id 31393). **Type:** question for product.
+
+The Create Adjustment prompt now appears live (see the page object for its wording). Steps: approve
+REQ-0268, 08:00–09:00 UTC on the CAT loader. Raise REQ-0272, 08:30–09:15 on the same machine, and
+approve it. The prompt lists the 08:00–09:00 entry (twice, once for the machine and once for the
+operator). Press **Continue**.
+
+**Result:** the 08:00–09:00 entry is removed whole, for both the operator and the machine, and only
+REQ-0272's 08:30–09:15 remains. `HourAdjustmentsHistory` records the removed entry. No minute is
+counted twice, but the non-overlapping 08:00–08:30 is gone: Spent Hours went from 1h:00m to
+0h:45m, not to 1h:15m. The PSD only says hours are "redistributed" (Clarifications CL-02). Is
+replacing the whole entry intended, or should it be trimmed?
+
+## 45. Hour Log Adjustment: overlap prompt fires for a different machine
+
+**Verified:** 2026-09-29, API (WO-1369, REQ-0273). **Type:** defect or spec gap (not filed).
+
+The operator has an approved entry 08:30–09:15 on the CAT loader. REQ-0273 asks for 08:40–09:00 on
+**Test1** only. `Decide` (approve, no override) answers **409** with `The Selected Time Overlaps
+With Existing Job Time For The Same Resource And Machine`, listing the operator's own entry. The
+PSD and the workbook (HLA-OV-006) say an overlap needs the same resource **and** machine, so there
+should be no prompt. The server treats any overlap on the same person as an overlap.
+
+**Test:** `hour-log-decisions.spec.ts` HLA-B13, an expected failure.
+
+## 46. Hour Log Adjustment: a failed Approve call is shown as the overlap prompt
+
+**Verified:** 2026-09-29, web (Firefox; the `decide` call aborted by the test to simulate a dropped
+network). **Type:** defect (not filed).
+
+Open the drawer, and click **Approve** on a request that overlaps nothing, while the network drops.
+The app opens the **Create Adjustment** dialog, with its overlap wording and an **empty** table,
+instead of an error message. The request stays pending, and after **Cancel** it can be approved
+again. A user who presses **Continue** instead is told they are overriding an overlap that does not
+exist. The workbook (HLA-UI-006) expects an error message and a clean retry.
+
+It opens on **any** failed Decide call, not only on the server's 409 overlap answer. Also seen on
+2026-09-29 (WO id 31399, REQ-0320): Decide answered **400** `An existing hour log entry overlaps these
+hours and cannot be overridden by this decision: 'Log-0001' (2026-09-14 17:05 - ) …`. The app showed
+that message as an alert **and** opened the empty Create Adjustment prompt over it, offering
+**Continue** for an overlap the server has just said cannot be overridden. (The `Log-0001` entries
+have no end time: app-logged hours on machine Test1 from before this suite.)
+
+**Test:** `hour-log-decisions.spec.ts` HLA-UI-006, an expected failure (it checks pending + retry first).

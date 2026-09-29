@@ -53,8 +53,9 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
   `seed:planned --api` posts the same body straight to the API (`api/planned-work-order.mts`,
   needs the API token): seconds per WO instead of minutes. Very large WOs (e.g. 99 plots +
   50 materials + 50 assets) fail on the server either way; see `FINDINGS.md` #29.
-- `pnpm seed:hourlog [--json]` — fresh In Progress planned WO with three pending hour log change
-  requests raised by the operator Agrierp 07 (Hour Log Adjustment). `--status <woId>` reads the
+- `pnpm seed:hourlog [--json]` — fresh In Progress planned WO (operator Agrierp 07, a second Farm
+  Hand, two machines) with nine pending hour log change requests raised by the operator, one per
+  decision case in `hour-log-decisions.spec.ts` (Hour Log Adjustment). `--status <woId>` reads the
   decisions back, and `--close <woId>` moves the WO forward to Review. Started WOs are never sent
   back to To Do or deleted; the product flow is forward-only. Each run leaves one `QA HLA …` WO in Review. It needs the admin
   and an operator (the admin can't decide a request they raised). The operator token comes from
@@ -93,7 +94,8 @@ Specs tag the regression workbook's own IDs in the test title — `@TC:<id>` (wh
 result asserted) or `@TC-partial:<id>` (flow automated, part of the expected result still
 unasserted). `pnpm coverage` reports against `test-plans/catalog/web-cases.json` and fails on a
 tag that matches no case; regenerate the catalogue with `pnpm catalog` when the workbook's scope
-changes. Smoke rows are tagged `@SMK:<id>` / `@SMK-partial:<id>` alongside any `@TC` tags.
+changes. The catalogue also loads the Hour Log Adjustment web workbook
+(`Hour_Log_Adjustment_Web_Test_Cases.xlsx`, same folder), whose IDs look like `HLA-WR-002`. Smoke rows are tagged `@SMK:<id>` / `@SMK-partial:<id>` alongside any `@TC` tags.
 
 ## Where a new spec goes
 

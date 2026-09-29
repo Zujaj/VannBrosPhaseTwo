@@ -27,8 +27,10 @@ def read_workbook(path):
 
     for sheet in workbook.find('m:sheets', NS):
         target = targets[sheet.get('{%s}id' % NS['r'])]
+        # Relative to xl/ ("worksheets/sheet1.xml") or absolute ("/xl/worksheets/…", as openpyxl writes).
+        target = target[1:] if target.startswith('/') else target
         if not target.startswith('xl/'):
-            target = 'xl/' + target.lstrip('/')
+            target = 'xl/' + target
         yield sheet.get('name'), list(_rows(zf, target, shared))
 
 

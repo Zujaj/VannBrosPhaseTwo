@@ -20,7 +20,14 @@ import { routes } from '../constants/routes';
  *                     `Note For The Operator`, `Approve Hours` (disabled until a remark) · `Cancel`;
  *                     end ≤ start → `The Job End Must Be After The Job Start`, Approve disabled
  *   Reject            `Reject This Change`, `Logged Hours Stay As The Spent Hours`, textbox
- *                     `Reason Shown To The Operator`, `Confirm Reject` (disabled until a reason) · `Cancel`
+ *                     `Reason Shown To The Operator`, `Confirm Reject` (disabled until a reason) · `Cancel`;
+ *                     a spaces-only reason → `Reason Is Required` on Confirm, button disabled
+ *   Overlap (2026-09-29) Decide answers 409 → dialog `Create Adjustment`: `The Selected Time Overlaps
+ *                     with Existing Job Time For The Same Resource And Machine`, table `Work Order ·
+ *                     Plot · Machine · Start Date · End Date`, `If You Continue The System Will
+ *                     Redistribute Hours…`, `Cancel` · `Continue` (re-sends Decide with the override)
+ *   Hours Logged      the row link opens a `Spent Hours` drawer: one block per entry (`Job ID`
+ *                     `LogAdj-nnnn`, `Start Date & Time`, `End Date & Time`, `Hours`, `Approval Status`)
  *
  * Only read-only actions live here: opening panels and typing into them, never Approve /
  * Confirm Reject. Deciding a request mutates shared QA data other testers are using.
@@ -73,27 +80,129 @@ export class HourLogRequestsPage extends BasePage {
     return text.match(/\d+h:\d{2}m/)![0];
   }
 
+  /** Resolves on the next Decide response. */
+  private nextDecide() {
+    return this.page.waitForResponse((r) => /\/HourLogChangeRequests\/\d+\/decide/i.test(r.url()), { timeout: 30000 });
+  }
+
+  /** The Create Adjustment prompt shown when a decision overlaps approved time. */
+  overlapDialog(): Locator {
+    return this.page.getByRole('dialog').filter({ has: this.page.getByRole('heading', { name: 'Create Adjustment' }) });
+  }
+
   /**
-   * Click a deciding button, then clear the Create Adjustment overlap prompt with Continue if the
-   * decision triggers it (it only appears when the decided time overlaps an entry that shares a
-   * machine — PSD "Overlap and Redistribution", not yet observed live).
+   * Click a deciding button and deal with the Create Adjustment prompt. Deciding overlapping time
+   * answers 409 and opens the prompt; Continue re-sends Decide with the override.
+   *   `continue` (default)  press Continue if the prompt appears
+   *   `none`                the prompt must NOT appear (throws if it does)
+   *   `cancel`              the prompt must appear; press Cancel (nothing is decided)
+   * Returns whether the prompt appeared.
    */
-  async decide(button: Locator) {
-    const decided = this.page.waitForResponse((r) => /\/HourLogChangeRequests\/\d+\/decide/i.test(r.url()), { timeout: 30000 });
+  async decide(button: Locator, overlap: 'continue' | 'none' | 'cancel' = 'continue'): Promise<boolean> {
+    let decided = this.nextDecide();
     await button.click();
-    const cont = this.page.getByRole('button', { name: 'Continue', exact: true });
-    if (await cont.waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false)) await cont.click();
-    const res = await decided;
-    if (!res.ok()) {
-      const body = await res.text();
-      // Hours left behind by DELETED work orders still block decisions over the same time and
-      // are invisible to every read endpoint (hour-log-requests.mts). Name it rather than time out.
-      if (/overlaps these hours and cannot be overridden/.test(body)) {
-        throw new Error(`Decide refused by an orphaned hour log (known QA defect — rerun picks another slot): ${body.slice(0, 300)}`);
+    let res = await decided;
+    const prompted = res.status() === 409;
+    if (prompted) {
+      await expect(this.overlapDialog()).toBeVisible({ timeout: 15000 });
+      if (overlap === 'none') throw new Error(`unexpected Create Adjustment prompt: ${(await res.text()).slice(0, 300)}`);
+      if (overlap === 'cancel') {
+        await this.overlapDialog().getByRole('button', { name: 'Cancel' }).click();
+        await expect(this.overlapDialog()).toBeHidden();
+        return true;
       }
-      throw new Error(`Decide failed ${res.status()}: ${body.slice(0, 300)}`);
+      decided = this.nextDecide();
+      await this.overlapDialog().getByRole('button', { name: 'Continue' }).click();
+      res = await decided;
+    } else if (overlap === 'cancel') {
+      throw new Error(`expected the Create Adjustment prompt, got ${res.status()}`);
     }
+    if (!res.ok()) throw await this.decideError(res);
     await this.waitForLoaderGone();
+    return prompted;
+  }
+
+  /**
+   * Click a deciding button that must open the Create Adjustment prompt (a 409), and leave the
+   * prompt open. Any other answer fails with the reason.
+   */
+  async openOverlapPrompt(button: Locator) {
+    const decided = this.nextDecide();
+    await button.click();
+    const res = await decided;
+    if (res.status() !== 409) throw await this.decideError(res);
+    await expect(this.overlapDialog()).toBeVisible({ timeout: 15000 });
+  }
+
+  private async decideError(res: import('@playwright/test').Response): Promise<Error> {
+    const body = await res.text();
+    // Hours left on QA by other work orders (deleted, closed, or app-logged with no end) block
+    // decisions over the same time, and no read endpoint shows them for a whole resource
+    // (hour-log-requests.mts). Name it rather than fail on a confusing assertion.
+    if (/overlaps these hours and cannot be overridden/.test(body)) {
+      return new Error(`Decide refused by an hour log outside this WO (QA data — rerun picks another slot): ${body.slice(0, 300)}`);
+    }
+    return new Error(`Decide answered ${res.status()}: ${body.slice(0, 300)}`);
+  }
+
+  /**
+   * Subtitle `<Resource (code)> · WO-nnnn · N Needs Review`, read as its count. The `·` separators
+   * are CSS, so the text runs `WO-13738 Needs Review`: strip the WO number before reading N.
+   */
+  async needsReviewCount(sequenceNo: string): Promise<number> {
+    const text = await this.drawerHeading().locator('xpath=following-sibling::p[1]').innerText();
+    return Number(text.split(sequenceNo).pop()!.match(/(\d+) Needs Review/)![1]);
+  }
+
+  /** The drawer's close control (an icon with the accessible name `Close`). */
+  drawerClose(): Locator {
+    return this.drawerHeading().locator('xpath=../..').getByText('Close').or(
+      this.drawerHeading().locator('xpath=../..').locator('[title="Close"], [aria-label="Close"]'),
+    ).first();
+  }
+
+  /** Open the resource's `Hours Logged` link → the `Spent Hours` drawer; returns it. */
+  async openHoursLogged(resourceName: string): Promise<Locator> {
+    const heading = this.page.getByRole('heading', { name: 'Spent Hours', level: 2 });
+    await expect(async () => {
+      await this.waitForLoaderGone();
+      await this.resourceRow(resourceName).getByRole('link', { name: 'Hours Logged' }).click({ timeout: 5000 });
+      await expect(heading).toBeVisible({ timeout: 15000 });
+    }).toPass({ timeout: 60000 });
+    await this.waitForLoaderGone();
+    return heading.locator('xpath=ancestor::*[.//text()[normalize-space()="Job ID"]][1]');
+  }
+
+  /**
+   * Header **Mark As Done** → dialog **Approve This Work Order** (Description) → **Approve**, and
+   * wait for the `POST …/workOrder/Status` it sends. Returns that response; the caller asserts.
+   * Only used where the server must refuse (a pending request); a successful call would complete
+   * the WO and post its consumption to D365.
+   */
+  async markAsDone(description: string) {
+    await this.waitForLoaderGone();
+    await this.page.getByRole('button', { name: 'Mark As Done' }).click();
+    const dialog = this.page.getByRole('dialog').filter({ has: this.page.getByRole('heading', { name: 'Approve This Work Order' }) });
+    await expect(dialog).toBeVisible({ timeout: 15000 });
+    await dialog.getByRole('textbox', { name: 'Description' }).fill(description);
+    const sent = this.page.waitForResponse((r) => /\/workOrder\/Status$/i.test(r.url()) && r.request().method() === 'POST', { timeout: 30000 });
+    await dialog.getByRole('button', { name: 'Approve' }).click();
+    const res = await sent;
+    await this.waitForLoaderGone();
+    return res;
+  }
+
+  /** Tick or untick one machine in the Adjust form's Machine multi-select, then close it. */
+  async toggleMachine(card: Locator, label: string) {
+    const select = card.locator('ng-multiselect-dropdown').first();
+    await select.locator('.dropdown-btn').click();
+    await select.locator('.dropdown-list li', { hasText: label }).click();
+    await card.getByRole('heading', { name: 'Set The Hours Yourself' }).click();
+  }
+
+  /** Remove one machine chip (`<label> x`) from the Adjust form without opening the list. */
+  async removeMachineChip(card: Locator, label: string) {
+    await card.locator('ng-multiselect-dropdown').first().locator('.selected-item', { hasText: label }).locator('a').click();
   }
 
   drawerHeading(): Locator {
