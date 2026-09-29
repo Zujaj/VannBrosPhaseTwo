@@ -60,20 +60,35 @@ export class MessagingPage extends BasePage {
   }
 
   /**
-   * The composer's file inputs. The camera icon picks photos and the paperclip picks documents
-   * (knowledge: observations-chat.md); the photo input is told apart by its `accept`.
-   * NOT yet verified live: confirm against a snapshot of the composer on the first run.
+   * The composer's file input that takes `file`. The camera icon picks photos and the paperclip
+   * picks documents (knowledge: observations-chat.md). Their `accept` lists are NOT verified
+   * live, so match on them rather than on position: the first input whose `accept` covers the
+   * file's MIME type or extension, else the first input with no `accept` at all.
    */
-  fileInput(kind: 'photo' | 'document'): Locator {
+  async fileInputFor(file: UploadFile): Promise<Locator> {
     const inputs = this.root.locator('input[type="file"]');
-    return kind === 'photo'
-      ? inputs.and(this.root.locator('[accept*="image"]')).first()
-      : inputs.and(this.root.locator(':not([accept*="image"])')).first();
+    await expect(inputs.first()).toBeAttached({ timeout: 15000 });
+    const accepts = await inputs.evaluateAll((els) => els.map((el) => (el as HTMLInputElement).accept));
+    const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+    const covers = (accept: string) =>
+      accept
+        .split(',')
+        .map((token) => token.trim().toLowerCase())
+        .some(
+          (token) =>
+            token === file.mimeType ||
+            token === extension ||
+            (token.endsWith('/*') && file.mimeType.startsWith(token.slice(0, -1))),
+        );
+    let index = accepts.findIndex(covers);
+    if (index < 0) index = accepts.findIndex((accept) => !accept.trim());
+    if (index < 0) throw new Error(`No composer file input accepts ${file.mimeType} (accepts: ${accepts.join(' | ')})`);
+    return inputs.nth(index);
   }
 
   /** Attach a file through the composer and send it. Mutates the open conversation. */
-  async sendAttachment(kind: 'photo' | 'document', file: UploadFile): Promise<void> {
-    await this.fileInput(kind).setInputFiles(file);
+  async sendAttachment(file: UploadFile): Promise<void> {
+    await (await this.fileInputFor(file)).setInputFiles(file);
     await this.sendButton.click();
   }
 

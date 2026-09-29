@@ -1,14 +1,10 @@
 /**
- * In-memory upload payloads for `setInputFiles` / `FileChooser.setFiles`.
+ * Upload payloads for `setInputFiles` / `FileChooser.setFiles`.
  *
- * Tiny but valid files, generated per run: nothing binary lives in git, and each name carries a
- * run id so a test can find exactly the file it sent. The bytes are real PNG / PDF, because the
- * server may thumbnail or preview what it receives.
- *
- * TODO: upload real files from the playwright/fixtures directory (e.g. `fixtures/files/`: a
- * phone JPEG with EXIF orientation, a multi-page PDF, a short MP4 for CC-023) for the cases a
- * synthetic buffer cannot cover. Keep each one small (tens of KB) and load them with
- * `fileFromFixture()` below.
+ * Real files live in `playwright/fixtures/Test Data/` (a 1280x720 JPEG/PNG/WebP, a PDF, a DOCX,
+ * an MP4 clip, …) and are loaded with `fixtureFile()`. Each upload is renamed with a run id so a
+ * test can find exactly the file it sent in a shared thread. `pngFile()` / `pdfFile()` generate
+ * tiny valid files in memory for tests that only need *a* file, not a realistic one.
  */
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -55,14 +51,29 @@ export function pdfFile(name = `e2e-${runId()}.pdf`, text = 'E2E upload'): Uploa
   return { name, mimeType: 'application/pdf', buffer: Buffer.from(body, 'latin1') };
 }
 
-const FIXTURE_FILES = path.resolve(__dirname, '../../fixtures/files');
+const FIXTURE_FILES = path.resolve(__dirname, '../../fixtures/Test Data');
 
-/** A committed fixture file from `playwright/fixtures/files/`, renamed with a run id. */
-export function fileFromFixture(fileName: string, mimeType: string): UploadFile {
-  const ext = path.extname(fileName);
+/** The files in `fixtures/Test Data/` that specs upload, with the MIME type the browser would send. */
+export const FIXTURES = {
+  jpg: { file: 'Test.jpg', mimeType: 'image/jpeg' },
+  png: { file: 'Test.png', mimeType: 'image/png' },
+  webp: { file: 'Test.webp', mimeType: 'image/webp' },
+  pdf: { file: 'Test.pdf', mimeType: 'application/pdf' },
+  docx: {
+    file: 'Test.docx',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  },
+  xlsx: { file: 'Test.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+  txt: { file: 'Test.txt', mimeType: 'text/plain' },
+  mp4: { file: 'Test.mp4', mimeType: 'video/mp4' },
+} as const;
+
+/** A real file from `fixtures/Test Data/`, renamed `e2e-<run id>.<ext>`. */
+export function fixtureFile(kind: keyof typeof FIXTURES): UploadFile {
+  const { file, mimeType } = FIXTURES[kind];
   return {
-    name: `e2e-${runId()}${ext}`,
+    name: `e2e-${runId()}${path.extname(file)}`,
     mimeType,
-    buffer: readFileSync(path.join(FIXTURE_FILES, fileName)),
+    buffer: readFileSync(path.join(FIXTURE_FILES, file)),
   };
 }
