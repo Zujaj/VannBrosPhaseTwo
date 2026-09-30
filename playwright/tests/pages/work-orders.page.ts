@@ -89,6 +89,14 @@ const SUB_TAB: Partial<Record<WoType, string>> = {
   harvest: 'Harvest Work Orders',
 };
 
+/** A resource register side panel opened from the Select Resources "+" menu. */
+export interface ResourceRegister {
+  heading: Locator;
+  panel: Locator;
+  rows: Locator;
+  footer: Locator;
+}
+
 export class WorkOrdersPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -444,7 +452,7 @@ export class WorkOrdersPage extends BasePage {
   }
 
   // ---------------------------------------------------------------------------------------
-  // Resources (Dummy Resources PSD v2). QA still serves the v1 panel as of 2026-09-24.
+  // Resources (Dummy Resources PSD v2, released on QA 2026-09-30; FINDINGS #47-#49).
   // ---------------------------------------------------------------------------------------
 
   /** The Select Resources section's "+" (`title="Add Resources"`). */
@@ -452,63 +460,54 @@ export class WorkOrdersPage extends BasePage {
     return this.page.locator('button[title="Add Resources"]');
   }
 
-  /**
-   * PSD v2 Figure 1: the "+" opens a menu with `Add Resource` and `Add Dummy Resource`. The menu's
-   * DOM is not on QA yet, so the items are located by their text alone.
-   */
+  /** PSD v2 Figure 1: the "+" opens a `.dropdown-menu` with `Add Resource` and `Add Dummy Resource`. */
   addResourceMenuItem(name: 'Add Resource' | 'Add Dummy Resource'): Locator {
     return this.page.getByText(name, { exact: true });
   }
 
-  /**
-   * The v1 "Dummy Resource" No/Yes switch inside Select Resources (`#dummyResourceFilter`, a
-   * Bootstrap custom-switch whose `<label>` carries the No/Yes text). PSD v2 removes it.
-   */
+  /** The removed v1 "Dummy Resource" No/Yes switch; kept only to assert that it is gone. */
   get dummyResourceSwitch(): Locator {
     return this.page.locator('#dummyResourceFilter');
   }
 
   /**
-   * Add the first dummy resource to the form through whichever flow the build serves: the v2
-   * `Add Dummy Resource` menu item, or the v1 panel with the Dummy Resource switch set to Yes.
-   * Returns the added resource's name as the panel lists it (e.g. `Irrigator (DM002)`).
+   * Open one register from the "+" menu and wait for its rows. The panel headings are
+   * `Dummy Resource` and `Select Resources` (the PSD mock reads "Add Dummy Resource").
    */
-  async addFirstDummyResource(): Promise<string> {
+  async openResourceRegister(kind: 'Add Resource' | 'Add Dummy Resource'): Promise<ResourceRegister> {
     await expect(this.addResourcesButton).toBeVisible({ timeout: 30000 });
-    const v1Heading = this.page.getByRole('heading', { name: /^Select Resources/, level: 2 });
-    const v2Heading = this.page.getByRole('heading', { name: /^Add Dummy Resource/, level: 2 });
-    const v2Item = this.addResourceMenuItem('Add Dummy Resource');
-    await this.clickPastLoader(this.addResourcesButton, () =>
-      expect(v1Heading.or(v2Item)).toBeVisible({ timeout: 8000 }),
-    );
-
-    let heading: Locator;
-    if (await v2Item.isVisible()) {
-      await v2Item.click();
-      heading = v2Heading;
-      await expect(heading).toBeVisible();
-    } else {
-      heading = v1Heading;
-      await this.waitForLoaderGone();
-      const switchLabel = this.page.locator('label[for="dummyResourceFilter"]');
-      if (!(await this.dummyResourceSwitch.isChecked())) await switchLabel.click();
-      await expect(switchLabel).toHaveText(/Yes/);
-      // Apply re-fetches, but the named-resource rows linger for a moment; wait for the first row
-      // to change, or the tick lands on a stale named resource (seen 2026-09-24).
-      const panel = this.page.locator('.side-panel').filter({ has: heading });
-      const firstRow = panel.locator('tbody tr').first();
-      const before = await firstRow.innerText();
-      await panel.getByRole('button', { name: 'Apply' }).click();
-      await expect(firstRow).not.toHaveText(before, { timeout: 30000 });
-    }
+    const item = this.addResourceMenuItem(kind);
+    await this.clickPastLoader(this.addResourcesButton, () => expect(item).toBeVisible({ timeout: 8000 }));
+    await item.click();
+    const heading = this.page.getByRole('heading', {
+      name: kind === 'Add Dummy Resource' ? 'Dummy Resource' : 'Select Resources',
+      exact: true,
+      level: 2,
+    });
+    await expect(heading).toBeVisible({ timeout: 15000 });
     await this.waitForLoaderGone();
     const panel = this.page.locator('.side-panel').filter({ has: heading });
-    const row = panel.locator('tbody tr').filter({ has: this.page.locator('input[type="checkbox"]') }).first();
-    await expect(row).toBeVisible({ timeout: 30000 });
-    const name = (await row.locator('td').nth(1).innerText()).replace(/\s+/g, ' ').trim();
-    await row.locator('input[type="checkbox"]').check();
-    await this.saveSectionModal(heading);
-    return name.replace(/\s*DUMMY RESOURCE\s*$/i, '');
+    const rows = panel.locator('tbody tr').filter({ has: this.page.locator('input[type="checkbox"]') });
+    await expect(rows.first()).toBeVisible({ timeout: 30000 });
+    return { heading, panel, rows, footer: panel.getByText(/Showing .* records/) };
+  }
+
+  /** Tick the register's first `count` rows, Save, and return their names (e.g. `Irrigator (DM002)`). */
+  async addFromRegister(register: ResourceRegister, count = 1): Promise<string[]> {
+    const names: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const row = register.rows.nth(i);
+      names.push((await row.locator('td').nth(1).innerText()).replace(/\s+/g, ' ').trim());
+      await row.locator('input[type="checkbox"]').check();
+    }
+    await this.saveSectionModal(register.heading);
+    return names;
+  }
+
+  /** Add the first dummy resource to the form via "+" → Add Dummy Resource; returns its name. */
+  async addFirstDummyResource(): Promise<string> {
+    const [name] = await this.addFromRegister(await this.openResourceRegister('Add Dummy Resource'));
+    return name;
   }
 
   // ---------------------------------------------------------------------------------------

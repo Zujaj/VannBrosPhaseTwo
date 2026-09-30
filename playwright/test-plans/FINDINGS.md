@@ -927,6 +927,9 @@ is the one filtering check that can run today.
 
 ## 34. Dummy Resources: QA serves the v1 flow; the v2 PSD's "+" menu is not deployed
 
+> **Superseded 2026-09-30:** v2 is now released on QA (the "+" menu, per-register panels, the
+> chip). The v1 switch is gone. See #47–#49 for what v2 still gets wrong. The dummy register below is unchanged.
+
 **Verified:** 2026-09-24, live in Firefox.
 
 The v2 PSD (Sep 16, 2026) replaces the `Dummy Resource` Yes/No switch in Select Resources with a
@@ -1139,3 +1142,47 @@ that message as an alert **and** opened the empty Create Adjustment prompt over 
 have no end time: app-logged hours on machine Test1 from before this suite.)
 
 **Test:** `hour-log-decisions.spec.ts` HLA-UI-006, an expected failure (it checks pending + retry first).
+
+## 47. Dummy Resources v2: the web form has no No Of Resource headcount input
+
+**Verified:** 2026-09-30, web (Firefox and Chromium). **Type:** defect (not filed).
+
+With v2 released, a dummy resource added through **"+" → Add Dummy Resource** lands in the form's
+Select Resources grid with the yellow `DUMMY RESOURCE` badge, but the grid's columns are only
+`Resource Name`, `Resource Type`, `Company Name`, `Action`. The v1 **`No Of Resource`** number input
+(#34) is gone, and the Select Assets grid lost its `No Of Resource` column too.
+
+The PSD needs it on web. The Data Dictionary gives *No. of Resources* the source "Farm Web App / Farm
+Mobile App"; Mandatory Fields says a dummy resource must not be saved on a work order unless No. of
+Resources is filled and greater than zero; the web persona "sets the number of resources against
+each".
+
+**Tests:** `dummy-resources.spec.ts` DR-01 is an expected failure. DR-06 (the 0-headcount save guard,
+`@mutating`) is parked with `test.fixme`: with no input to leave empty, a run would just save a real WO.
+
+## 48. Dummy Resources v2: Reset on the Dummy Resource panel switches to the named register
+
+**Verified:** 2026-09-30, web (Firefox). **Type:** defect (not filed).
+
+Open **"+" → Add Dummy Resource** (panel heading `Dummy Resource`, `Showing 1 - 8 of 8 records`),
+search `Irrigator` and Apply (2 records), then click **Reset**. The panel's heading becomes
+`Select Resources` and it lists the named register (`Showing 1 - 50 of 101 records`, starting
+`Abdul Wahab (000211)`). The PSD's Solution Overview says the register is chosen before the page opens
+"so a selection can no longer be switched between registers halfway through".
+
+**Test:** `dummy-resources.spec.ts` DR-14, an expected failure.
+
+## 49. Dummy Resources v2: the Figure 1 headcount notice is not shown
+
+**Verified:** 2026-09-30, web. **Type:** defect (not filed), minor.
+
+PSD Figure 1 shows a notice under Select Resources, "Dummy resources stand in for unnamed labour and
+carry a headcount instead of a person…". It does not render, with or without a dummy resource on
+the form. Likely tied to #47, since the notice explains the missing headcount.
+
+**Test:** `dummy-resources.spec.ts` DR-19, an expected failure.
+
+**Also seen (data, not defects):** in both registers the `Resource Group` dropdown offers only `All`
+for Vann Farm / Fertilization, so DR-11 cannot be exercised; and every dummy resource has a blank
+`Company Name`, so DR-13 has nothing to search for. The panel search boxes read `Search By …`
+(capital B), not the PSD's `Search by …`.
