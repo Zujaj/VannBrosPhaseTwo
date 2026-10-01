@@ -4,14 +4,14 @@ Raw findings from the live exploration. To be folded into FINDINGS.md and delete
 
 - SIGNIN: first sign-in pass always bounces; FE reads custumToken, gateway sends customToken (+ no `user`). Second pass works.
 - MAPS-DATE: WO Date Range picker locked to 1 Jan 1900 (only that day enabled, month nav disabled); layers stuck on default week.
-- MAPS-TASK: Filter Type Task -> operation list empty until a WO filter type chosen first. MP-08 fails on it.
+- MAPS-TASK: Filter Type Task -> operation list empty until a WO filter type chosen first. MP-08 fails on it. Re-checked 2026-10-01: still empty (MP-08 failed on both attempts in the smoke run).
 - HARNESS-LOADER: app mounts 2 #f3-overlay-loader; waitForLoaderGone was a silent no-op (fixed).
 - HARNESS-GMAPS: maps.googleapis.com flaky from this network (TLS resets ~40%); route now retries + caches.
 - API-HOST: app API calls go to agrierp-authgateway-qa-api.folio3.site/api/... (check api/client.mts host).
 - MAPS-LAYERS: Maps Control now has a Variety layer (not in MAP_LAYERS list; harmless).
 - DATA: no In Progress/Done inspection in the current week window -> MP-04/05 partial.
 - MOBILE-ROLES: Settings > User Management > Mobile User Role Permissions shows "No Record Found" (user/rolePermissions returns []).
-- OPERATIONS-GRID: Settings > Tasks / Operations never loads - Operation/getOperationsPaginated is aborted and not re-issued. Existing ST-033 fails on it.
+- OPERATIONS-GRID: Settings > Tasks / Operations never loads - Operation/getOperationsPaginated is aborted and not re-issued. Existing ST-033 fails on it. Re-checked 2026-10-01: the page now sends `GET /api/Operation/getOperationsPaginated?page=1&limit=50&OrderByFieldName=Name&IsASC=true&parentOperationsOnly=true` once and it never answers; called straight through the API client it times out after 120 s (with or without `parentOperationsOnly`), while `/api/season` answers (slowly, 23 s). The grid stays on 40 skeleton rows; ST-033 / ST-07 fail.
 - ST-002: "Default Location" field not found on User Settings - not yet investigated.
 - DRIFT: Resources last column now "Action"; Operations column now "Task Type Name".
 - TM-WIZARD-DROPDOWNS: opening the Material Template Create/Edit/Clone wizard fires `GET /api/metadata/MaterialsV2?page=1&limit=99999...` which returns **500**; the sibling metadata GETs (ParentOperations, applicationmethods, NozzleTypes, sometimes DropletSize) are then aborted (NS_BINDING_ABORTED / net::ERR_ABORTED), so the wizard pickers (Operation*, Select Product, Select Problem, Mix Method, Rate Unit, Application Method, Nozzle Type, Droplet Size) render blank or empty. Verified 2026-09-27 on Firefox and Chromium with a single click and no request interception. The list's Set Filters > Operation (same widget) populates fine. Effect: Operation can never be set, Save never enables, no Material Template can be created via the UI.

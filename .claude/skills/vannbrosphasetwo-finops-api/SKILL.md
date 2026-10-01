@@ -157,6 +157,8 @@ Look them up in `reference/services.md`. It gives the same list with the exact b
   service isn't deployed there.
 - `F3AgriCustomerServices`: customers.
 - `F3AgriResourceServices` and `F3AgriResourceGroupServices`: resources and resource groups.
+  In the D365 UI, every resource (human, asset and dummy) is under **Organization administration >
+  Resources** (company VBS).
 - `F3AgriFarmOperationServices`: farm operations.
 - `F3AgriProjectService`: projects.
 - `F3AgriWMSLocationServices`: WMS locations.

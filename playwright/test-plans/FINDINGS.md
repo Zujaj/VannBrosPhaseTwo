@@ -1242,3 +1242,28 @@ In the shift logs, `Shift created` and `Resource added to shift` carry the devic
 
 **Test:** `dummy-shifts-api.spec.ts` "DRM-14 (API) corrections record the device too", an expected failure.
 
+
+## 54. Dummy Resources v2: the Farm App dummy register does not match D365
+
+**Verified:** 2026-10-01, API (Farm App `GET api/Metadata/Resources`; D365 `F3AgriResourceServices/get`, VBS).
+**Type:** defect, medium. Filed as ADO #26465. The two named workers are ADO #26458 (filed 2026-09-30 for Kel Williams); the rest is new.
+
+D365 (**Organization administration > Resources**) holds 726 resources (572 Machine, 154 Human
+resources). Only one has `DummyResource = Yes`: `DM00001` "Labour 1", 5.5 h. The Farm App holds 674 and
+flags 14 with `isDummyResource: true`:
+
+- `Labour 1` (678): matches D365.
+- `Machine Operator` (668), `Irrigator` (669), `Irrigator 02` (670), `Dummy Res 04` (671), `DMM001` (672),
+  `Ford Fussion` (673), `Ford Taurus` (674), `DMM004` (675), `JMC Motors` (676), `Joe Works` (677),
+  `Agrierp 02` (604): **no D365 record** by name or code.
+- `Joel Guzman` (3) and `Kel Williams` (592): dummy in the Farm App, but D365 has them as named workers
+  `000012` / `000171` with `DummyResource = No`.
+
+The Farm App does not catch this before posting: `GET api/DummyShift/PostingReadiness/31418` (WO-1394,
+a shift on `Dummy Res 04` / `DM004`, 30 h) answers `canPost: true`, and `UnpostableResources` answers `[]`.
+Whether D365 then rejects the posting is unverified, because completing the WO posts to the shared
+D365 company.
+
+Open question: are ids 668–677 and 604 test data inserted straight into the QA DB, or v1 dummies
+(Enh #25942)? If they are test data, the fix is data clean-up. Either way, the readiness check should
+not pass a resource D365 doesn't know.
