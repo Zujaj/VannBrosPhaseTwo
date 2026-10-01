@@ -104,6 +104,7 @@ operationId `WorkOrder_GetByFilter`
 | `Category` | query | string |  |  |
 | `OrderByFieldName` | query | string |  |  |
 | `CropVarietyIDs` | query | int64[] |  | array: repeat the key (`?K=1&K=2`) |
+| `VarietyName` | query | string |  |  |
 | `Status` | query | string |  |  |
 | `Priority` | query | string |  |  |
 | `FarmName` | query | string |  |  |

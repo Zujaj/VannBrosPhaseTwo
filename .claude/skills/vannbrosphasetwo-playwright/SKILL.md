@@ -62,6 +62,11 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
   `.auth/operator.json`: bootstrap it once with `AUTH_ROLES=operator pnpm auth:qa`, and every later
   `pnpm auth:qa` refreshes it silently (a pasted `.auth/qa_operator_token.txt` also works while unexpired). Used by `@mutating`
   `hour-log-decisions.spec.ts`, which skips without the operator token.
+- `pnpm seed:dummyshift [--json]`: a fresh In Progress planned WO for the Dummy Resources v2 shift
+  checks (the operator, Dummy Res 04 ×2, Irrigator ×1, two machines); `--close <woId>` moves it forward to
+  Review. Used by `@mutating` `dummy-shifts-api.spec.ts`, which starts and corrects shifts through
+  `api/DummyShift/*` as the supervisor (admin when no supervisor session). Each run leaves one `QA DRS …` WO
+  in Review.
 - `pnpm wo:delete WO-1258 WO-1260 [--name TEXT] [--yes]` — delete work orders through the API
   (e.g. seed leftovers). A dry run unless `--yes` is given. Needs the API token.
 - `pnpm api:smoke [--count N] [--location N] [--season N]` — read-only check that the API token

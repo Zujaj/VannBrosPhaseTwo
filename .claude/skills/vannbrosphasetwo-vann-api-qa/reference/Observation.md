@@ -857,6 +857,7 @@ Enum (integer). Send the **value**.
 | `1` | Started |
 | `2` | Intermediate |
 | `3` | Completed |
+| `4` | Voided |
 
 <a id="schema-indirectmanageraccess"></a>
 ### IndirectManagerAccess
@@ -1826,7 +1827,7 @@ Enum (integer). Send the **value**.
 <a id="schema-workorderhourlogapimodel"></a>
 ### WorkOrderHourLogAPIModel
 
-Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `hours`, `consumedSeconds`, `scheme`, `mobileDeviceType`, `hourlogStatus`, `isManager`, `isVoid`, `progressScheme`
+Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `hours`, `consumedSeconds`, `scheme`, `mobileDeviceType`, `hourlogStatus`, `isManager`, `isVoid`, `progressScheme`, `isDummyResource`
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
@@ -1862,6 +1863,7 @@ Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `hours`, `
 | `jobId` | string |  |  |
 | `mobileDeviceType` | [MobileDevice](#schema-mobiledevice) | yes |  |
 | `hourlogStatus` | [HourlogStatus](#schema-hourlogstatus) | yes |  |
+| `hourlogStatusName` | string |  |  |
 | `workOrderResourceGroupType` | [ResourceGroupType](#schema-resourcegrouptype) |  |  |
 | `workOrderResourceGroupTypeName` | string |  |  |
 | `isManager` | boolean | yes |  |
@@ -1874,6 +1876,11 @@ Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `hours`, `
 | `progressScheme` | [ProgressScheme](#schema-progressscheme) | yes |  |
 | `standardHours` | double |  |  |
 | `noOfResources` | int32 |  |  |
+| `dummyShiftResourceId` | int64 |  |  |
+| `parentHourLogID` | int64 |  |  |
+| `isDummyResource` | boolean | yes |  |
+| `fieldCode` | string |  |  |
+| `projectCode` | string |  |  |
 
 <a id="schema-workorderhourlogdetailapimodel"></a>
 ### WorkOrderHourLogDetailAPIModel

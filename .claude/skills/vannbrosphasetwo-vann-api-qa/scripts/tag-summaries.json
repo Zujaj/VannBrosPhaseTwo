@@ -16,6 +16,7 @@
   "Dashboard": "Dashboard data.",
   "DataImport": "Bulk import helpers: fields per farm, activities per cultivation, field geo-coordinates, farm cultivations.",
   "Dynamics365": "Read a Dynamics 365 record by id.",
+  "DummyShift": "Dummy resource shifts (PSD v2): start/resume/preview a shift, headcount and asset edits, machine/resource availability, plot summary, shift logs, posting readiness.",
   "ELKLog": "ELK logs and API packet logs (integration monitoring).",
   "Enterprise": "Enterprises — CRUD and status toggle.",
   "Enum": "Resolve a server enum by name (`GET /api/Enum/{name}`).",

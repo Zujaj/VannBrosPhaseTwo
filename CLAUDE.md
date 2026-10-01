@@ -25,7 +25,8 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   check it before opening a PDF, and read PDFs by page range, never whole.
 - **`.claude/skills/`** — `vannbrosphasetwo-knowledge` (product facts; consult before authoring
   tests or docs), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
-  `-finops-api` (D365 F&O `F3Agri*` services).
+  `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`
+  (read-only Excel report of prod Sync Console errors, `pnpm prod:sync-errors`).
 - **`.claude/agents/`** — Playwright planner / generator / healer subagents, driven by the
   `playwright-test` MCP server in root `.mcp.json`; starter prompts in `.claude/prompts/`.
   **Launch Claude Code from the repo root** for them to load.

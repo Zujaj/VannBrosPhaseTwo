@@ -6650,6 +6650,737 @@
         ]
       }
     },
+    "/api/DummyShift/Line/{workOrderLineId}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_GetByLine",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workOrderLineId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/WorkOrder/{workOrderId}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_GetByWorkOrder",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/{shiftId}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_GetById",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "shiftId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_Delete",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "shiftId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "type": "string",
+            "name": "mobileDeviceType",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift": {
+      "post": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_Create",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DummyShiftRequestAPIModel"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/Resume": {
+      "post": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_Resume",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DummyShiftRequestAPIModel"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/Preview": {
+      "post": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_Preview",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DummyShiftRequestAPIModel"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/Resource/{shiftResourceId}/Headcount": {
+      "put": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_UpdateHeadcount",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "shiftResourceId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateHeadcountAPIModel"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/Resource/{shiftResourceId}": {
+      "delete": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_RemoveResource",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "shiftResourceId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "type": "string",
+            "name": "mobileDeviceType",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/Resource/{shiftResourceId}/Asset/{assetResourceId}": {
+      "post": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_AttachAsset",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "shiftResourceId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "assetResourceId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "type": "string",
+            "name": "mobileDeviceType",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/Asset/{shiftAssetId}": {
+      "delete": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_DetachAsset",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "shiftAssetId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "type": "string",
+            "name": "mobileDeviceType",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/MachineAvailability": {
+      "post": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_MachineAvailability",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MachineAvailabilityRequestAPIModel"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/DummyAssetRegister/{assetType}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_DummyAssetRegister",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "assetType",
+            "in": "path",
+            "required": true,
+            "x-nullable": true
+          },
+          {
+            "type": "integer",
+            "name": "locationId",
+            "in": "query",
+            "format": "int64",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/Picker/{workOrderId}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_DummyResourcePicker",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "locationId",
+            "in": "query",
+            "format": "int64",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/ResourceAvailability": {
+      "post": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_ResourceAvailability",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "resourceIds",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/PlotSummary/{workOrderId}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_PlotSummary",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/{shiftId}/Logs": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_ShiftLogs",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "shiftId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/WorkOrder/{workOrderId}/Logs": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_WorkOrderLogs",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/PostingReadiness/{workOrderId}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_PostingReadiness",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
+    "/api/DummyShift/UnpostableResources/{workOrderId}": {
+      "get": {
+        "tags": [
+          "DummyShift"
+        ],
+        "operationId": "DummyShift_UnpostableResources",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiAuthentication": []
+          }
+        ]
+      }
+    },
     "/api/Dynamics365/{id}": {
       "get": {
         "tags": [
@@ -21383,6 +22114,12 @@
           },
           {
             "type": "string",
+            "name": "VarietyName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "string",
             "name": "Status",
             "in": "query",
             "x-nullable": true
@@ -31166,6 +31903,12 @@
                 "$ref": "#/definitions/WorkOrderLineVariety"
               }
             },
+            "dummyShifts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/WorkOrderDummyShift"
+              }
+            },
             "estimatedLitre": {
               "type": "number",
               "format": "double"
@@ -32362,6 +33105,10 @@
           "type": "integer",
           "format": "int64"
         },
+        "dummyShiftResourceId": {
+          "type": "integer",
+          "format": "int64"
+        },
         "isOvernightJob": {
           "type": "boolean"
         },
@@ -32406,12 +33153,14 @@
       "x-enumNames": [
         "Started",
         "Intermediate",
-        "Completed"
+        "Completed",
+        "Voided"
       ],
       "enum": [
         1,
         2,
-        3
+        3,
+        4
       ]
     },
     "Roletype": {
@@ -33196,6 +33945,282 @@
           }
         }
       ]
+    },
+    "WorkOrderDummyShift": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "modifiedAt",
+        "createdBy",
+        "modifiedBy",
+        "workOrderId",
+        "workOrderLineId",
+        "sequenceNo",
+        "shiftStartDateTime",
+        "source",
+        "totalResourceHours",
+        "totalAssetHours",
+        "isDeleted"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "modifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "modifiedBy": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "workOrderId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "workOrderLineId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sequenceNo": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "shiftStartDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "shiftEndDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "$ref": "#/definitions/DeviceType"
+        },
+        "mobileDeviceType": {
+          "$ref": "#/definitions/MobileDevice"
+        },
+        "jobId": {
+          "type": "string"
+        },
+        "batchId": {
+          "type": "string"
+        },
+        "shiftResources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkOrderDummyShiftResource"
+          }
+        },
+        "totalResourceHours": {
+          "type": "number",
+          "format": "double"
+        },
+        "totalAssetHours": {
+          "type": "number",
+          "format": "double"
+        },
+        "updatedByName": {
+          "type": "string"
+        },
+        "updatedDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isDeleted": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DeviceType": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "IOS",
+        "Android",
+        "Web",
+        "Connector",
+        "CloudFunction",
+        "External"
+      ],
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "WorkOrderDummyShiftResource": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "modifiedAt",
+        "createdBy",
+        "modifiedBy",
+        "dummyShiftId",
+        "resourceId",
+        "noOfResources",
+        "standardHoursSnapshot",
+        "hoursLogged",
+        "windowStartDateTime",
+        "windowEndDateTime"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "modifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "modifiedBy": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "dummyShiftId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "resourceId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "resourceCode": {
+          "type": "string"
+        },
+        "workOrderResourceRowId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "noOfResources": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "standardHoursSnapshot": {
+          "type": "number",
+          "format": "double"
+        },
+        "hoursLogged": {
+          "type": "number",
+          "format": "double"
+        },
+        "windowStartDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "windowEndDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "workOrderHourLogId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "shiftAssets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkOrderDummyShiftAsset"
+          }
+        }
+      }
+    },
+    "WorkOrderDummyShiftAsset": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "modifiedAt",
+        "createdBy",
+        "modifiedBy",
+        "dummyShiftResourceId",
+        "assetResourceId",
+        "resourceGroupTypeId",
+        "isDummyAsset",
+        "hoursLogged"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "modifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "modifiedBy": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "dummyShiftResourceId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "assetResourceId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "assetName": {
+          "type": "string"
+        },
+        "assetCode": {
+          "type": "string"
+        },
+        "resourceGroupTypeId": {
+          "$ref": "#/definitions/ResourceGroupType"
+        },
+        "isDummyAsset": {
+          "type": "boolean"
+        },
+        "hoursLogged": {
+          "type": "number",
+          "format": "double"
+        },
+        "workOrderHourLogId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "boundFrom": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "boundTo": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     },
     "WorkOrderMaterialDetails": {
       "allOf": [
@@ -38171,6 +39196,133 @@
         3
       ]
     },
+    "DummyShiftRequestAPIModel": {
+      "type": "object",
+      "required": [
+        "workOrderId",
+        "workOrderLineId",
+        "shiftStartDateTime",
+        "resources"
+      ],
+      "properties": {
+        "workOrderId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "workOrderLineId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "shiftStartDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DummyShiftResourceAPIModel"
+          }
+        },
+        "jobId": {
+          "type": "string"
+        },
+        "batchId": {
+          "type": "string"
+        },
+        "mobileDeviceType": {
+          "$ref": "#/definitions/MobileDevice"
+        }
+      }
+    },
+    "DummyShiftResourceAPIModel": {
+      "type": "object",
+      "required": [
+        "resourceId",
+        "noOfResources"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "noOfResources": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "workOrderResourceRowId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DummyShiftAssetAPIModel"
+          }
+        }
+      }
+    },
+    "DummyShiftAssetAPIModel": {
+      "type": "object",
+      "required": [
+        "assetResourceId"
+      ],
+      "properties": {
+        "assetResourceId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "resourceGroupTypeId": {
+          "$ref": "#/definitions/ResourceGroupType"
+        }
+      }
+    },
+    "UpdateHeadcountAPIModel": {
+      "type": "object",
+      "required": [
+        "noOfResources"
+      ],
+      "properties": {
+        "noOfResources": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "mobileDeviceType": {
+          "$ref": "#/definitions/MobileDevice"
+        }
+      }
+    },
+    "MachineAvailabilityRequestAPIModel": {
+      "type": "object",
+      "required": [
+        "workOrderId",
+        "windowStart",
+        "windowEnd",
+        "assetType"
+      ],
+      "properties": {
+        "workOrderId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "windowStart": {
+          "type": "string",
+          "format": "date-time",
+          "minLength": 1
+        },
+        "windowEnd": {
+          "type": "string",
+          "format": "date-time",
+          "minLength": 1
+        },
+        "assetType": {
+          "$ref": "#/definitions/ResourceGroupType"
+        },
+        "locationId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "EnterpriseCreateRequestAPIModel": {
       "type": "object",
       "properties": {
@@ -40560,7 +41712,8 @@
         "hourlogStatus",
         "isManager",
         "isVoid",
-        "progressScheme"
+        "progressScheme",
+        "isDummyResource"
       ],
       "properties": {
         "id": {
@@ -40677,6 +41830,9 @@
         "hourlogStatus": {
           "$ref": "#/definitions/HourlogStatus"
         },
+        "hourlogStatusName": {
+          "type": "string"
+        },
         "workOrderResourceGroupType": {
           "$ref": "#/definitions/ResourceGroupType"
         },
@@ -40714,6 +41870,23 @@
         "noOfResources": {
           "type": "integer",
           "format": "int32"
+        },
+        "dummyShiftResourceId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "parentHourLogID": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "isDummyResource": {
+          "type": "boolean"
+        },
+        "fieldCode": {
+          "type": "string"
+        },
+        "projectCode": {
+          "type": "string"
         }
       }
     },
@@ -41568,26 +42741,6 @@
           "$ref": "#/definitions/MaterialProductUnitType"
         }
       }
-    },
-    "DeviceType": {
-      "type": "integer",
-      "description": "",
-      "x-enumNames": [
-        "IOS",
-        "Android",
-        "Web",
-        "Connector",
-        "CloudFunction",
-        "External"
-      ],
-      "enum": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
     },
     "HarvestIDTicketAPIModel": {
       "type": "object",

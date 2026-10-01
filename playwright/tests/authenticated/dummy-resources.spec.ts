@@ -1,6 +1,5 @@
 import { test, expect } from '../fixtures';
 import { plannedScenario } from '../helpers/workOrderScenarios';
-import { savedToast } from '../pages/work-orders.page';
 
 /**
  * Dummy Resources — Product Specifications Document v2.0 (Sep 16, 2026),
@@ -15,7 +14,9 @@ import { savedToast } from '../pages/work-orders.page';
  * `Dummy Resource`. Tests hit by a known QA bug assert the CORRECT behaviour and carry
  * `test.fail()` with the FINDINGS number; drop it once the bug is fixed.
  *
- * Everything here is read-only (the form is never submitted) except DR-06, which is `@mutating`.
+ * Everything here is read-only: the form is never submitted. The No. of Resources is not a web
+ * field (Figure 1, Manager journey steps 6-8); its mandatory rule is enforced when a shift starts and
+ * is checked through the API in `dummy-shifts-api.spec.ts` (DRM-04).
  * Tagged `@PSD-dummy-resources`; no workbook `@TC:` ids exist for this scope.
  */
 
@@ -35,20 +36,18 @@ test.beforeEach(async ({ workOrdersPage }) => {
 /** Codes of the dummy register (FINDINGS #34); the named register must never list one. */
 const DUMMY_CODE = /\(DM\d+\)/;
 
-test('@PSD-dummy-resources DR-01 a dummy resource on the form takes a No Of Resource headcount', async ({
+test('@PSD-dummy-resources DR-01 a dummy resource on the web form takes no quantity (entered on mobile at Start Job)', async ({
   workOrdersPage,
 }) => {
-  test.fail(true, 'Known QA bug (FINDINGS #47): v2 dropped the No Of Resource headcount input from the web form');
+  // Figure 1 mock and the Manager journey (steps 3-8): the web only selects dummy resources; the
+  // No. of Resources is entered on the mobile app when the job starts (Figure 9). FINDINGS #47 (withdrawn).
   const name = await workOrdersPage.addFirstDummyResource();
 
   const grid = workOrdersPage.sectionTable('Select Resources');
   const row = grid.locator('tbody tr').filter({ hasText: name });
   await expect(row).toHaveCount(1);
-  await expect(grid.getByRole('columnheader', { name: 'No Of Resource' })).toHaveCount(1, { timeout: 5000 });
-  const headcount = row.locator('input[type="number"]');
-  await expect(headcount).toBeEditable();
-  await headcount.fill('3');
-  await expect(headcount).toHaveValue('3');
+  await expect(grid.getByRole('columnheader', { name: /No\.? ?Of Resource/i })).toHaveCount(0);
+  await expect(row.locator('input[type="number"]')).toHaveCount(0);
 });
 
 test('@PSD-dummy-resources DR-02 the Select Resources "+" offers Add Resource and Add Dummy Resource', async ({
@@ -143,39 +142,4 @@ test('@PSD-dummy-resources DR-15 several dummy resources ticked in one pass are 
   for (const name of names) {
     await expect(grid.locator('tbody tr').filter({ hasText: name }).locator('.badge[title="Dummy Resource"]')).toHaveCount(1);
   }
-});
-
-test('@PSD-dummy-resources @mutating DR-06 a dummy resource without a headcount blocks Submit', async ({
-  page,
-  workOrdersPage,
-}) => {
-  // Validation Rules → Mandatory Fields: no save while No. of Resources is empty or 0.
-  // @mutating because a build missing this rule SAVES the work order (no teardown).
-  // Parked: with the headcount input gone (FINDINGS #47) there is nothing to leave at 0, and a
-  // run would just save a real WO. Unpark once #47 is fixed.
-  test.fixme(true, 'Blocked by FINDINGS #47: no No Of Resource input on the web form');
-  test.setTimeout(240000);
-  const name = await workOrdersPage.addFirstDummyResource();
-  await page.getByRole('textbox', { name: 'Work Order Name*' }).fill(WO.name);
-  await workOrdersPage.selectFromDropdown(['Priority*'], WO.priority);
-  const row = workOrdersPage.sectionTable('Select Resources').locator('tbody tr').filter({ hasText: name });
-  await row.locator('input[type="number"]').fill('0');
-  if (WO.supervisor) await workOrdersPage.selectFromDropdown(['Supervisor*'], WO.supervisor);
-
-  await workOrdersPage.waitForLoaderGone();
-  await workOrdersPage.waitForToastsGone();
-  const submit = page.getByRole('button', { name: 'Submit' });
-  if (await submit.isEnabled()) {
-    await submit.click();
-    const confirm = page.getByRole('dialog');
-    if (await confirm.getByRole('button', { name: 'Save', exact: true }).isVisible({ timeout: 5000 }).catch(() => false)) {
-      await confirm.getByRole('button', { name: 'Save', exact: true }).click();
-    }
-  }
-  // A negative assertion would pass at once; wait out the save window instead.
-  const saved = await page
-    .getByText(savedToast(WO.name))
-    .waitFor({ timeout: 20000 })
-    .then(() => true, () => false);
-  expect(saved, `"${WO.name}" was saved with a 0 headcount; delete it with pnpm wo:delete`).toBe(false);
 });

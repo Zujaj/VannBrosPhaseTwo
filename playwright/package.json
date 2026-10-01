@@ -29,9 +29,11 @@
     "seed:harvest": "node scripts/seed.mts harvest",
     "seed:tickets": "node scripts/seed.mts tickets",
     "seed:hourlog": "node scripts/seed-hour-log.mts",
+    "seed:dummyshift": "node scripts/seed-dummy-shift.mts",
     "creds:import": "node scripts/import-credentials.mts",
     "wo:delete": "node scripts/delete-work-orders.mts",
     "api:smoke": "node scripts/api-smoke.mts",
+    "prod:sync-errors": "node scripts/sync-console-errors.mts",
     "triage:accounts": "TRIAGE=1 PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=triage --workers=1"
   },
   "keywords": [],
@@ -42,6 +44,7 @@
     "@playwright/test": "^1.62.1",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^26.2.0",
+    "exceljs": "^4.4.0",
     "fs-extra": "^11.3.5",
     "pdf-parse": "^2.4.5",
     "typescript": "^7.0.2"

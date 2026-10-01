@@ -107,7 +107,7 @@ this skill's `openapi.json`. Then it runs `scripts/generate.mjs` (Node ≥ 20, n
 ## Tag index
 
 <!-- BEGIN TAG INDEX (generated) -->
-_72 tags · 558 operations · 460 paths · 416 definitions · spec sha256 `5b0ee34ec904`_
+_73 tags · 578 operations · 479 paths · 424 definitions · spec sha256 `c2e518b55c62`_
 
 | Tag | Ops | What it covers |
 |---|---|---|
@@ -127,6 +127,7 @@ _72 tags · 558 operations · 460 paths · 416 definitions · spec sha256 `5b0ee
 | [Customer](reference/Customer.md) | 2 | Customers — list and read. |
 | [Dashboard](reference/Dashboard.md) | 1 | Dashboard data. |
 | [DataImport](reference/DataImport.md) | 4 | Bulk import helpers: fields per farm, activities per cultivation, field geo-coordinates, farm cultivations. |
+| [DummyShift](reference/DummyShift.md) | 20 | Dummy resource shifts (PSD v2): start/resume/preview a shift, headcount and asset edits, machine/resource availability, plot summary, shift logs, posting readiness. |
 | [Dynamics365](reference/Dynamics365.md) | 1 | Read a Dynamics 365 record by id. |
 | [ELKLog](reference/ELKLog.md) | 2 | ELK logs and API packet logs (integration monitoring). |
 | [Enterprise](reference/Enterprise.md) | 6 | Enterprises — CRUD and status toggle. |

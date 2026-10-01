@@ -928,7 +928,7 @@ is the one filtering check that can run today.
 ## 34. Dummy Resources: QA serves the v1 flow; the v2 PSD's "+" menu is not deployed
 
 > **Superseded 2026-09-30:** v2 is now released on QA (the "+" menu, per-register panels, the
-> chip). The v1 switch is gone. See #47–#49 for what v2 still gets wrong. The dummy register below is unchanged.
+> chip). The v1 switch is gone. See #48–#49 for what v2 still gets wrong (#47 was withdrawn: the quantity is a mobile field). The dummy register below is unchanged.
 
 **Verified:** 2026-09-24, live in Firefox.
 
@@ -1143,22 +1143,29 @@ have no end time: app-logged hours on machine Test1 from before this suite.)
 
 **Test:** `hour-log-decisions.spec.ts` HLA-UI-006, an expected failure (it checks pending + retry first).
 
-## 47. Dummy Resources v2: the web form has no No Of Resource headcount input
+## 47. WITHDRAWN — Dummy Resources v2: no No Of Resource input on the web form is by design (ADO #26454)
 
-**Verified:** 2026-09-30, web (Firefox and Chromium). **Type:** defect (not filed).
+**Verified:** 2026-09-30. **Type:** not a defect. Filed in error as ADO #26454; the developer answered
+"Not in requirment", and QA closed it the same day.
 
-With v2 released, a dummy resource added through **"+" → Add Dummy Resource** lands in the form's
-Select Resources grid with the yellow `DUMMY RESOURCE` badge, but the grid's columns are only
-`Resource Name`, `Resource Type`, `Company Name`, `Action`. The v1 **`No Of Resource`** number input
-(#34) is gone, and the Select Assets grid lost its `No Of Resource` column too.
+The v2 web form's Select Resources grid has no quantity column, and that matches the PSD:
 
-The PSD needs it on web. The Data Dictionary gives *No. of Resources* the source "Farm Web App / Farm
-Mobile App"; Mandatory Fields says a dummy resource must not be saved on a work order unless No. of
-Resources is filled and greater than zero; the web persona "sets the number of resources against
-each".
+- **Figure 1** (the web mock) shows Select Resources with *Resource Name, Resource Type, Company Name, Action*
+  and no quantity column. Its notice reads "…A crew member can start their job from the mobile app, and the
+  hours they log post against this work order."
+- **Farm Operations Manager journey:** steps 3–5 select the dummy resources on web and save; steps 6–8
+  "He goes to the mob app. He started the work order. He enters the number of resources against each dummy
+  resource." Step 10 adjusts the headcount from Spent Hours afterwards.
+- **Figure 9** (mobile) is where No Of Resources is the mandatory field. The Mandatory Fields rule ("…or start
+  a job with it") is enforced when a shift starts: `POST /api/DummyShift` refuses headcount 0 (DRM-04).
 
-**Tests:** `dummy-resources.spec.ts` DR-01 is an expected failure. DR-06 (the 0-headcount save guard,
-`@mutating`) is parked with `test.fixme`: with no input to leave empty, a run would just save a real WO.
+The general wording that misled us: the App User table and web persona ("set the number of resources"),
+the Data Dictionary source "Farm Web App / Farm Mobile App", and v1 (#34), which did have the input.
+**Lesson:** check the user journey and the mock images before filing a PSD gap.
+
+ADO #26454 was closed on 2026-09-30 with a comment citing Figure 1 and the journey. The repro WO-1393
+(id 31417, To Do, never started) was deleted. Tests: DR-01 now asserts the web form has **no** quantity field; DR-06
+was retired.
 
 ## 48. Dummy Resources v2: Reset on the Dummy Resource panel switches to the named register
 
@@ -1178,7 +1185,7 @@ search `Irrigator` and Apply (2 records), then click **Reset**. The panel's head
 
 PSD Figure 1 shows a notice under Select Resources, "Dummy resources stand in for unnamed labour and
 carry a headcount instead of a person…". It does not render, with or without a dummy resource on
-the form. Likely tied to #47, since the notice explains the missing headcount.
+the form. The mock's notice reads "Dummy resources stand in for unnamed labour and carry a headcount instead of a person. A crew member can start their job from the mobile app, and the hours they log post against this work order."
 
 **Test:** `dummy-resources.spec.ts` DR-19, an expected failure.
 
@@ -1186,3 +1193,52 @@ the form. Likely tied to #47, since the notice explains the missing headcount.
 for Vann Farm / Fertilization, so DR-11 cannot be exercised; and every dummy resource has a blank
 `Company Name`, so DR-13 has nothing to search for. The panel search boxes read `Search By …`
 (capital B), not the PSD's `Search by …`.
+
+## 50. Dummy shifts: detaching a machine writes no audit log entry
+
+**Verified:** 2026-09-30, API (`DELETE /api/DummyShift/Asset/{shiftAssetId}`). **Type:** defect (not filed).
+
+Attach a machine to a shift resource, then detach it. The shift's log (`GET /api/DummyShift/{shiftId}/Logs`)
+has `Asset attached` but no detach entry; every other correction (headcount change, resource removed,
+shift deleted) is logged. PSD *Dummy Resource Audit Trail Logs*: "Every shift and every correction records
+the user, the timestamp, the source …, and the device". Log values also name resources by id
+(`671 x2`), not by name.
+
+**Test:** `dummy-shifts-api.spec.ts` "DRM-14 (API) detaching a machine is logged", an expected failure.
+
+## 51. Dummy shifts: the API's `isSuccess` flag is inverted
+
+**Verified:** 2026-09-30, API. **Type:** defect (not filed), minor.
+
+Every `api/DummyShift/*` write that succeeds answers HTTP 200 with `"isSuccess": false`; every validation
+refusal answers 400 with `"isSuccess": true` (e.g. `NoOfResources: Number of resources is mandatory …`).
+A client that trusts the flag would treat each save as failed and each refusal as saved.
+
+**Test:** `dummy-shifts-api.spec.ts` "(API) a successful DummyShift call reports isSuccess: true", an expected failure.
+
+## 52. Dummy shifts: the Farm Hand operator cannot start a shift (401); a named resource can join one
+
+**Verified:** 2026-09-30, API. **Type:** question / environment characteristic.
+
+- The operator account (Agrierp 07, Farm Hand) can read shifts and call `Preview`, but `POST /api/DummyShift`
+  answers **401**. The PSD's App User table gives adding dummy resources and starting/resuming jobs to
+  **Supervisors**, so this is probably by design. `dummy-shifts-api.spec.ts` therefore acts as the
+  supervisor (`AUTH_ROLES=supervisor pnpm auth:qa`), or as the admin when no supervisor session exists
+  (logs then read source `Web`).
+- The API accepts a **named** resource in a dummy shift (`Abdul Wahab (000211)` on explorer WO-1394): it gets
+  0 standard hours, a 0-length window, and still binds its machine at that instant. The mobile flow only
+  offers the dummy register there, so this is an API-only path. Worth asking whether the server should refuse it.
+- `POST /api/DummyShift/MachineAvailability` returned `[]` for every window tried (bound or free), and
+  `GET /api/DummyShift/Picker/{workOrderId}` returned `[]`; their contract is unclear, so no test uses them.
+
+## 53. Dummy shifts: corrections record no device
+
+**Verified:** 2026-09-30, API. **Type:** defect (not filed).
+
+In the shift logs, `Shift created` and `Resource added to shift` carry the device the request sent
+(`Android`), but `Number of resources changed`, `Asset attached`, `Resource removed from shift` and
+`Shift deleted` have `deviceName: null`. Those endpoints (`PUT …/Headcount`, `POST …/Asset/{id}`,
+`DELETE …`) take no device field at all. PSD: every correction records the device.
+
+**Test:** `dummy-shifts-api.spec.ts` "DRM-14 (API) corrections record the device too", an expected failure.
+
