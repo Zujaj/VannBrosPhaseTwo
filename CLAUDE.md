@@ -6,6 +6,12 @@ tests, the documentation site, and the product reference manuals for that applic
 The live app under test runs at the QA env `https://agrierp-vann-qa.folio3.site`
 (tenant: "Vann Brothers" / VBS).
 
+**Environments:** QA (above) is the only target for automated specs. **UAT**
+`https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` is for manually
+verifying ADO bugs in state *Deployed on UAT* (drive it with `playwright-cli` in Firefox; log in
+with `playwright/.auth/production_farmappadmin_credentials.json`, never print it). Production
+`https://vann-farms.agrierp.com` is read-only. Environment table: `vannbrosphasetwo-knowledge` skill.
+
 Loose monorepo of independent packages — **no root `package.json`**, no workspace tool.
 Each top-level directory is its own **pnpm** project (own `pnpm-lock.yaml`) — install and
 run inside it. Use `pnpm` everywhere; do not use `npm` or `yarn` (stray `package-lock.json`

@@ -126,7 +126,7 @@ former `Add Block`.)
 
 ## Non-negotiable rules
 
-1. **QA only.** Never point a test at any host other than `agrierp-vann-qa.folio3.site`. Use `routes`/`routeUrl()`; if you must validate a URL, reuse `assertQaOnly`. This is a guardrail in the existing helpers — keep it.
+1. **QA only.** Never point a test at any host other than `agrierp-vann-qa.folio3.site`. Use `routes`/`routeUrl()`; if you must validate a URL, reuse `assertQaOnly`. This is a guardrail in the existing helpers — keep it. UAT (see `vannbrosphasetwo-knowledge` → Environments) is only for manual bug verification with `playwright-cli` in Firefox. Never add it to config, routes or specs.
 2. **No credentials in code.** Login is human-assisted in the `setup` project and persisted as storage state. Never embed usernames/passwords/tokens in specs or commit `playwright/.auth/`.
 3. **Add new paths to `tests/constants/routes.ts`**, then import them. Keep one source of truth for routes.
 4. **Assert on real wording** from `vannbrosphasetwo-knowledge` (e.g. button `Create New Work Orders`, toast `Template created successfully`, chip `Review`). Wrong labels = false greens.

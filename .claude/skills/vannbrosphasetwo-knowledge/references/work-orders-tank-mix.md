@@ -39,6 +39,10 @@ It is authored on the same **Create New Work Order** form as Planned (green **Pl
 
 `Application Method` (e.g. Air-blast Sprayer, Air-Aid Sprayer), `Total Application Rate (gal/ha)`, `Tank Size (gal)`, `Nozzle Type` (e.g. Air Induced), `Droplet Size` (e.g. Very Fine), `Preharvest (PHI) (days)`. Right panel `Additional Details` shows `Application Type` (e.g. Liquid). Via the template path these come pre-filled.
 
+The panel also includes Re-entry (REI) Hours, Rainfast Hours, Stockfeed Days, Plantback Days and Grazing Days. Under **Advanced Options → Percentage** is **Band Percentage for Each Row to Apply**, sent in the API as `applicationDetail.percentageOfEachRowToApplyTo`. The panel's `Save` button sits at the top of the panel.
+
+- **Empty Band % (bug #26218, verified fixed on UAT 2026-10-08):** the panel still accepts an empty value with no inline message. Submit now returns 200 and stores `0`; it used to return a silent 400. Cloning keeps the source's value, and the source WO's tank-mix details aren't changed.
+
 ## Verified live (2026-06-11, VBS tenant)
 
 - Form: Task Type\* + Inspection Templates\* disabled; **Enable Tank Mixing** ON surfaces Mix Method / Per / Unit columns. Example Task `Fertilization (1240)`, Farm `Vann Farm (VBSF)`.

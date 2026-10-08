@@ -90,6 +90,21 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/s
 
 `https://vannbrosphasetwo-<client>-<env>.folio3.site/<route>` — e.g. `https://agrierp-vann-q4.folio3.site/maps`, `agrierp-vann-qa.folio3.site/workorders`. Routes seen: `/workorders`, `/maps`. (Older demo screenshots also show `demo2.folio3.site/#/workorders` and `agrierp-consumer.azurewebsites.net/workorders` — legacy; prefer the `folio3.site` pattern.)
 
+### Environments
+
+| Env | Web app | API (auth gateway) | Use |
+|---|---|---|---|
+| QA | `https://agrierp-vann-qa.folio3.site` | `agrierp-authgateway-qa-api.folio3.site`, `agrierp-vann-api-qa.folio3.site` | Automated specs and QA verification (`Ready for QA`). |
+| UAT | `https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` | `agrierp-auth-gateway-uat-app-service-d7bfhgewhag2gfdq.eastus2-01.azurewebsites.net` | Manual check of bugs in **Deployed on UAT**. No specs. |
+| Production | `https://vann-farms.agrierp.com` | `authgateway.agrierp.com` | Read-only (sync-console error report). |
+
+UAT notes, confirmed live 2026-10-08:
+- UAT is an Azure App Service host. It doesn't follow the `folio3.site` pattern, so names like `agrierp-vann-uat.folio3.site` don't resolve.
+- Login is email-first: enter the email, click `Login`, sign in with the Microsoft password, then `Stay signed in?` → `No`. Use `playwright/.auth/production_farmappadmin_credentials.json` (user `farmappadmin`). It lands on `/maps`.
+- The D365 link points to `vb-uat-invapp.sandbox.operations.dynamics.com` (`cmp=VBS`).
+- UAT data differs from QA, and QA WO numbers such as WO-1286 don't exist there. Colusa / Crop Year 2026 holds most WOs. For example, WO-135 "Workorder-2026-05-10-1" is a tank-mix Fertilization WO with Band % 10.
+- WOs created during verification stay in To Do. Never revert or delete them.
+
 ## Glossary (farming terminology)
 
 | Term | Meaning |
