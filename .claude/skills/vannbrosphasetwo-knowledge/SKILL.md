@@ -7,7 +7,9 @@ description: >-
   inspection, harvest) and Harvest Central harvest tickets, template
   management (inspection/material/attribute templates),
   users/roles/resources, plots/fields (Settings > Plot, Add Plot, FinOps sync),
-  journal & posting review in Dynamics 365, observations
+  journal & posting review in Dynamics 365, D365 back-office setup (AgriERP Parameters,
+  resources, lot vs non-lot items, FIFO, projects / Crop Year / WBS), Inventory App
+  dispatch and returns, observations
   / points of interest (POI), the communication center, attendance, maps,
   planning, or farm terminology. Consult this skill even when the user does not
   say "VannBrosPhaseTwo" but is clearly asking about these screens, flows, exact UI
@@ -49,6 +51,7 @@ This SKILL.md is the index. Read the matching reference file in `references/` fo
 | Observations / Points of Interest (POI); POI categories; communication center / chat | `references/observations-chat.md` |
 | Plots / fields — **Settings > Plot** list, the **Add Plot** form and its fields, plot ↔ FinOps sync (`PlotJobField`) | `references/plots-fields.md` |
 | **Hour Log Adjustment** — operator raises hour change requests on mobile; manager Approves / Adjusts / Rejects in the **Hour Log Change Requests** drawer (Resources table → `to review` chip); overlap **Create Adjustment** prompt; validations; API | `references/hour-log-adjustment.md` |
+| **D365 F&O back-office setup** (AgriERP Parameters, item groups, resources, lot vs non-lot items, FIFO, projects / Crop Year / WBS ad-hoc tasks) and the **end-to-end WO lifecycle across Farm App → Inventory App dispatch → D365 postings & returns** (from training recordings; lower authority) | `references/d365-setup-and-integration.md` |
 
 ## Roles (the conceptual model)
 
@@ -124,5 +127,7 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/s
 ## Source material
 
 Derived from `resources/VB Phase Two Introduction.pdf` and `resources/user-manuals/*.pdf` (V1.0 manuals, Vann Brothers tenant). When in doubt about a flow, the original PDF for that feature is the ground truth.
+
+Training-session recordings (Nov–Dec 2025) are summarised under `resources/video-transcripts/*.md` and distilled into `references/d365-setup-and-integration.md`. They rank below the manuals and live-observed facts.
 
 Features added after the V1.0 manuals are written up from their Azure DevOps work items under `resources/work-items/*.md` or their product specification documents under `resources/product-specifications-document/*.pdf` (each names its ADO id, acceptance criteria and QA history).

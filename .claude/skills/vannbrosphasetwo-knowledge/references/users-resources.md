@@ -56,6 +56,9 @@ Five primary roles (overview also names Team Lead). Full permission lists:
 - Add/remove team leads
 
 **Machine Operator / Farm Hand** — Mobile, Field Worker
+
+A WO with a **Machine** asset must also have a **Machine Operator** resource, because a Farm Hand cannot run machinery alone (Dec 2025 training walkthrough, see [`d365-setup-and-integration.md`](./d365-setup-and-integration.md)). Check the user's role before filing machine-related mobile bugs.
+
 - Clock in/out for daily attendance
 - Start assigned jobs/tasks
 - Add progress updates

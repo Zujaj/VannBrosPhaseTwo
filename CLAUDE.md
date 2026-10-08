@@ -23,6 +23,9 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   `user-manuals/*.pdf`). **Source of truth** for exact UI labels, steps, statuses, flows.
   Mirror them — don't invent behavior. The `vannbrosphasetwo-knowledge` skill distils them;
   check it before opening a PDF, and read PDFs by page range, never whole.
+  `resources/video-transcripts/*.md` are AI-summarised training recordings. They rank below
+  the manuals and the live app, and are distilled in the knowledge skill's
+  `references/d365-setup-and-integration.md`.
 - **`.claude/skills/`** — `vannbrosphasetwo-knowledge` (product facts; consult before authoring
   tests or docs), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
   `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`

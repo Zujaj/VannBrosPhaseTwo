@@ -43,6 +43,7 @@ Journal/voucher IDs are prefixed `VBS-` (e.g. `VBS-000086`, `VBS-000546`, `VBS-0
 
 - Same navigation and screen as Transfer. Sole differentiator (verbatim): "Journal name must be **'INV-RECV'** for the return transfer journal."
 - Direction is reversed: FROM `Staging` → TO `CHMCLSHED` (returns leftover stock to the shed).
+- Per the Dec 2025 training walkthrough, if the returned batches differ from the FIFO consumption assumption, D365 first posts an **Inventory Adjustment journal** and then the `INV-RECV` transfer. This hasn't been checked live — see [`d365-setup-and-integration.md`](./d365-setup-and-integration.md).
 
 ## Return Item Journal
 

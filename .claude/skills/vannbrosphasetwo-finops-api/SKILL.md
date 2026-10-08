@@ -184,7 +184,9 @@ The "Where to see it" paths come from `vannbrosphasetwo-knowledge`
 (`references/plots-fields.md`, `references/journals-postings.md`). Read those for what a reviewer
 checks after posting. For example, a return transfer journal is named **INV-RECV** and a dispatch is
 **INV-ISSUE**. Which journal `itemReturn` produces hasn't been verified yet, so check the transfer
-journal list after calling it.
+journal list after calling it. The Dec 2025 training walkthrough says a return whose batches differ
+from the FIFO consumption is preceded by an **Inventory Adjustment journal**. Look for one too (see
+the knowledge skill's `references/d365-setup-and-integration.md`).
 
 The example values in the Postman bodies show what each field looks like: warehouses `150` / `152`
 / `0101`, location `CHMCLSHED`, batches `LOT-000226` / `Opening`, items `00004` / `00166`, UOM `oz`.
