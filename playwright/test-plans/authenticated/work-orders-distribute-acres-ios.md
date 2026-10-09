@@ -3,7 +3,7 @@
 - **ADO:** [#25969](https://dev.azure.com/AgriERPProduct/Vann%20Brothers/_workitems/edit/25969) — Enhancement, "Total acres option that divides it to all the selected resources" (state `New` on 2026-10-09)
 - **Work item copy:** `resources/work-items/25969-total-acres-distribute-equally.md` (description, dev note, product answers)
 - **Build under test:** iOS build that contains branch `bugfix/25969-total-acres-option-that-divides-it-to-all-the-sele`, commit `ad8056e5b`. Record the build number in the run log. The dev notes say the change "hasn't been built or run" yet, so confirm the commit is in the build before you start.
-- **Workbook:** `work-orders-distribute-acres-ios.xlsx` (same cases, with Result column)
+- **Workbook:** `Work Orders Distribute Acres-ios.xlsx` (same cases, with Result column)
 - **Spec:** _none, manual only_ (native iOS UI; Playwright does not cover it)
 - **Automation status:** Manual
 - **Source of truth:** product answers received 2026-10-09 (see [Product decisions](#product-decisions-2026-10-09)) override the developer's handover notes on #25969 where they differ. No PSD or mock-up is attached to the ticket. Mobile execution and role rules: `vannbrosphasetwo-knowledge` (SKILL.md role table, `references/work-orders.md`)
@@ -17,8 +17,10 @@ On the mobile **Pause Job** / **Save Progress** / **End Job** screen for a block
 - **Distribute equally**: a **Total Acres** field and the hint `Distributed equally across N selected users`. Each selected user's area fills in automatically to 2 decimals and is read-only. The shares recalculate when users are selected or unselected.
 - **Rounding** (per dev notes, *product to confirm*): round down to 2 decimals and give the leftover 0.01s to the last user(s), so the shares always add up to the total.
 - **Work order types:** all types **except Inspection** (product, 2026-10-09). So Planned, Tank Mix and Harvest WOs must show the switch. The dev notes say the harvesting end-job and percentage-progress screens were **not** changed, so those cases may fail: raise the gap on #25969.
-- **Shown only** with multiple resources on the block, and always opens in **Individual** (product, 2026-10-09). **Hidden** on the Materials tab, for rows/beds blocks, inspection WOs, single-resource blocks and the Finops app.
+- **Shown only** with multiple resources on the block, and always opens in **Individual** (product, 2026-10-09). **Hidden** on the Materials tab, for rows/beds blocks, inspection WOs, single-resource blocks.
 - **No upper limit:** Total Acres may exceed the block's remaining area ("overdue allowed", product, 2026-10-09).
+- **Platforms:** iOS app (entry) and Farm web app (shows the saved values) only (confirmed with Wania, 2026-10-09).
+- **No D365 posting:** acreage is not posted to D365, so no D365 / journal checks are needed.
 - App-only change: each user's area is saved separately, as before. No web or backend change.
 
 ## Preconditions and test data (QA env, VBS tenant)
@@ -84,7 +86,7 @@ Note the block's remaining area before each saving case. Totals above it are all
 | DIST-030 | Back to Individual keeps values | P1 | 4.75 / 2 → switch to **Individual** | Fields become editable and still show 2.37 / 2.38. Total Acres field hides | Functional |
 | DIST-031 | Pause Job saves distributed values | P1 | 10 / 3 → **Pause Job** | Saved without error. The block's Total Area increases by 10.00. Each user's progress log shows 3.33 / 3.33 / 3.34 | Smoke |
 | DIST-032 | Save Progress saves distributed values | P1 | 4.75 / 2 → **Save Progress** | As DIST-031 with 2.37 / 2.38 | Functional |
-| DIST-033 | Web reflects mobile values | P1 | After DIST-031, open WO A on QA web → View → **Plots** grid and **View Spent Hours** | Plot progress / area includes the 10.00 total. Per-user split matches mobile. Nothing posts to D365 at this point | Functional |
+| DIST-033 | Web reflects mobile values | P1 | After DIST-031, open WO A on QA web → View → **Plots** grid and **View Spent Hours** | Plot progress / area includes the 10.00 total. Per-user split matches mobile. Acreage is not posted to D365, so there is nothing to check there | Functional |
 | DIST-034 | Edit after switch, then save | P2 | Distribute 6 / 3 → Individual → change user 1 to 3 → save | Saved 3 / 2 / 2 (the Individual edits win) | Edge |
 
 ### Multi-block End Job
@@ -104,7 +106,6 @@ Note the block's remaining area before each saving case. Totals above it are all
 | DIST-052 | Inspection WO: hidden | P1 | WO E → Pause/End Job | No switch (the only WO type excluded) | Regression |
 | DIST-053 | Harvest WO: shown | P1 | WO G → Pause Job / Save Progress / End Job → Progress | Switch shown, Individual default, distribution as DIST-012. Dev notes say the harvesting end-job screen wasn't changed: if missing, log against #25969 | Functional |
 | DIST-054 | Percentage-progress (general) WO | P2 | General WO with 2+ users → Pause/End Job | Product says all types except Inspection. Dev notes say this screen has no per-user area. Record what shows and confirm with product before filing | Functional |
-| DIST-055 | Finops app | P3 | Open the equivalent screen in the Finops app | No switch | Regression |
 | DIST-056 | Tank Mix WO: shown | P1 | WO F → Pause Job → Progress → Distribute equally, 4.75 / 2 → Pause Job | Switch shown, Individual default, shares 2.37 / 2.38, saved | Functional |
 | DIST-057 | Overdue WO: shown and saves | P2 | WO H → Pause Job → Progress → Distribute equally, 10 / 3 → Pause Job | Switch shown and works as on WO A. No overdue warning blocks the save | Functional |
 
@@ -120,7 +121,8 @@ Note the block's remaining area before each saving case. Totals above it are all
 
 1. **WO types:** all except Inspection WO. Covers Planned, Tank Mix and Harvest (DIST-053, DIST-056).
 2. **Display:** shown only with multiple resources. Default view is always **Individual**, so the mode is not remembered (DIST-001, DIST-005, DIST-051).
-3. **Overdue allowed: yes.** Read as Total Acres above the block's remaining area (DIST-019). Overdue WOs past their End Date are also covered (DIST-057). Confirm which one product meant.
+3. **Platforms:** iOS and web only. Acreage is not posted to D365 (DIST-033).
+4. **Overdue allowed: yes.** Read as Total Acres above the block's remaining area (DIST-019). Overdue WOs past their End Date are also covered (DIST-057). Confirm which one product meant.
 
 ## Open questions for product
 

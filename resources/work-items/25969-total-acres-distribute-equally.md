@@ -57,20 +57,23 @@ iOS change on branch `bugfix/25969-total-acres-option-that-divides-it-to-all-the
 - Empty Total Acres: users get no area.
 - New labels have English fallbacks only; other languages still to add.
 - Not changed: harvesting end-job screen and percentage-progress (general WO) screen.
+- Dev notes also mention a "Finops app" regression check. Per Wania there is no such app; dropped.
 - Not yet built or run. Layout on a small device and with the keyboard open to be checked.
 
 ## Product answers (received by QA, 2026-10-09)
 
 1. **Work order types:** all except Inspection WO.
 2. **Display:** only when the block has multiple resources. Default view is always **Individual**.
-3. **Overdue allowed:** yes. QA reads this as Total Acres may exceed the block's remaining area;
+3. **Platforms (Wania, 2026-10-09):** iOS app and Farm web app only. There is no Finops app,
+   and acreage is not posted to D365.
+4. **Overdue allowed:** yes. QA reads this as Total Acres may exceed the block's remaining area;
    still to confirm whether overdue WOs (past End Date) were meant.
 
 ## QA notes
 
 - Test cases: `playwright/test-plans/authenticated/work-orders-distribute-acres-ios.md` and
-  `work-orders-distribute-acres-ios.xlsx` (DIST-001..062, 40 cases, manual iOS only).
+  `work-orders-distribute-acres-ios.xlsx` (DIST-001..062, 39 cases, manual iOS + web check).
 - **Conflict:** product says all WO types except Inspection. The dev notes say the harvesting end-job and
   percentage-progress screens weren't changed. DIST-053 / DIST-054 cover it; expect a gap on Harvest WOs.
 - Ticket is still `New`, but a fix is on a branch. Confirm the iOS build under test contains `ad8056e5b`.
-- Only an iOS change is recorded.
+- Only an iOS change is recorded. No D365 / journal checks needed: acreage isn't posted there.
