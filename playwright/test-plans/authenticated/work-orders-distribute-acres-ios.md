@@ -1,11 +1,12 @@
 # Test Plan — Distribute Total Acres Equally Across Selected Users (iOS)
 
 - **ADO:** [#25969](https://dev.azure.com/AgriERPProduct/Vann%20Brothers/_workitems/edit/25969) — Enhancement, "Total acres option that divides it to all the selected resources" (state `New` on 2026-10-09)
+- **Work item copy:** `resources/work-items/25969-total-acres-distribute-equally.md` (description, dev note, product answers)
 - **Build under test:** iOS build that contains branch `bugfix/25969-total-acres-option-that-divides-it-to-all-the-sele`, commit `ad8056e5b`. Record the build number in the run log. The dev notes say the change "hasn't been built or run" yet, so confirm the commit is in the build before you start.
 - **Workbook:** `work-orders-distribute-acres-ios.xlsx` (same cases, with Result column)
 - **Spec:** _none, manual only_ (native iOS UI; Playwright does not cover it)
 - **Automation status:** Manual
-- **Source of truth:** ticket description and the developer's handover notes on #25969 (no PSD or mock-up is attached to the ticket). Mobile execution and role rules: `vannbrosphasetwo-knowledge` (SKILL.md role table, `references/work-orders.md`)
+- **Source of truth:** product answers received 2026-10-09 (see [Product decisions](#product-decisions-2026-10-09)) override the developer's handover notes on #25969 where they differ. No PSD or mock-up is attached to the ticket. Mobile execution and role rules: `vannbrosphasetwo-knowledge` (SKILL.md role table, `references/work-orders.md`)
 - **Last updated:** 2026-10-09
 
 ## Scope
@@ -15,7 +16,9 @@ On the mobile **Pause Job** / **Save Progress** / **End Job** screen for a block
 - **Individual** (default): area is typed for each selected user, as before.
 - **Distribute equally**: a **Total Acres** field and the hint `Distributed equally across N selected users`. Each selected user's area fills in automatically to 2 decimals and is read-only. The shares recalculate when users are selected or unselected.
 - **Rounding** (per dev notes, *product to confirm*): round down to 2 decimals and give the leftover 0.01s to the last user(s), so the shares always add up to the total.
-- **Shown only** for area-based blocks with more than one user. **Hidden** on the Materials tab, for rows/beds blocks, inspection WOs, single-user blocks, the harvesting end-job screen, the percentage-progress (general WO) screen and the Finops app.
+- **Work order types:** all types **except Inspection** (product, 2026-10-09). So Planned, Tank Mix and Harvest WOs must show the switch. The dev notes say the harvesting end-job and percentage-progress screens were **not** changed, so those cases may fail: raise the gap on #25969.
+- **Shown only** with multiple resources on the block, and always opens in **Individual** (product, 2026-10-09). **Hidden** on the Materials tab, for rows/beds blocks, inspection WOs, single-resource blocks and the Finops app.
+- **No upper limit:** Total Acres may exceed the block's remaining area ("overdue allowed", product, 2026-10-09).
 - App-only change: each user's area is saved separately, as before. No web or backend change.
 
 ## Preconditions and test data (QA env, VBS tenant)
@@ -29,9 +32,12 @@ On the mobile **Pause Job** / **Save Progress** / **End Job** screen for a block
 | WO C | Planned WO with a **rows/beds** block and 2+ users (regression) |
 | WO D | WO with an area-based block and **1** user only (regression) |
 | WO E | Inspection WO with 2+ users (regression) |
+| WO F | Tank Mix WO, `In Progress`, area-based block, 2+ users |
+| WO G | Harvest WO, `In Progress`, area-based block, 2+ users |
+| WO H | Planned WO whose **End Date is in the past** (overdue), `In Progress`, area-based block, 2+ users |
 | Web check | QA web → **Work Orders** → WO → eye icon (View) → **Plots** grid (`Progress`, `Operational Area - ac`) and the Supervisor **View Spent Hours** |
 
-Note the block's remaining area before each saving case. There is no cap, so you will need it to judge totals.
+Note the block's remaining area before each saving case. Totals above it are allowed, so you will need it to judge totals.
 
 ## Test cases
 
@@ -43,7 +49,7 @@ Note the block's remaining area before each saving case. There is no cap, so you
 | DIST-002 | Same switch on Save Progress | P1 | WO A → **Save Progress** → **Progress** | Same as DIST-001 | Functional |
 | DIST-003 | Individual mode unchanged | P1 | In Individual mode, enter 1.5 / 2 / 0.5 for the 3 users → save | Saved exactly as typed. Nothing is auto-filled | Regression |
 | DIST-004 | Switch hidden on Materials tab, state kept | P2 | Distribute equally, Total Acres 6 → **Materials** tab → back to **Progress** | Switch is not on Materials. Back on Progress: still **Distribute equally**, Total Acres still 6, shares still 2.00 each | Functional |
-| DIST-005 | Mode not remembered between openings | P3 | Save in Distribute equally → reopen Pause Job | Screen opens in **Individual** (known behaviour per dev notes; log it for the PM, not as a defect) | Functional |
+| DIST-005 | Mode not remembered between openings | P3 | Save in Distribute equally → reopen Pause Job | Screen opens in **Individual**. Confirmed by product: default view is always Individual | Functional |
 
 ### Distribution and rounding (Distribute equally)
 
@@ -58,7 +64,7 @@ Note the block's remaining area before each saving case. There is no cap, so you
 | DIST-016 | More than 2 decimals typed | P2 | 4.755 / 2 | Field rejects or rounds the 3rd decimal. Shares still sum to what the Total Acres field shows | Negative |
 | DIST-017 | Zero, negative, non-numeric | P2 | 0; -5; paste `abc`; `4,75` (EU keypad) | 0 gives no area. Negative and text are blocked (decimal keypad). Note how a comma decimal is handled | Negative |
 | DIST-018 | Empty Total Acres | P2 | Leave blank → save | Users get no area, same as empty fields in Individual mode (per dev notes) | Edge |
-| DIST-019 | No upper limit | P3 | Total larger than the block's remaining area, e.g. 9999 | Accepted without warning (known gap per dev notes; record the behaviour for the PM) | Edge |
+| DIST-019 | Total above remaining area allowed | P2 | Total larger than the block's remaining area, e.g. remaining + 5 | Accepted, shares split as usual, saves without a blocking error (product: overdue allowed) | Edge |
 
 ### Selection changes
 
@@ -89,16 +95,18 @@ Note the block's remaining area before each saving case. There is no cap, so you
 | DIST-041 | Blocks are independent | P1 | Block 1: Distribute 4.75 / 2. Block 2: Individual 1 / 1.5 → End Job | Each block saves its own values. Block 1's mode and total don't leak into block 2 | Functional |
 | DIST-042 | Paging back keeps state | P2 | Fill block 1 → go to block 2 → back to block 1 | Block 1 still in Distribute equally with the same total and shares | Functional |
 
-### Regression: option must not appear
+### Work order type coverage
 
 | ID | Title | Pri | Steps | Expected result | Type |
 |---|---|---|---|---|---|
-| DIST-050 | Rows/beds block | P1 | WO C → Pause Job → Progress | No switch. Rows/beds entry as before | Regression |
-| DIST-051 | Single-user block | P1 | WO D → Pause Job → Progress | No switch | Regression |
-| DIST-052 | Inspection WO | P2 | WO E → Pause/End Job | No switch | Regression |
-| DIST-053 | Harvesting End Job | P2 | Harvest WO → End Job | Unchanged, no switch | Regression |
-| DIST-054 | Percentage-progress (general) WO | P2 | General WO → Pause/End Job | Unchanged, no switch | Regression |
+| DIST-050 | Rows/beds block: hidden | P1 | WO C → Pause Job → Progress | No switch. Rows/beds entry as before | Regression |
+| DIST-051 | Single-resource block: hidden | P1 | WO D → Pause Job → Progress | No switch | Regression |
+| DIST-052 | Inspection WO: hidden | P1 | WO E → Pause/End Job | No switch (the only WO type excluded) | Regression |
+| DIST-053 | Harvest WO: shown | P1 | WO G → Pause Job / Save Progress / End Job → Progress | Switch shown, Individual default, distribution as DIST-012. Dev notes say the harvesting end-job screen wasn't changed: if missing, log against #25969 | Functional |
+| DIST-054 | Percentage-progress (general) WO | P2 | General WO with 2+ users → Pause/End Job | Product says all types except Inspection. Dev notes say this screen has no per-user area. Record what shows and confirm with product before filing | Functional |
 | DIST-055 | Finops app | P3 | Open the equivalent screen in the Finops app | No switch | Regression |
+| DIST-056 | Tank Mix WO: shown | P1 | WO F → Pause Job → Progress → Distribute equally, 4.75 / 2 → Pause Job | Switch shown, Individual default, shares 2.37 / 2.38, saved | Functional |
+| DIST-057 | Overdue WO: shown and saves | P2 | WO H → Pause Job → Progress → Distribute equally, 10 / 3 → Pause Job | Switch shown and works as on WO A. No overdue warning blocks the save | Functional |
 
 ### UI and language
 
@@ -108,12 +116,17 @@ Note the block's remaining area before each saving case. There is no cap, so you
 | DIST-061 | Large text (Dynamic Type) | P3 | Settings → larger text → repeat DIST-010 | Labels wrap and nothing overlaps | UI |
 | DIST-062 | Non-English language | P3 | Switch the app language → open the screen | New labels show English fallback text (`Distribute equally`, `Total Acres`, hint). Known gap: translations still to be added | UI |
 
-## Open questions for product (from the dev notes)
+## Product decisions (2026-10-09)
+
+1. **WO types:** all except Inspection WO. Covers Planned, Tank Mix and Harvest (DIST-053, DIST-056).
+2. **Display:** shown only with multiple resources. Default view is always **Individual**, so the mode is not remembered (DIST-001, DIST-005, DIST-051).
+3. **Overdue allowed: yes.** Read as Total Acres above the block's remaining area (DIST-019). Overdue WOs past their End Date are also covered (DIST-057). Confirm which one product meant.
+
+## Open questions for product
 
 1. Rounding rule: 2 decimals, leftover to the last user(s). Matches the mock-up per the dev, but the mock-up isn't attached to the ticket.
-2. Should the screen remember the last mode?
-3. Should Total Acres be capped at the block's remaining area?
-4. Translations for the three new labels.
+2. Translations for the three new labels.
+3. Harvest and percentage-progress screens: product says covered, dev notes say not changed (DIST-053, DIST-054).
 
 ## Run log
 
