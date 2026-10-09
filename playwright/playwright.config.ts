@@ -1,12 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 
-const QA_BASE_URL = 'https://agrierp-vann-qa.folio3.site';
-// Default actor. Role-scoped specs override this per file via `asRole()`
-// (tests/helpers/roleSession.ts), which points at `.auth/<role>.json`.
-const AUTH_FILE = path.resolve(__dirname, '.auth/admin.json');
+import { APP_BASE_URL, IS_UAT } from './tests/constants/routes';
+import { AUTH_FILE } from './tests/helpers/auth';
+
+// Targets QA unless `TARGET_ENV=uat` (see tests/constants/routes.ts). The default actor's
+// session is `.auth/admin.json` (`.auth/uat-admin.json` on UAT); role-scoped specs override
+// it per file via `asRole()` (tests/helpers/roleSession.ts).
 
 const AUTHENTICATED = /authenticated\//;
+// Dummy Resources v2 (ADO #26191) is not deployed on UAT (2026-10-09), so its specs are left out there.
+const NOT_ON_UAT = IS_UAT ? [/dummy-resources\.spec\.ts/, /dummy-shifts-api\.spec\.ts/] : [];
 const GUEST = /public\//;
 
 /**
@@ -30,7 +34,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { outputFolder: path.resolve(__dirname, 'playwright-report') }]],
   use: {
-    baseURL: QA_BASE_URL,
+    baseURL: APP_BASE_URL,
     trace: 'on-first-retry',
     // screenshot: 'only-on-failure',
     // video: 'on-first-retry',
@@ -56,7 +60,7 @@ export default defineConfig({
     {
       name: 'chromium',
       testMatch: AUTHENTICATED,
-      testIgnore: /auth\.setup\.ts/,
+      testIgnore: [/auth\.setup\.ts/, ...NOT_ON_UAT],
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
@@ -66,7 +70,7 @@ export default defineConfig({
     {
       name: 'firefox',
       testMatch: AUTHENTICATED,
-      testIgnore: /auth\.setup\.ts/,
+      testIgnore: [/auth\.setup\.ts/, ...NOT_ON_UAT],
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Firefox'],

@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { API_HOSTS } from '../constants/routes';
 
 /**
  * Cleanup for `@mutating` template specs: find what a test created by its name prefix and
@@ -42,7 +43,7 @@ export class ApiSession {
     page.on('request', (request) => {
       const auth = request.headers()['authorization'];
       const url = new URL(request.url());
-      if (auth && url.pathname.startsWith('/api/') && url.host.endsWith('folio3.site')) {
+      if (auth && url.pathname.startsWith('/api/') && API_HOSTS.includes(url.host)) {
         session.authorization = auth;
         session.origin = url.origin;
       }
@@ -54,9 +55,10 @@ export class ApiSession {
     if (!this.authorization || !this.origin) throw new Error('no API call seen yet to copy auth from');
     const url = `${this.origin}${apiPath}`;
     // `assertQaOnly` only admits the web host; the API lives on its own gateway host
-    // (agrierp-authgateway-qa-api / agrierp-vann-api-qa), so require a QA folio3 API host here.
+    // (agrierp-authgateway-qa-api / agrierp-vann-api-qa, or UAT's gateway under TARGET_ENV=uat),
+    // so require one of the targeted environment's API hosts here.
     const host = new URL(url).host;
-    if (!/^agrierp-[a-z0-9-]*(-qa-api|-api-qa)\.folio3\.site$/.test(host)) throw new Error(`Refusing non-QA API host: ${host}`);
+    if (!API_HOSTS.includes(host)) throw new Error(`Refusing API host outside the target env: ${host}`);
     return url;
   }
 

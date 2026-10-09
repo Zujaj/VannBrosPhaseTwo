@@ -4,6 +4,32 @@ export const QA_HOST = 'agrierp-vann-qa.folio3.site';
 export const QA_API_BASE_URL = 'https://agrierp-vann-api-qa.folio3.site';
 
 /**
+ * Which environment the run targets. QA unless `TARGET_ENV=uat` is set explicitly — UAT is
+ * opt-in for smoke runs (`pnpm test:smoke:uat`); every other script stays on QA. Production is
+ * deliberately not a target.
+ */
+export type TargetEnv = 'qa' | 'uat';
+export const TARGET_ENV: TargetEnv = process.env.TARGET_ENV?.toLowerCase() === 'uat' ? 'uat' : 'qa';
+export const IS_UAT = TARGET_ENV === 'uat';
+
+const UAT_BASE_URL = 'https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net';
+/** UAT's web app calls `/api/*` on its auth gateway host, like QA's (verified live 2026-10-09). */
+const UAT_GATEWAY_URL = 'https://agrierp-auth-gateway-uat-app-service-d7bfhgewhag2gfdq.eastus2-01.azurewebsites.net';
+const QA_GATEWAY_URL = 'https://agrierp-authgateway-qa-api.folio3.site';
+
+/** Web app of the targeted environment. */
+export const APP_BASE_URL = IS_UAT ? UAT_BASE_URL : QA_BASE_URL;
+export const APP_HOST = new URL(APP_BASE_URL).host;
+/** Auth gateway: issues/refreshes tokens and fronts `/api/*` for the web app. */
+export const AUTH_GATEWAY_URL = IS_UAT ? UAT_GATEWAY_URL : QA_GATEWAY_URL;
+/** REST base for role-scoped API specs. UAT is reached through its gateway. */
+export const API_BASE_URL = IS_UAT ? UAT_GATEWAY_URL : QA_API_BASE_URL;
+/** Every host the run may call the API on. */
+export const API_HOSTS: readonly string[] = IS_UAT
+  ? [new URL(UAT_GATEWAY_URL).host]
+  : [new URL(QA_GATEWAY_URL).host, new URL(QA_API_BASE_URL).host];
+
+/**
  * The tenant/environment to pick in the auth gateway's "Choose Environment" dialog, which
  * appears after the email on `/login` and gates the hand-off to Azure AD.
  *
@@ -14,6 +40,8 @@ export const QA_API_BASE_URL = 'https://agrierp-vann-api-qa.folio3.site';
  * environments are reached through the same one.
  */
 export const QA_ENVIRONMENT_LABEL = 'Vann Brothers - QA';
+/** The environment to pin in that dialog, or null where none is shown (UAT goes straight to Azure AD). */
+export const ENVIRONMENT_LABEL: string | null = IS_UAT ? null : QA_ENVIRONMENT_LABEL;
 
 /**
  * Full route map, extracted from the compiled Angular bundles of
@@ -147,5 +175,5 @@ export const routes = {
  * ```
  */
 export function routeUrl(path: string): string {
-  return new URL(path, QA_BASE_URL).href;
+  return new URL(path, APP_BASE_URL).href;
 }

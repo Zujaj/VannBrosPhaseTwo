@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { request, type APIRequestContext } from '@playwright/test';
-import { QA_API_BASE_URL } from '../constants/routes';
+import { API_BASE_URL } from '../constants/routes';
 import type { Role } from '../constants/roles';
 import { authFileFor } from './auth';
 
@@ -23,7 +23,7 @@ export function sessionToken(role: Role): string {
 
 export function apiAs(role: Role): Promise<APIRequestContext> {
   return request.newContext({
-    baseURL: QA_API_BASE_URL,
+    baseURL: API_BASE_URL,
     extraHTTPHeaders: { Authorization: `Bearer ${sessionToken(role)}`, accept: 'application/json' },
   });
 }

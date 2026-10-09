@@ -19,7 +19,7 @@ Write E2E tests for the VannBrosPhaseTwo Farm web app that fit this repo's exist
 
 ## Repo layout & conventions (learn these before writing)
 
-- **Config:** `playwright.config.ts`. `baseURL` = `https://agrierp-vann-qa.folio3.site` (QA only). Package `vannbrosphasetwo`, pnpm, CommonJS, `@playwright/test` ^1.60. `outputDir` → `test-results/`, HTML report → `playwright-report/`.
+- **Config:** `playwright.config.ts`. `baseURL` = `https://agrierp-vann-qa.folio3.site` (QA; UAT only under `TARGET_ENV=uat`, see rule 1). Package `vannbrosphasetwo`, pnpm, CommonJS, `@playwright/test` ^1.60. `outputDir` → `test-results/`, HTML report → `playwright-report/`.
 - **Projects** (five):
   - `setup` — runs `tests/auth.setup.ts`, logs in **per role**, writes `.auth/<role>.json`.
     Each run first checks the saved session (~2 s: token refresh at the auth gateway
@@ -44,6 +44,7 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
 - `pnpm test:fast` — daily loop: Firefox only, no retries. `pnpm test:clean` — everything except
   `@mutating` (specs that create real work orders on shared QA with no teardown); run it before a
   UAT cycle, since the workbook scopes the web suite to Chromium.
+- `pnpm auth:uat` / `pnpm test:smoke:uat` (`:all` adds `@mutating`) — the smoke suite on UAT (rule 1).
 - `pnpm auth:qa` — (re)generate sessions. `AUTH_ROLES=supervisor,farmhand pnpm auth:qa`
   bootstraps extra actors (one interactive SSO prompt each); default is `admin`.
 - `pnpm seed:planned` / `seed:harvest` / `seed:tickets` — create real test data on QA:
@@ -126,7 +127,7 @@ former `Add Block`.)
 
 ## Non-negotiable rules
 
-1. **QA only.** Never point a test at any host other than `agrierp-vann-qa.folio3.site`. Use `routes`/`routeUrl()`; if you must validate a URL, reuse `assertQaOnly`. This is a guardrail in the existing helpers — keep it. UAT (see `vannbrosphasetwo-knowledge` → Environments) is only for manual bug verification with `playwright-cli` in Firefox. Never add it to config, routes or specs.
+1. **QA by default; UAT only by explicit opt-in.** Specs target `agrierp-vann-qa.folio3.site`. The one sanctioned exception is `TARGET_ENV=uat` (`pnpm auth:uat`, `pnpm test:smoke:uat` / `test:smoke:uat:all`), which `tests/constants/routes.ts` resolves to the UAT web host and gateway; UAT sessions are `.auth/uat-<role>.json` and only `admin` (farmappadmin) exists there. Never hardcode a host in a spec — use `routes`/`routeUrl()`/`APP_HOST`; `assertQaOnly` refuses any host outside the targeted env and always refuses production. Specs for features not on UAT are listed in `NOT_ON_UAT` in `playwright.config.ts` (Dummy Resources v2 today). Expect data-dependent failures on UAT (different sites, seasons, plots, templates) and report them apart from defects. Manual UAT bug verification still uses `playwright-cli` in Firefox.
 2. **No credentials in code.** Login is human-assisted in the `setup` project and persisted as storage state. Never embed usernames/passwords/tokens in specs or commit `playwright/.auth/`.
 3. **Add new paths to `tests/constants/routes.ts`**, then import them. Keep one source of truth for routes.
 4. **Assert on real wording** from `vannbrosphasetwo-knowledge` (e.g. button `Create New Work Orders`, toast `Template created successfully`, chip `Review`). Wrong labels = false greens.

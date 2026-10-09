@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'fs-extra';
 import path from 'path';
 import type { Browser, BrowserContext } from '@playwright/test';
-import { routeUrl, routes, QA_HOST } from '../constants/routes';
+import { routeUrl, routes, APP_HOST, AUTH_GATEWAY_URL, IS_UAT } from '../constants/routes';
 import { routeGoogleMapsViaNode } from './googleMaps';
 import { DEFAULT_ROLE, type Role } from '../constants/roles';
 
@@ -14,7 +14,8 @@ export const SCREENSHOT_DIR = path.resolve(__dirname, '../../test-results');
  * the regression workbook) instead of only ever running as the admin.
  */
 export function authFileFor(role: Role): string {
-  return path.join(AUTH_DIR, `${role}.json`);
+  // UAT sessions live apart (`uat-<role>.json`) so a UAT run can never overwrite a QA session.
+  return path.join(AUTH_DIR, IS_UAT ? `uat-${role}.json` : `${role}.json`);
 }
 
 /** The pre-multi-role session path, kept only so an existing local session isn't thrown away. */
@@ -60,10 +61,17 @@ export function ensureDir(dir: string) {
   }
 }
 
+/**
+ * Refuse any VannBrosPhaseTwo web host other than the targeted one — QA, or UAT only when
+ * `TARGET_ENV=uat` is set. Production (`agrierp.com`) and other folio3/azurewebsites tenants
+ * are always refused. Microsoft's sign-in hosts pass through.
+ */
 export function assertQaOnly(url: string) {
   const host = new URL(url).host;
-  if (host.endsWith('folio3.site') && host !== QA_HOST) {
-    throw new Error(`Refusing non-QA VannBrosPhaseTwo host: ${host}`);
+  const appHost = host.endsWith('folio3.site') || host.endsWith('azurewebsites.net') || host.endsWith('agrierp.com');
+  const isGateway = host.startsWith('agrierp-authgateway') || host.startsWith('agrierp-auth-gateway');
+  if (appHost && !isGateway && host !== APP_HOST) {
+    throw new Error(`Refusing VannBrosPhaseTwo host outside the target env (${APP_HOST}): ${host}`);
   }
 }
 
@@ -148,7 +156,7 @@ export async function captureFailure(context: BrowserContext | null, label: stri
  * the app posts both stored tokens to `/auth/refresh`, saves the new pair, and retries. If the
  * refresh itself fails it shows "session expired" and sends the user back to /login.
  */
-const AUTH_GATEWAY = 'https://agrierp-authgateway-qa-api.folio3.site';
+const AUTH_GATEWAY = AUTH_GATEWAY_URL;
 
 /**
  * Check a saved session the way the app itself does, in ~2s instead of the ~30s browser probe.

@@ -84,7 +84,7 @@ Header right: **Site** selector (e.g. "Vann Location", "VBS Locations", "Colusa"
 
 `All | Queue | Draft | To Do | In Progress | Review | Done | Filter`
 
-Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/submitted on web (lands in Queue/To Do) → executed on mobile (In Progress → Review) → approved on web (`Work Order Completed` → `Approve`) → `Done`, which posts material & machine consumption to ERP.
+Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Any WO type can be **deleted while in To Do**; from In Progress on it only moves forward. Created/submitted on web (lands in Queue/To Do) → executed on mobile (In Progress → Review) → approved on web (`Work Order Completed` → `Approve`) → `Done`, which posts material & machine consumption to ERP.
 
 ## Tenant / URL pattern
 
@@ -95,7 +95,7 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Created/s
 | Env | Web app | API (auth gateway) | Use |
 |---|---|---|---|
 | QA | `https://agrierp-vann-qa.folio3.site` | `agrierp-authgateway-qa-api.folio3.site`, `agrierp-vann-api-qa.folio3.site` | Automated specs and QA verification (`Ready for QA`). |
-| UAT | `https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` | `agrierp-auth-gateway-uat-app-service-d7bfhgewhag2gfdq.eastus2-01.azurewebsites.net` | Manual check of bugs in **Deployed on UAT**. No specs. |
+| UAT | `https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` | `agrierp-auth-gateway-uat-app-service-d7bfhgewhag2gfdq.eastus2-01.azurewebsites.net` | Manual check of bugs in **Deployed on UAT**; the smoke suite via `TARGET_ENV=uat` (`pnpm test:smoke:uat`). |
 | Production | `https://vann-farms.agrierp.com` | `authgateway.agrierp.com` | Read-only (sync-console error report). |
 
 UAT notes, confirmed live 2026-10-08:
@@ -103,7 +103,8 @@ UAT notes, confirmed live 2026-10-08:
 - Login is email-first: enter the email, click `Login`, sign in with the Microsoft password, then `Stay signed in?` → `No`. Use `playwright/.auth/production_farmappadmin_credentials.json` (user `farmappadmin`). It lands on `/maps`.
 - The D365 link points to `vb-uat-invapp.sandbox.operations.dynamics.com` (`cmp=VBS`).
 - UAT data differs from QA, and QA WO numbers such as WO-1286 don't exist there. Colusa / Crop Year 2026 holds most WOs. For example, WO-135 "Workorder-2026-05-10-1" is a tank-mix Fertilization WO with Band % 10.
-- WOs created during verification stay in To Do. Never revert or delete them.
+- WOs created during verification may be deleted while still in **To Do** (any WO type can be deleted in To Do). Never revert a started WO or delete it once past To Do.
+- **Dummy Resources v2 is not deployed on UAT** (as of 2026-10-09): the `Add Dummy Resource` menu, `DUMMY RESOURCE` badge and `api/DummyShift/*` are QA-only, so skip those checks on UAT.
 
 ## Glossary (farming terminology)
 

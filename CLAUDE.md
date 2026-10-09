@@ -6,9 +6,10 @@ tests, the documentation site, and the product reference manuals for that applic
 The live app under test runs at the QA env `https://agrierp-vann-qa.folio3.site`
 (tenant: "Vann Brothers" / VBS).
 
-**Environments:** QA (above) is the only target for automated specs. **UAT**
-`https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` is for manually
-verifying ADO bugs in state *Deployed on UAT* (drive it with `playwright-cli` in Firefox; log in
+**Environments:** QA (above) is the default target for automated specs. **UAT**
+`https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` takes the smoke
+suite only through the explicit opt-in `TARGET_ENV=uat` (`pnpm auth:uat`, `pnpm test:smoke:uat`), and
+is otherwise for manually verifying ADO bugs in state *Deployed on UAT* (drive it with `playwright-cli` in Firefox; log in
 with `playwright/.auth/production_farmappadmin_credentials.json`, never print it). Production
 `https://vann-farms.agrierp.com` is read-only. Environment table: `vannbrosphasetwo-knowledge` skill.
 
@@ -44,6 +45,7 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
 
 - `playwright/`: `pnpm test:fast` (daily loop, Firefox, no retries) · `pnpm test:clean`
   (before a UAT cycle, skips `@mutating`) · `pnpm auth:qa` (refresh sessions) ·
+  `pnpm test:smoke:uat` (smoke suite on UAT, after `pnpm auth:uat`) ·
   `pnpm typecheck`. Full list in the `vannbrosphasetwo-playwright` skill.
 - `documentation/`: `pnpm start` · `pnpm build` · `pnpm serve:build` · `pnpm pdf`.
 

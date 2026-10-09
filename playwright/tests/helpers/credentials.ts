@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs-extra';
 import path from 'path';
 import { AUTH_DIR } from './auth';
 import { ROLE_PROFILES, type Role } from '../constants/roles';
+import { IS_UAT } from '../constants/routes';
 
 /**
  * Where the suite gets a role's sign-in credentials.
@@ -66,7 +67,26 @@ function fromFile(role: Role): Credential | null {
   }
 }
 
+/**
+ * UAT has one account the suite may use: `farmappadmin`, stored as `{ email, password }` in
+ * `.auth/production_farmappadmin_credentials.json`. Only the admin role maps to it; every other
+ * role has no UAT credential, so a UAT run bootstraps the admin alone.
+ */
+const UAT_ADMIN_FILE = path.join(AUTH_DIR, 'production_farmappadmin_credentials.json');
+
+function fromUatFile(role: Role): Credential | null {
+  if (role !== 'admin' || !existsSync(UAT_ADMIN_FILE)) return null;
+  try {
+    const { email, password } = JSON.parse(readFileSync(UAT_ADMIN_FILE, 'utf-8')) as { email?: string; password?: string };
+    return email && password ? { username: email, password } : null;
+  } catch {
+    return null;
+  }
+}
+
 export function credentialsFor(role: Role): Credential | null {
+  // On UAT the QA credentials must never be tried: they belong to another tenant.
+  if (IS_UAT) return fromUatFile(role);
   return fromEnv(role) ?? fromFile(role);
 }
 

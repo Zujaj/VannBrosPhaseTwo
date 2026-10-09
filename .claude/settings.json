@@ -21,7 +21,9 @@
       "Bash(pnpm test:public)",
       "Bash(pnpm test:smoke *)",
       "Bash(pnpm test:smoke)",
-      "Bash(pnpm typecheck)"
+      "Bash(pnpm typecheck)",
+      "Edit(./playwright/tests/**)",
+      "Edit(./playwright/playwright.config.ts)"
     ],
     "deny": [
       "Read(./.claude/skills/vannbrosphasetwo-vann-api-qa/openapi.json)",

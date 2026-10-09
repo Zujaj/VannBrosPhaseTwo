@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
-import { QA_ENVIRONMENT_LABEL, QA_HOST, routeUrl, routes } from '../constants/routes';
+import { APP_HOST, ENVIRONMENT_LABEL, routeUrl, routes } from '../constants/routes';
 import type { Credential } from './credentials';
 
 /**
@@ -134,15 +134,16 @@ export async function signIn(
     // Stage 2 — the environment picker, when this account sees one.
     // The dialog is the normal path, so give it the full step budget rather than a clipped
     // window — skipping it early is what used to send stage 3 back to the app's own login.
+    // UAT shows no picker (ENVIRONMENT_LABEL is null there), so skip the wait for it.
     const dialog = page.getByRole('dialog');
-    if (await firstVisible([dialog], remaining())) {
+    if (ENVIRONMENT_LABEL && (await firstVisible([dialog], remaining()))) {
       // A toggle click fired while the dialog is still fading in (or before its environment
       // list has loaded) is swallowed, and a bare click on the option then waits out the whole
       // test (observed 2026-09-27: dialog up, menu closed, Login disabled). Retry the toggle
       // until the QA option is actually on screen.
       const qaOption = page
         .locator('#myDropdown.show .dropdown-item')
-        .filter({ hasText: QA_ENVIRONMENT_LABEL })
+        .filter({ hasText: ENVIRONMENT_LABEL })
         .first();
       await expect(async () => {
         if (!(await qaOption.isVisible())) await dialog.locator('button.dropdown-toggle').first().click();
@@ -183,7 +184,7 @@ export async function signIn(
     // `/login?returnUrl=...` when it rejected the session.
     await page
       .waitForURL(
-        (url) => url.host === QA_HOST && (url.pathname.startsWith(routes.maps.root) || url.pathname === routes.login),
+        (url) => url.host === APP_HOST &&(url.pathname.startsWith(routes.maps.root) || url.pathname === routes.login),
         { timeout: Math.max(1, deadline - Date.now()) },
       )
       .catch(() => {});

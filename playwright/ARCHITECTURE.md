@@ -309,6 +309,7 @@ All test scripts prefix `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`. The ever
 | --- | --- |
 | `pnpm auth:qa` | Run only `setup` — check/refresh or (re)create sessions. Use when authed specs fail at login or the API token expired. Honours `AUTH_ROLES`. |
 | `pnpm test:fast` | Daily loop: Firefox only, no retries. |
+| `pnpm auth:uat` · `pnpm test:smoke:uat` | Same setup / smoke run against **UAT** (`TARGET_ENV=uat`): UAT host and gateway from `tests/constants/routes.ts`, session `.auth/uat-admin.json`, Dummy Resources v2 specs skipped. `test:smoke:uat:all` adds `@mutating`. |
 | `pnpm test:clean` | Both engines, everything **except** `@mutating` — before a UAT cycle, when the shared QA env must not gain new work orders. |
 | `pnpm test:authed` / `test:public` | Authenticated / guest specs, both engines. `test:chromium` / `test:firefox` for one engine. |
 | `pnpm typecheck` · `pnpm coverage` | Type check; workbook coverage (fails on an unknown `@TC` tag). |
