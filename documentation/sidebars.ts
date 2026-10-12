@@ -39,6 +39,11 @@ const sidebars: SidebarsConfig = {
         },
         {
           type: 'category',
+          label: 'Harvest Central',
+          items: ['user-journeys/harvest-central/plan-and-post-harvest-tickets'],
+        },
+        {
+          type: 'category',
           label: 'Templates',
           items: [
             'user-journeys/templates/create-attribute-template',

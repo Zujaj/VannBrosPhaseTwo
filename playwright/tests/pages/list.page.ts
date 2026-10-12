@@ -151,8 +151,16 @@ export class ListPage extends BasePage {
 
   /** Visible column header names, in order. */
   async columnNames(): Promise<string[]> {
-    const headers = await this.table.locator('thead th').allInnerTexts();
-    return headers.map((h) => h.trim()).filter(Boolean);
+    return (await this.headerTexts()).filter(Boolean);
+  }
+
+  /**
+   * Every header cell's text, blanks included, so a name's index is its real column position.
+   * Grids with a leading select checkbox (Harvest Central's detail grid) have an empty first
+   * header; dropping it, as `columnNames()` does, shifts every later column by one.
+   */
+  private async headerTexts(): Promise<string[]> {
+    return (await this.table.locator('thead th').allInnerTexts()).map((h) => h.trim());
   }
 
   /** A status filter chip (All / Queue / Draft / To Do / In Progress / Review / Done). */
@@ -244,7 +252,7 @@ export class ListPage extends BasePage {
 
   /** 1-based position of a column in the current header row, resolving label variants. */
   async columnIndex(column: string): Promise<number> {
-    const names = await this.columnNames();
+    const names = await this.headerTexts();
     const wanted = columnVariants(column).map(normalise);
     const index = names.findIndex((n) => wanted.includes(normalise(n)));
     if (index < 0) throw new Error(`Column "${column}" not found. Columns: ${names.join(' | ')}`);
@@ -342,7 +350,7 @@ export class ListPage extends BasePage {
 
   /** Every value in one column, for the rows currently rendered. */
   async columnValues(column: string): Promise<string[]> {
-    const names = await this.columnNames();
+    const names = await this.headerTexts();
     const wanted = columnVariants(column).map(normalise);
     const index = names.findIndex((n) => wanted.includes(normalise(n)));
     if (index < 0) throw new Error(`Column "${column}" not found. Columns: ${names.join(' | ')}`);

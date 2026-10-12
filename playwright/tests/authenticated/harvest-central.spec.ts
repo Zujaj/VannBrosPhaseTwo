@@ -2,7 +2,9 @@ import { test, expect } from '../fixtures';
 import { routes } from '../constants/routes';
 
 /**
- * Harvest Central. Workbook tab `08 Harvest Central`.
+ * Harvest Central. Workbook tab `08 Harvest Central`; test plan
+ * test-plans/authenticated/harvest-central.md, which also lists the PSD v2 cases (HCP / HCM / HCI)
+ * from "Harvesting Permanent Planting v2". Those are unverified on QA and not automated yet.
  *
  * All non-mutating: the field/variety list and the read-only halves of a harvest detail.
  * Ticket creation, posting and deletion mutate the shared QA tenant and are not automated.
@@ -126,4 +128,108 @@ test('@TC-partial:HC-010 the Harvest Detail grid renders its column set', async 
 
   // The leading select checkbox the case calls for.
   await expect(listPage.table.locator('thead input[type="checkbox"]')).toHaveCount(1);
+});
+
+/*
+ * PSD "Harvesting Permanent Planting" v2 (test-plans/authenticated/harvest-central.md, HCP-xx).
+ * Only the parts QA has shipped are asserted, as checked live 2026-10-12. Every panel is closed
+ * with Cancel, so nothing is saved.
+ */
+
+test('@PSD-harvest-central HCP-11 the detail page carries Post Ticket, planning and the status summary', async ({
+  page,
+  harvestCentralPage,
+}) => {
+  await harvestCentralPage.openDetail();
+
+  for (const name of ['Post Ticket', 'Plan Harvest Tickets', 'Add New Ticket']) {
+    await expect(page.getByRole('button', { name, exact: true }), `"${name}" missing`).toBeVisible();
+  }
+  await expect(page.getByText(/^\d+ Planned · \d+ In Progress · \d+ Received · \d+ Posted$/)).toBeVisible();
+});
+
+test('@PSD-harvest-central HCP-10 ticket numbers follow HT-<field>-<random>-<YY> and are unique', async ({
+  harvestCentralPage,
+}) => {
+  const field = (await harvestCentralPage.columnValues('Field'))[0].trim();
+  await harvestCentralPage.openDetail();
+
+  const numbers = (await harvestCentralPage.columnValues('Harvest Ticket No')).map((n) => n.trim()).filter(Boolean);
+  expect(numbers.length).toBeGreaterThan(0);
+  for (const number of numbers) {
+    expect(number).toMatch(new RegExp(`^HT-${field}-[A-Z0-9]+-\\d{2}$`));
+  }
+  expect(new Set(numbers).size, 'duplicate ticket numbers').toBe(numbers.length);
+});
+
+test('@PSD-harvest-central HCP-23 Actual Weight is read-only on the detail grid', async ({ harvestCentralPage }) => {
+  await harvestCentralPage.openDetail();
+
+  const column = await harvestCentralPage.columnIndex('Actual Weight');
+  await expect(harvestCentralPage.rows.locator(`td:nth-child(${column}) input`)).toHaveCount(0);
+});
+
+test('@PSD-harvest-central HCP-13 planning from the detail page locks Field and Variety', async ({
+  page,
+  harvestCentralPage,
+}) => {
+  await harvestCentralPage.openDetail();
+  const panel = harvestCentralPage.panel('Plan Harvest Tickets');
+  await harvestCentralPage.clickPastLoader(page.getByRole('button', { name: 'Plan Harvest Tickets', exact: true }), () =>
+    expect(panel).toBeVisible({ timeout: 5000 }),
+  );
+
+  for (const label of ['Grower', 'Farm', 'Season', 'Hulling Location']) {
+    await expect(panel.getByText(label, { exact: true }), `"${label}" missing`).toBeVisible();
+  }
+  await expect(harvestCentralPage.dropdownToggle(['Field *'])).toBeDisabled();
+  await expect(harvestCentralPage.dropdownToggle(['Variety *'])).toBeDisabled();
+
+  await harvestCentralPage.cancel(panel);
+});
+
+/**
+ * HCP-14..16 need a ticket that has not been captured yet (`Set on site`); seed one with
+ * `pnpm seed:tickets` if none is left. PSD drift, live: the drawer is `Edit Harvest Ticket` (PSD
+ * "Harvest Ticket <no>"), has no Project or "not arrived yet" notice, and the split radios are
+ * `Front Only` / `Back Only` (PSD "Front trailer" / "Rear trailer").
+ */
+test('@PSD-harvest-central HCP-15 Split Load reveals one-of Front Only / Back Only and disables the other plate', async ({
+  harvestCentralPage,
+}) => {
+  const blocks = await harvestCentralPage.rows.count();
+  const plannedRow = harvestCentralPage.rows.filter({ hasText: 'Set on site' }).first();
+  for (let index = 0; index < blocks; index++) {
+    if (index) await harvestCentralPage.open();
+    await harvestCentralPage.openDetail(index);
+    if (await plannedRow.count()) break;
+  }
+  test.skip(!(await plannedRow.count()), 'no "Set on site" ticket on QA; run pnpm seed:tickets');
+  const number = (await plannedRow.locator('td').nth(1).innerText()).trim();
+
+  const drawer = await harvestCentralPage.openEditDrawer(number);
+  await expect(drawer.getByText(number, { exact: true })).toBeVisible();
+  for (const label of ['Grower', 'Farm', 'Season', 'Hulling Location', 'Field', 'Variety', 'Created', 'Received']) {
+    await expect(drawer.getByText(label, { exact: true }), `"${label}" missing`).toBeVisible();
+  }
+
+  // HCP-16: the trailer radios exist only with Split Load.
+  const front = drawer.getByRole('radio', { name: 'Front Only' });
+  const back = drawer.getByRole('radio', { name: 'Back Only' });
+  await expect(front).toHaveCount(0);
+  // A real click does not toggle these inputs (Playwright: "did not change its state"); the
+  // element's own click event does, as a user's click on the label would.
+  await drawer.getByRole('checkbox', { name: 'Split Load' }).dispatchEvent('click');
+  await expect(front).toBeChecked();
+  await expect(back).not.toBeChecked();
+  const plate = (label: string) =>
+    drawer.locator(`xpath=.//*[normalize-space(text())="${label}"]/following::button[1]`).first();
+  await expect(plate('Rear Trailer Plate')).toBeDisabled();
+
+  await back.dispatchEvent('click');
+  await expect(front).not.toBeChecked();
+  await expect(plate('Front Trailer Plate')).toBeDisabled();
+
+  await harvestCentralPage.cancel(drawer);
+  await expect(plannedRow).toContainText('Set on site');
 });

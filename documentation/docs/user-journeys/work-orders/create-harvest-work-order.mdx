@@ -93,15 +93,9 @@ See [Approve a Work Order](./approve-work-order) for the shared approval flow.
 
 ## Harvest Central (harvest tickets)
 
-**Harvest Central** is a separate top-nav screen (`/harvest-central`) for harvest **tickets** — not work orders. It lists tickets aggregated per field: `Field`, `Variety`, `No Of Harvest Tickets`, `Updated By`, `Updated By Date`.
+**Harvest Central** is a separate top-nav screen (`/harvest-central`) for harvest **tickets**, one per truck load, not work orders. Planning, on-site capture, project linking and posting are covered in [Plan, Capture and Post Harvest Tickets](../harvest-central/plan-and-post-harvest-tickets).
 
-To create one, click **Create Harvest Ticket** and complete the form:
-
-- **Read-only context:** `Grower`, `Season`, `Hulling Location`.
-- **Required:** `Field*`, `Variety*`, `Driver Name*`, `Truck License Plate*`, `Front Trailer Plate*`, `Rear Trailer Plate*`.
-- **Optional:** `Manual Ticket #` (a paper-ticket reference), `Load Type`, `Last Load` / `Split Load`, `Fleet`, `Standard Quantity`, and file attachments.
-
-**`Save Harvest Ticket`** stays disabled until every required field is set. After saving, use **Refresh Data** to see the field's `No Of Harvest Tickets` increase, and the row's **View details** chevron to open the individual tickets.
+Per the Harvesting PSD v2, a harvest work order follows the **ad-hoc** process. Creating it adds an ad-hoc task to the job's WBS task lines in D365, with no budgeted cost, time or date.
 
 ## Notes & gotchas
 

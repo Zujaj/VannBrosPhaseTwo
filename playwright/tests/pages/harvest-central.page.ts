@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { routes } from '../constants/routes';
 import { ListPage } from './list.page';
 
@@ -15,6 +15,12 @@ import { ListPage } from './list.page';
  *     N; a pair with no row yet gets one. Typing more than 100 raises the error toast
  *     "Harvest Ticket Plan Max 100" and clamps the box to 100.
  *   - Variety lists every variety whatever Field is picked.
+ *
+ * Detail page `/harvest-central/:id` (checked live 2026-10-12, against PSD "Harvesting Permanent
+ * Planting" v2): `Post Ticket`, `Plan Harvest Tickets` (Field / Variety locked) and `Add New Ticket`;
+ * a `N Planned · N In Progress · N Received · N Posted` line; row actions `View Attachments`,
+ * `Qr Code`, `Edit`, `Delete`. `Edit` opens the `Edit Harvest Ticket` drawer, where `Split Load`
+ * reveals `Front Only` / `Back Only`.
  */
 export class HarvestCentralPage extends ListPage {
   /** The most tickets one plan accepts. */
@@ -74,5 +80,38 @@ export class HarvestCentralPage extends ListPage {
     await create.click();
     await expect(heading).toBeHidden({ timeout: 30000 });
     await this.waitForGridSettled();
+  }
+
+  /** The side panel whose level-2 heading is `heading` (the plan panel or the edit drawer). */
+  panel(heading: string | RegExp): Locator {
+    return this.page
+      .locator('div')
+      .filter({ has: this.page.getByRole('heading', { name: heading, level: 2 }) })
+      .filter({ has: this.page.getByRole('button', { name: 'Cancel', exact: true }) })
+      .last();
+  }
+
+  /** Open a field/variety row's detail page (`/harvest-central/:id`). */
+  async openDetail(rowIndex = 0): Promise<void> {
+    await this.clickPastLoader(this.rows.nth(rowIndex).getByTitle(/View details/i), () =>
+      expect(this.page).toHaveURL(new RegExp(`${routes.harvestCentral.root}/\\d+`), { timeout: 5000 }),
+    );
+    await this.waitForGridSettled();
+  }
+
+  /** Open the `Edit Harvest Ticket` drawer for a ticket on the detail grid. */
+  async openEditDrawer(ticketNo: string): Promise<Locator> {
+    const drawer = this.panel('Edit Harvest Ticket');
+    await this.clickPastLoader(this.rows.filter({ hasText: ticketNo }).getByTitle('Edit', { exact: true }), () =>
+      expect(drawer).toBeVisible({ timeout: 5000 }),
+    );
+    return drawer;
+  }
+
+  /** Close a panel with its `Cancel` button, saving nothing. */
+  async cancel(panel: Locator): Promise<void> {
+    await this.clickPastLoader(panel.getByRole('button', { name: 'Cancel', exact: true }), () =>
+      expect(panel).toBeHidden({ timeout: 5000 }),
+    );
   }
 }

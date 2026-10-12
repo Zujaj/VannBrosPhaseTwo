@@ -2,7 +2,7 @@
 
 Creating a **Harvest** Work Order: a work order whose operation is one of the five harvest tasks, authored from its own **Harvest Work Orders** sub-tab and using **plot + resources + assets** — no materials, no tank mixing. Shared facts (lifecycle, list, common form fields, approval, toasts) live in [`work-orders.md`](./work-orders.md).
 
-Separate from, but adjacent to, **Harvest Central** (`/harvest-central`) — a top-nav screen for harvest **tickets**, documented at the end of this file.
+Separate from, but adjacent to, **Harvest Central** (`/harvest-central`), a top-nav screen for harvest **tickets**. It is documented in [`harvest-central.md`](./harvest-central.md).
 
 > **Provenance:** captured live from `agrierp-vann-qa.folio3.site` on **2026-08-27** (Site `Colusa`, Season `Crop Year 2026`). There is **no vendor manual** for this flow in `resources/user-manuals/` — unlike the planned / tank-mix / inspection flows, every fact here is live-observed, not manual-derived.
 
@@ -59,18 +59,18 @@ The harvest screens use different wording for the same controls. Use these exact
 
 ## Harvest Central (`/harvest-central`)
 
-A **top-nav item** (`Maps | Planning | Work Orders | Harvest Central | Template Management | Communication Center | Attendance`), not a WO sub-tab. Lists harvest **tickets** aggregated per field.
+Harvest **tickets** (plan on web, capture on mobile, post to ERP) have their own reference: **[`harvest-central.md`](./harvest-central.md)**. It covers live behaviour and the PSD v2 spec (2026-10-12).
 
-- **Columns (live 2026-09-17):** `Field`, `Variety`, `No Of Planned Tickets`, `No Of Actual Tickets`, `Planned On`, `Planned By`, `Actions`. Row actions: `Add More` (opens **`Add More Loads`**, the same panel with Field/Variety locked to the row) and `View Details` (chevron) → `/harvest-central/:id`. Header buttons: `Refresh Data` (icon) and **`Plan Harvest Tickets`**. A row appears only once a field/variety pair has tickets.
-- **`Plan Harvest Tickets` panel (live 2026-09-17; replaced the older `Create Harvest Ticket` form with driver/plate fields):**
-  - Read-only context: **`Grower`** (`Vann Brothers`), **`Season`** (`Crop Year 2026`), **`Hulling Location`** (`YHS`).
-  - Required: **`Field *`**, **`Variety *`** (custom search dropdowns; note the space before `*`), **`No Of Harvest Tickets *`**: preset buttons `10` / `20` / `30` plus a number box (min 1, max 100; default 10).
-  - Footer: `Cancel` / **`Create N Planned Tickets`** (label tracks the box; disabled at 0 or below, and until Field + Variety are set).
-  - **Saving shows no toast.** The panel closes and the pair's `No Of Planned Tickets` rises by N (a new pair gets a row); `Planned On` keeps the pair's first date. Backend: `POST /api/harvestcentral/tickets/plan` `{fieldID, cropVarietyID, seasonID, quantity}`.
-  - Typing more than 100 raises the error toast `Harvest Ticket Plan Max 100` and clamps the box to 100. A decimal (`2.5`) is accepted and leaves the button enabled.
-  - `Variety` lists every variety whichever Field is picked (HC-018 expects it filtered by field).
-  - Seeding: `pnpm seed:tickets` (playwright/scripts/seed.mts).
-- **Varieties seen:** `ALDRICH`, `MONTEREY`, `BENNETT-HICKMAN`, `AVALON`, `BOOTH`, `BUTTE`, `CARMEL/MONTEREY`, `NONPAREIL`, `PADRE`, `LIVINGSTON`, `FIELDRUN_ALMOND`, `FIELDRUN_PISTACHIO`.
+## PSD v2 notes on the harvest WO
+
+`AgriERP FSCM - Harvesting Permanent Planting v2.pdf` (Aug 07, 2026) says harvest WOs follow the **ad-hoc** WO process. They are created in the Farm App, not from a D365 planned task. Each one adds an ad-hoc task to the job's **WBS Task Lines** with no budgeted cost, time or date.
+
+Its mocks match what is captured above:
+- `Harvest Work Orders` sub-tab.
+- `Task Type*` = `Planned`, disabled.
+- A `Workorder Completed` button.
+- Plot rows tagged `ADHOC`.
+- Detail Plots grid with `Target Quantity`, `Crop Variety` and `Spent Hours`.
 
 ## Gotchas
 

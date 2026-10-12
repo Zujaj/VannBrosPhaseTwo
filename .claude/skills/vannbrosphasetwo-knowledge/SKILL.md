@@ -44,7 +44,8 @@ This SKILL.md is the index. Read the matching reference file in `references/` fo
 | Creating a **Planned (standard)** WO — plot + materials (Rate/acre) + resources + assets; the `+ Add Plot` plot picker | `references/work-orders-planned.md` |
 | Creating a **Tank Mix** WO — Unit/Mix Method/Per, Liquid Application params, Material Template | `references/work-orders-tank-mix.md` |
 | Creating an **Inspection** WO — Inspection Template required; plot + resources only | `references/work-orders-inspection.md` |
-| Creating a **Harvest** WO — own sub-tab, five harvest operations, no materials; `Target Quantity` / `Harvest Quantity`; plus **Harvest Central** harvest tickets | `references/work-orders-harvest.md` |
+| Creating a **Harvest** WO — own sub-tab, five harvest operations, no materials; `Target Quantity` / `Harvest Quantity`; ad-hoc WBS task (PSD v2) | `references/work-orders-harvest.md` |
+| **Harvest Central** harvest tickets — plan loads (web), ticket detail / edit drawer, split / last load rules, mobile capture (`+` → Harvest Ticket, In Progress / Completed), AgriWMS/YHS sync, project link & posting, QR, fleet (live + PSD v2 *Harvesting Permanent Planting*) | `references/harvest-central.md` |
 | Inspection / Material / Attribute templates; attribute types; enabling, disabling, cloning templates | `references/templates.md` |
 | User roles & permissions; users, user groups, user enterprise; D365 resources & resource groups; user mapping | `references/users-resources.md` |
 | Reviewing posted journals in D365 (item, expense, transfer, return-transfer, return-item); postings & inventory sync | `references/journals-postings.md` |
