@@ -47,7 +47,7 @@ function credentials() {
     return { email: process.env.PROD_SYNC_EMAIL, password: process.env.PROD_SYNC_PASSWORD };
   const file = resolve(import.meta.dirname, '../.auth/production_farmappadmin_credentials.json');
   if (!existsSync(file))
-    throw new Error('No credentials: set PROD_SYNC_EMAIL/PROD_SYNC_PASSWORD or create .auth/production_farmappadmin_credentials.json');
+    throw new Error('No credentials: set PROD_SYNC_EMAIL/PROD_SYNC_PASSWORD or copy auth-templates/production_farmappadmin_credentials.example.json to .auth/production_farmappadmin_credentials.json');
   return JSON.parse(readFileSync(file, 'utf8')) as { email: string; password: string };
 }
 

@@ -61,10 +61,14 @@ function parse(text: string): Account[] {
     if (!line || /^_+$/.test(line)) continue;
 
     if (EMAIL.test(line)) {
-      const password = lines.slice(i + 1).find((l) => l && !/^_+$/.test(l));
+      const offset = lines.slice(i + 1).findIndex((l) => l && !/^_+$/.test(l));
+      const password = offset >= 0 ? lines[i + 1 + offset] : undefined;
       // An email with no following password line is an incomplete entry, not an error.
       if (password && !EMAIL.test(password)) {
         accounts.push({ username: line, password, heading });
+        // Skip the password line. Without this it fell through as the next "heading" and was
+        // written into every later account's `heading` field in plain sight (fixed 2026-10-12).
+        i += 1 + offset;
       }
       continue;
     }

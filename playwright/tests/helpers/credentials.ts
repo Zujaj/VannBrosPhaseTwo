@@ -15,6 +15,8 @@ import { IS_UAT } from '../constants/routes';
  * 2. **`.auth/credentials.json`** — a local, gitignored map, produced once from the QA
  *    team's account list by `pnpm creds:import`.
  *
+ * File formats, with placeholder templates: `auth-templates/README.md`.
+ *
  * Deliberately NOT a source: the plaintext `creds.txt` in the repo root. Nothing in the test
  * code reads it. It is untracked but was not gitignored, so it was one `git add -A` away
  * from publishing every QA password — it is now ignored, and the import step exists so the
@@ -69,7 +71,8 @@ function fromFile(role: Role): Credential | null {
 
 /**
  * UAT has one account the suite may use: `farmappadmin`, stored as `{ email, password }` in
- * `.auth/production_farmappadmin_credentials.json`. Only the admin role maps to it; every other
+ * `.auth/production_farmappadmin_credentials.json` (template:
+ * `auth-templates/production_farmappadmin_credentials.example.json`). Only the admin role maps to it; every other
  * role has no UAT credential, so a UAT run bootstraps the admin alone.
  */
 const UAT_ADMIN_FILE = path.join(AUTH_DIR, 'production_farmappadmin_credentials.json');

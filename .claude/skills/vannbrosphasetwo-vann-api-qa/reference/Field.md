@@ -1827,6 +1827,8 @@ Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `hours`, `
 | `standardHours` | double |  |  |
 | `noOfResources` | int32 |  |  |
 | `dummyShiftResourceId` | int64 |  |  |
+| `dummyShiftKey` | string |  |  |
+| `dummyShiftNo` | int32 |  |  |
 | `parentHourLogID` | int64 |  |  |
 | `isDummyResource` | boolean | yes |  |
 | `fieldCode` | string |  |  |

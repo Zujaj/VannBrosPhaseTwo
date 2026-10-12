@@ -26,6 +26,9 @@ Write E2E tests for the VannBrosPhaseTwo Farm web app that fit this repo's exist
     `agrierp-authgateway-qa-api.folio3.site` + one API call, falling back to a ~30 s browser
     check of `/maps`) and only logs in again if it fails; tests themselves never log in.
   - `chromium` / `firefox` — `tests/authenticated/**`, depend on `setup`, reuse `.auth/admin.json`.
+- **`.auth/` file formats:** `auth-templates/README.md` documents the hand-written files (role
+  credentials, UAT/prod `farmappadmin`, Grower's Portal, token `.txt`) with placeholder
+  `*.example.json` templates. Never print a filled-in `.auth/` file; print keys only.
     Chromium is primary (the regression workbook scopes the web suite to a Chromium-based
     browser); Firefox is the second engine.
   - `chromium-guest` / `firefox-guest` — `tests/public/**`, empty storage state.

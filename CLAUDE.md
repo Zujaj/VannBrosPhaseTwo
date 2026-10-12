@@ -52,7 +52,8 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
 ## Conventions
 
 - **Authenticated tests need a valid session.** If authed specs fail at login, run
-  `pnpm auth:qa`. Never commit `.auth/` or other secrets.
+  `pnpm auth:qa`. Never commit `.auth/` or other secrets. The hand-written `.auth/` files'
+  formats and placeholder templates live in `playwright/auth-templates/`; never print a filled-in one.
 - **Place specs by auth context:** public → `tests/public/`, logged-in →
   `tests/authenticated/`. Add shared URLs to `tests/constants/routes.ts`, not inline.
 - **Use the QA env and VBS tenant** for all flows; take exact UI labels, navigation paths,

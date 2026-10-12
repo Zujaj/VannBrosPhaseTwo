@@ -7709,6 +7709,7 @@ Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `workOrder
 | Field | Type | Required | Notes |
 |---|---|---|---|
 | `id` | int64 | yes |  |
+| `shiftKey` | string |  |  |
 | `createdAt` | string (date-time) | yes |  |
 | `modifiedAt` | string (date-time) | yes |  |
 | `createdBy` | int64 | yes |  |
@@ -7888,7 +7889,8 @@ Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `scheme`, 
 | `actualLogId` | string |  |  |
 | `parentHourLogID` | int64 |  |  |
 | `workOrderResourceRowId` | int64 |  |  |
-| `dummyShiftResourceId` | int64 |  |  |
+| `dummyShiftKey` | string |  |  |
+| `dummyShiftNo` | int32 |  |  |
 | `isOvernightJob` | boolean | yes |  |
 | `isDeleted` | boolean | yes |  |
 | `hourLogRefID` | string |  |  |
@@ -7950,6 +7952,8 @@ Required: `id`, `createdAt`, `modifiedAt`, `createdBy`, `modifiedBy`, `hours`, `
 | `standardHours` | double |  |  |
 | `noOfResources` | int32 |  |  |
 | `dummyShiftResourceId` | int64 |  |  |
+| `dummyShiftKey` | string |  |  |
+| `dummyShiftNo` | int32 |  |  |
 | `parentHourLogID` | int64 |  |  |
 | `isDummyResource` | boolean | yes |  |
 | `fieldCode` | string |  |  |

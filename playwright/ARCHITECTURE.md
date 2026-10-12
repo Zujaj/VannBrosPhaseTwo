@@ -72,6 +72,11 @@ Credentials come from, in order:
 2. `.auth/credentials.json` — local, gitignored, produced once by `pnpm creds:import` from
    the QA team's account list.
 
+The formats of every hand-written `.auth/` file (`credentials.json`,
+`production_farmappadmin_credentials.json`, `growersportal_credentials.json`, the token `.txt`
+files) are in [`auth-templates/README.md`](./auth-templates/README.md), next to placeholder
+templates to copy into `.auth/`.
+
 Nothing in the test code reads the repo-root `creds.txt`. That file held ~30 QA passwords and
 was untracked but **not** gitignored — one `git add -A` from being published. It is ignored
 now, and `pnpm creds:import` exists so it can be moved out of the repo entirely.

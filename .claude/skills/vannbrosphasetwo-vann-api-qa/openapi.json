@@ -33105,9 +33105,12 @@
           "type": "integer",
           "format": "int64"
         },
-        "dummyShiftResourceId": {
+        "dummyShiftKey": {
+          "type": "string"
+        },
+        "dummyShiftNo": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
         "isOvernightJob": {
           "type": "boolean"
@@ -33967,6 +33970,9 @@
         "id": {
           "type": "integer",
           "format": "int64"
+        },
+        "shiftKey": {
+          "type": "string"
         },
         "createdAt": {
           "type": "string",
@@ -41874,6 +41880,13 @@
         "dummyShiftResourceId": {
           "type": "integer",
           "format": "int64"
+        },
+        "dummyShiftKey": {
+          "type": "string"
+        },
+        "dummyShiftNo": {
+          "type": "integer",
+          "format": "int32"
         },
         "parentHourLogID": {
           "type": "integer",
