@@ -10,7 +10,7 @@
 - **Automation status:** **Verified live 2026-09-24 on Chromium and Firefox.** VM-01, 02, 03, 10, 11, 12,
   13 and 20 pass. VM-05..08 skip (no GP data, FINDINGS #33). VM-04, 21, 25 and 30 are parked
   `@upcoming`, and all four fail under `pnpm test:upcoming` as expected.
-- **Last updated:** 2026-09-24
+- **Last updated:** 2026-10-12. GP data now syncs (FINDINGS #33 update): VM-05/06/07 pass, VM-08 fails (untriaged), VM-04 can leave `@upcoming`. In a full-file run VM-01..08/10 hit 15 s click timeouts, but VM-01 passes alone, so treat those as flakiness until healed.
 
 ## What QA has shipped (live 2026-09-24)
 

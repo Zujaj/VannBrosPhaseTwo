@@ -925,6 +925,15 @@ delivers, field 130 is the natural VM-07 fixture (four varieties on one field). 
 sync itself and is parked as `@upcoming`. VM-03, the "unmapped variety empties the picker" case,
 is the one filtering check that can run today.
 
+
+**Update 2026-10-12: resolved on QA.** The GP → AgriERP sync is now populated. Compared read-only:
+- **GP side:** `GET /api/Field?CompanyID=260` gives 56 fields, each with plantings.
+- **AgriERP side:** `POST /api/activity/blocks` (Vann Farm, Harvest 1610, Crop Year 2026) gives 100 plots, 68 of them with varieties.
+
+All **51 fields present in both have identical variety sets**, e.g. 130 = MONTEREY / NONPAREIL / WINTERS. GP also changed since 09-24: 57 → 56 fields, and field 130 dropped LIBERTY; its 148.9 acres now equal AgriERP's `fieldArea`.
+
+In `variety-management.spec.ts`, VM-05, 06 and 07 now pass instead of skipping. VM-08 fails: after switching to an unmapped variety, the plot grid shows neither `No Record Found` nor "No blocks found". Not yet triaged. VM-04 (`@upcoming`) can be promoted.
+
 ## 34. Dummy Resources: QA serves the v1 flow; the v2 PSD's "+" menu is not deployed
 
 > **Superseded 2026-09-30:** v2 is now released on QA (the "+" menu, per-register panels, the
