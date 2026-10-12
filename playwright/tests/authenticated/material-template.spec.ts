@@ -1,5 +1,13 @@
 import { test, expect } from '../fixtures';
-import { routes } from '../constants/routes';
+import { IS_UAT, routes } from '../constants/routes';
+
+/**
+ * The existing template the read-only rows filter, open, edit and clone, and its Operation.
+ * QA has `Fertilization` / `Irrigation`; UAT (Colusa, Crop Year 2026) has neither, so it uses
+ * its own `weed control` / `Weed Control` (verified 2026-10-12).
+ */
+const SEED_TEMPLATE = IS_UAT ? 'weed control' : 'Fertilization';
+const SEED_OPERATION = IS_UAT ? 'Weed Control' : 'Irrigation';
 
 /**
  * Material Template smoke rows (TM-01..TM-36), workbook `Material Template` scenario under
@@ -56,12 +64,12 @@ test.describe('Material Template', () => {
     await listPage.waitForGridSettled();
     await expect(listPage.rows.first()).toBeVisible({ timeout: 30000 });
 
-    await materialTemplatesPage.filterByName('Fertilization');
+    await materialTemplatesPage.filterByName(SEED_TEMPLATE);
     await listPage.waitForGridSettled();
 
     const names = await listPage.columnValues('Name');
     expect(names.length).toBeGreaterThan(0);
-    for (const name of names) expect(name.trim()).toBe('Fertilization');
+    for (const name of names) expect(name.trim()).toBe(SEED_TEMPLATE);
     await expect(materialTemplatesPage.filterButton).toHaveText(/Filter\s*\*/);
 
     // Leave the tenant-wide filter state clean for later specs/users.
@@ -78,12 +86,12 @@ test.describe('Material Template', () => {
     await listPage.waitForGridSettled();
     await expect(listPage.rows.first()).toBeVisible({ timeout: 30000 });
 
-    await materialTemplatesPage.filterByOperation('Irrigation');
+    await materialTemplatesPage.filterByOperation(SEED_OPERATION);
     await listPage.waitForGridSettled();
 
     const operations = await listPage.columnValues('Operation');
     expect(operations.length).toBeGreaterThan(0);
-    for (const op of operations) expect(op.trim()).toBe('Irrigation');
+    for (const op of operations) expect(op.trim()).toBe(SEED_OPERATION);
 
     await materialTemplatesPage.resetFilters();
   });
@@ -99,7 +107,7 @@ test.describe('Material Template', () => {
     await expect(listPage.rows.first()).toBeVisible({ timeout: 30000 });
     const total = (await listPage.recordCount())?.total ?? (await listPage.rows.count());
 
-    await materialTemplatesPage.filterByName('Fertilization');
+    await materialTemplatesPage.filterByName(SEED_TEMPLATE);
     await listPage.waitForGridSettled();
     expect((await listPage.rows.count())).toBeLessThan(total);
 
@@ -350,41 +358,44 @@ test.describe('Material Template', () => {
     page,
     materialTemplatesPage,
   }) => {
-    test.fail(true, 'Known QA bug (SMOKE-NOTES TM-EDIT-CLONE-BLANK): Edit opens a blank form');
+    test.fail(!IS_UAT, 'Known QA bug (SMOKE-NOTES TM-EDIT-CLONE-BLANK): Edit opens a blank form');
     test.setTimeout(90000);
     await materialTemplatesPage.open();
 
-    await materialTemplatesPage.openEdit('Fertilization');
+    await materialTemplatesPage.openEdit(SEED_TEMPLATE);
 
     // Partial: pre-fill is asserted, saving the edit is not (it would overwrite a shared
     // template, and ActivityTemplate has no DELETE to undo a clone).
     await expect(page.getByRole('heading', { name: 'Basic Details', level: 3 })).toBeVisible();
-    await expect(materialTemplatesPage.materialTitleInput).toHaveValue('Fertilization', { timeout: 20000 });
+    // Whitespace-tolerant: UAT's template is stored as "weed control " (trailing space).
+    await expect(materialTemplatesPage.materialTitleInput).toHaveValue(new RegExp(`^\\s*${SEED_TEMPLATE}\\s*$`), {
+      timeout: 20000,
+    });
   });
 
   test('@SMK-partial:TM-35 Clone opens the wizard pre-filled from an existing template', async ({
     page,
     materialTemplatesPage,
   }) => {
-    test.fail(true, 'Known QA bug (SMOKE-NOTES TM-EDIT-CLONE-BLANK): Clone opens a blank form');
+    test.fail(!IS_UAT, 'Known QA bug (SMOKE-NOTES TM-EDIT-CLONE-BLANK): Clone opens a blank form');
     test.setTimeout(90000);
     await materialTemplatesPage.open();
 
-    await materialTemplatesPage.openClone('Fertilization');
+    await materialTemplatesPage.openClone(SEED_TEMPLATE);
 
     // The clone's title is derived from the source (exact wording unverified while the bug
     // stands), so assert it names the source rather than an exact string.
     await expect(page.getByRole('heading', { name: 'Basic Details', level: 3 })).toBeVisible();
-    await expect(materialTemplatesPage.materialTitleInput).toHaveValue(/Fertilization/, { timeout: 20000 });
+    await expect(materialTemplatesPage.materialTitleInput).toHaveValue(new RegExp(SEED_TEMPLATE), { timeout: 20000 });
   });
 
   test('@SMK:TM-36 View Detail shows the full saved record', async ({ page, materialTemplatesPage }) => {
     test.setTimeout(90000);
     await materialTemplatesPage.open();
 
-    await materialTemplatesPage.openViewDetail('Fertilization');
+    await materialTemplatesPage.openViewDetail(SEED_TEMPLATE);
 
-    await expect(materialTemplatesPage.detailHeading('Fertilization')).toBeVisible();
+    await expect(materialTemplatesPage.detailHeading(SEED_TEMPLATE)).toBeVisible();
     // Label drift, same as the wizard's Basic Details field (see material-templates.page.ts):
     // renders "Task:" on one build and "Operation:" on the other.
     await expect(page.getByText(/^(Task|Operation):/)).toBeVisible();
@@ -418,7 +429,8 @@ test.describe('Material Template', () => {
     page,
     materialTemplatesPage,
   }) => {
-    test.fail(true, 'Known QA bug (SMOKE-NOTES TM-WIZARD-DROPDOWNS): wizard metadata dropdowns are empty');
+    // Not on UAT: its wizard dropdowns load (smoke run 2026-10-12).
+    test.fail(!IS_UAT, 'Known QA bug (SMOKE-NOTES TM-WIZARD-DROPDOWNS): wizard metadata dropdowns are empty');
     test.setTimeout(180000);
     await materialTemplatesPage.open();
     await materialTemplatesPage.openCreateWizard();

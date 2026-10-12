@@ -176,9 +176,12 @@ export class MaterialTemplatesPage extends BasePage {
   // Create / Edit / Clone wizard
   // ---------------------------------------------------------------------------------------
 
-  /** The wizard heading. Edit and Clone currently render the SAME "Create New..." heading — see class doc. */
+  /**
+   * The wizard heading. On QA, Edit and Clone render the SAME "Create New..." heading (see class
+   * doc); UAT's Edit renders "Edit Material Template" (smoke run 2026-10-12), so accept both.
+   */
   get wizardHeading(): Locator {
-    return this.page.getByRole('heading', { name: 'Create New Material Template', level: 2 });
+    return this.page.getByRole('heading', { name: /^(Create New|Edit) Material Template$/, level: 2 });
   }
 
   /**

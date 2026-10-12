@@ -45,6 +45,8 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
   `@mutating` (specs that create real work orders on shared QA with no teardown); run it before a
   UAT cycle, since the workbook scopes the web suite to Chromium.
 - `pnpm auth:uat` / `pnpm test:smoke:uat` (`:all` adds `@mutating`) — the smoke suite on UAT (rule 1).
+  Setup puts every session on **Crop Year 2026** (override: `AUTH_SEASON="Crop Year 2027"`) via the
+  header Season selector; UAT's account defaults to the near-empty Crop Year 2027 (0 material templates).
 - `pnpm auth:qa` — (re)generate sessions. `AUTH_ROLES=supervisor,farmhand pnpm auth:qa`
   bootstraps extra actors (one interactive SSO prompt each); default is `admin`.
 - `pnpm seed:planned` / `seed:harvest` / `seed:tickets` — create real test data on QA:

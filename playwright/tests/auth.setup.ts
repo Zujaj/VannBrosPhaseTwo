@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs-extra';
 import { test as setup, expect } from '@playwright/test';
 import type { Browser } from '@playwright/test';
 import {
@@ -106,6 +107,62 @@ async function assertNotBlocked(page: Page, role: Role): Promise<void> {
 
 
 
+/**
+ * The Season the suite runs in. Crop Year 2026 holds the data on both QA and UAT; on UAT the
+ * account defaults to the near-empty Crop Year 2027 (0 material templates, verified
+ * 2026-10-12), which fails every data-dependent smoke row. Override with AUTH_SEASON.
+ */
+const TARGET_SEASON = process.env.AUTH_SEASON?.trim() || 'Crop Year 2026';
+
+/** The Season name stored in a session file, or undefined. */
+function storedSeasonName(authFile: string): string | undefined {
+  try {
+    const state = JSON.parse(readFileSync(authFile, 'utf-8'));
+    for (const origin of state.origins ?? []) {
+      const kv = origin.localStorage?.find((e: { name: string }) => e.name === 'seasonName');
+      if (kv) return JSON.parse(kv.value)._value;
+    }
+  } catch {
+    // Unreadable file: fall through and let the header switch decide.
+  }
+  return undefined;
+}
+
+/**
+ * Put the saved session on TARGET_SEASON through the header Season selector, then save it.
+ * Never fails the setup: a missing option is logged, and the suite runs in whatever Season
+ * the account defaults to.
+ */
+async function ensureSeason(browser: Browser, authFile: string, role: Role): Promise<void> {
+  if (storedSeasonName(authFile) === TARGET_SEASON) {
+    log(`[${role}] Season is ${TARGET_SEASON}.`);
+    return;
+  }
+  const context = await browser.newContext({ storageState: authFile });
+  await routeGoogleMapsViaNode(context);
+  const page = await context.newPage();
+  try {
+    await page.goto(routeUrl(routes.maps.root), { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    // The header toggle is `<button class="dropdown-toggle" title="<season>"><span>Season:</span> <season></button>`.
+    const toggle = page.locator('button.dropdown-toggle', { has: page.getByText(/^Season:/) }).first();
+    const option = page.locator('a.dropdown-item:visible', { hasText: TARGET_SEASON }).first();
+    // The truck loader can swallow the toggle click, so retry until the option is on screen.
+    await expect(async () => {
+      if (!(await option.isVisible())) await toggle.click({ timeout: 5_000 });
+      await expect(option).toBeVisible({ timeout: 3_000 });
+    }).toPass({ timeout: 60_000 });
+    await option.click();
+    await expect(toggle).toHaveAttribute('title', TARGET_SEASON, { timeout: 30_000 });
+    await waitForSessionContext(page);
+    await context.storageState({ path: authFile });
+    log(`[${role}] Switched Season to ${TARGET_SEASON} and saved the session.`);
+  } catch (err) {
+    log(`[${role}] WARNING: could not switch Season to ${TARGET_SEASON} (${(err as Error).message.split('\n')[0]}); keeping ${storedSeasonName(authFile) ?? 'the default'}.`);
+  } finally {
+    await context.close();
+  }
+}
+
 setup.use({ storageState: { cookies: [], origins: [] } });
 
 // Each role needs a HUMAN to complete Azure SSO in the visible window. Running these in
@@ -134,10 +191,12 @@ async function bootstrapRole(role: Role, browser: Browser) {
     if (!sessionSeasonValid(authFile)) {
       log(`[${role}] Session Season is missing or expired. Will bootstrap a fresh login.`);
     } else if (await refreshSession(authFile)) {
-      log(`[${role}] Existing session is VALID (token refresh + API check, live Season). Stopping immediately.`);
+      log(`[${role}] Existing session is VALID (token refresh + API check, live Season).`);
+      await ensureSeason(browser, authFile, role);
       return;
     } else if (await probeAuthenticated(browser, authFile)) {
-      log(`[${role}] Existing session is VALID (auth + live Season). Stopping immediately.`);
+      log(`[${role}] Existing session is VALID (auth + live Season).`);
+      await ensureSeason(browser, authFile, role);
       return;
     } else {
       log(`[${role}] Existing session invalid. Will bootstrap a fresh login.`);
@@ -230,6 +289,7 @@ async function bootstrapRole(role: Role, browser: Browser) {
   const authed = (await refreshSession(authFile)) || (await probeAuthenticated(browser, authFile));
   expect(authed, `[${role}] Persisted session failed to authenticate against /maps`).toBe(true);
   log(`[${role}] Persistence check OK. Session reusable.`);
+  await ensureSeason(browser, authFile, role);
 }
 
 // Rename any pre-multi-role `.auth/auth-session.json` to `.auth/admin.json` before the
