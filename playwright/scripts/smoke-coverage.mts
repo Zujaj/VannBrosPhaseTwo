@@ -2,7 +2,7 @@
  * Coverage report: which smoke-checklist rows the automated suite actually covers.
  *
  *     pnpm smoke:coverage          # print the table
- *     pnpm smoke:coverage:write    # also refresh test-plans/SMOKE-COVERAGE.md
+ *     pnpm smoke:coverage:write    # also refresh coverage/smoke.md
  *
  * The smoke counterpart of `coverage.mts`. Specs declare coverage with a tag in the test
  * title, using the IDs minted by `extract-smoke.py` into `test-plans/catalog/smoke-cases.json`:
@@ -35,7 +35,7 @@ interface SmokeCase {
 const ROOT = path.resolve(import.meta.dirname, '..');
 const CATALOG = path.join(ROOT, 'test-plans', 'catalog', 'smoke-cases.json');
 const TESTS_DIR = path.join(ROOT, 'tests');
-const OUT_MD = path.join(ROOT, 'test-plans', 'SMOKE-COVERAGE.md');
+const OUT_MD = path.join(ROOT, 'coverage', 'smoke.md');
 
 function specFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

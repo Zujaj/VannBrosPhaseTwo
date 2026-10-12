@@ -2,7 +2,7 @@
  * Coverage report: which regression-workbook cases the automated suite actually covers.
  *
  *     pnpm coverage          # print the table
- *     pnpm coverage --write  # also refresh test-plans/COVERAGE.md
+ *     pnpm coverage --write  # also refresh coverage/regression.md
  *
  * Specs declare coverage with a tag in the test title:
  *
@@ -51,7 +51,7 @@ interface WorkbookCase {
 const ROOT = path.resolve(import.meta.dirname, '..');
 const CATALOG = path.join(ROOT, 'test-plans', 'catalog', 'web-cases.json');
 const TESTS_DIR = path.join(ROOT, 'tests');
-const OUT_MD = path.join(ROOT, 'test-plans', 'COVERAGE.md');
+const OUT_MD = path.join(ROOT, 'coverage', 'regression.md');
 
 /** Types the workbook itself scopes to human judgement or a device lab. */
 const MANUAL_TYPES = new Set(['Performance', 'Compatibility', 'Accessibility', 'Usability']);
