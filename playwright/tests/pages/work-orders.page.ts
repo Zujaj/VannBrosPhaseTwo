@@ -185,6 +185,32 @@ export class WorkOrdersPage extends BasePage {
   }
 
   /**
+   * Clone a list row. Opens the Create form pre-filled from the source as `Copy of <name>`
+   * (verified live on UAT 2026-10-12). Offered on every status, Done included.
+   */
+  async cloneRow(row: Locator): Promise<void> {
+    await this.clickPastLoader(row.getByTitle('Clone Work Order'), () =>
+      expect(this.page.getByRole('heading', { name: /^Create New Work Order\b/i })).toBeVisible({ timeout: 8000 }),
+    );
+  }
+
+  /**
+   * Delete a list row: the row action raises an "Alert" dialog `Are You Sure You Want To Delete
+   * This Work Order` (`Cancel` / `Yes`). Only offered while the WO is Draft / Queue / To Do; any
+   * WO type can be deleted in To Do (product rule, 2026-10-09). Harvest rows title the action
+   * `Delete Workorder`, hence the pattern. Resolves once the row has left the grid.
+   */
+  async deleteRow(row: Locator): Promise<void> {
+    const dialog = this.page.getByRole('dialog');
+    await this.clickPastLoader(row.getByTitle(/^Delete Work ?order$/i), () =>
+      expect(dialog.getByText(/Are You Sure You Want To Delete This Work Order/i)).toBeVisible({ timeout: 8000 }),
+    );
+    await this.waitForToastsGone();
+    await dialog.getByRole('button', { name: 'Yes', exact: true }).click();
+    await expect(row).toHaveCount(0, { timeout: 30000 });
+  }
+
+  /**
    * A work-order type sub-tab. The four are in-page buttons at /workorders, not routes.
    *
    * Scoped to the tab group rather than the page: `Create New Work Orders` sits beside them

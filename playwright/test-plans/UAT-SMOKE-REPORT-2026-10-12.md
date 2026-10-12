@@ -7,9 +7,9 @@
 
 ## Result
 
-- **Web rows exercised:** 73 of 103. **Pass: 68** (41 fully asserted, 27 partly) · **Flaky: 3** (passed on retry) · **Fail: 2**.
+- **Web rows exercised:** 74 of 103. **Pass: 69** (42 fully asserted, 27 partly) · **Flaky: 3** (passed on retry) · **Fail: 2**.
 - **Not run:** 10 rows automated only by `@mutating` specs, which create templates and WOs. Run them with `pnpm test:smoke:uat:all` once approved.
-- **Not automated:** 20 web rows. Manual (mobile, after-mobile, D365): 59 rows, outside this run.
+- **Not automated:** 19 web rows. Manual (mobile, after-mobile, D365): 59 rows, outside this run.
 - **Defects found: 2**, both already known on QA (MP-08, TI-04). **No UAT-only defect.**
 - **QA bugs that do NOT reproduce on UAT:**
   - Material Template wizard dropdowns load (QA: `MaterialsV2` 500 → empty pickers; TM-08/10/11/13/17/25/28/29).
@@ -19,7 +19,7 @@
 
 | Area | Module | Web rows | Pass | Flaky | Fail | Not run (@mutating) | Not automated |
 |---|---|---:|---:|---:|---:|---:|---:|
-| WO | Work Order | 4 | 2 | 0 | 0 | 1 | 1 |
+| WO | Work Order | 4 | 3 | 0 | 0 | 1 | 0 |
 | WI | Work Order | 3 | 1 | 0 | 0 | 1 | 1 |
 | MP | Maps | 9 | 7 | 1 | 1 | 0 | 0 |
 | US | User Settings | 5 | 5 | 0 | 0 | 0 | 0 |
@@ -29,7 +29,7 @@
 | TM | Template Management | 36 | 36 | 0 | 0 | 0 | 0 |
 | PO | POI | 8 | 1 | 0 | 0 | 0 | 7 |
 | TK | Tank Mixing | 2 | 1 | 1 | 0 | 0 | 0 |
-| **Total** | | **103** | **68** | **3** | **2** | **10** | **20** |
+| **Total** | | **103** | **69** | **3** | **2** | **10** | **19** |
 
 ## Failures
 
@@ -41,6 +41,16 @@
 - **MP-07** (User can select the Stages): First attempt hit the 150 s test timeout; passed on retry. It passed first time in the Crop Year 2027 run, so this looks like environment slowness.
 - **TI-10** (Verify Clone template from detail screen): First attempt: the clone's Name read `Copy of Inspection Template 001` (lower-case *of*); the retry got `Copy Of Inspection Template 001`. **The clone-name casing is inconsistent on UAT.** Worth a manual look before filing.
 - **TK-02** (Validate operation dropdown loads all operations configured in system): First attempt: the `Create New Work Orders` button click timed out after 15 s (button present, click not taken, most likely the loader overlay); passed on retry.
+
+## WO-20 (clone), added after the main run
+
+Automated in `tests/authenticated/work-orders-clone.spec.ts` (`@mutating`) and passed 3 of 3 on UAT. The confirmed behaviour:
+- `Clone Work Order` opens the Create form pre-filled as `Copy of <name>`.
+- Submit → `Create Work Order` confirm → Save stores a new WO in **To Do** at 0%, even from a Done source.
+- The clone is then deleted in To Do (`Are You Sure You Want To Delete This Work Order` → `Yes`).
+- Done rows offer only Clone and View.
+
+**Observation for product:** cloning WO-145 (2 materials, material template `Tank mixing`) gave a clone with 4 materials. Adamant 50 WG and Alion Herbicide were added, most likely from the pre-selected template. The spec doesn't assert materials.
 
 ## Data notes (not defects)
 
@@ -54,7 +64,7 @@
 | WO-01 | Work Order | Create,Save as Draft, Submit, Recall and Re-submit Planned WO with Multiple Blocks (By Resource) | Not run (@mutating) | work-orders-planned.spec.ts |
 | WO-02 | Work Order | Verify WO Detail screen | Pass (partial) | work-orders-list.spec.ts :: @TC-partial:WP-015 @SMK-partial:WO-02 View Work Order Detail opens a read-only d |
 | WO-16 | Work Order | Download PDF for Planned Work Order (By Resource) from Web | Pass | attachments-pdf.spec.ts :: @TC:AP-020 @SMK:WO-16 the export control generates a PDF |
-| WO-20 | Work Order | Verify WO Clones succesfully after hitting submit | Not automated |  |
+| WO-20 | Work Order | Verify WO Clones succesfully after hitting submit | Pass | work-orders-clone.spec.ts (`@mutating`, run on its own with `test:smoke:uat:all`) |
 | WI-01 | Work Order | Create,Save as Draft, Submit, Recall and Re-submit Planned Inspection WO from web | Not run (@mutating) | work-orders-inspection.spec.ts |
 | WI-02 | Work Order | Verify WO Detail screen | Not automated |  |
 | WI-14 | Work Order | Download PDF for Planned Inspection Work Order from Web | Pass | attachments-pdf.spec.ts :: @TC:AP-023 @SMK:WI-14 the inspection PDF carries its inspection detail and progr |

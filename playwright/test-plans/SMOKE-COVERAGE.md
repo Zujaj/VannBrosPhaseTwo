@@ -9,7 +9,7 @@ execution produces (*after-mobile*) and D365 posting checks are counted under
 
 | Area | Module | Web | Covered | Partial | Not automated | % | Manual |
 |---|---|---:|---:|---:|---:|---:|---:|
-| WO | Work Order | 4 | 1 | 2 | 1 | 25.0% | 16 |
+| WO | Work Order | 4 | 2 | 2 | 0 | 50.0% | 16 |
 | WI | Work Order | 3 | 1 | 1 | 1 | 33.3% | 21 |
 | MP | Maps | 9 | 7 | 2 | 0 | 77.8% | 0 |
 | US | User Settings | 5 | 0 | 5 | 0 | 0.0% | 1 |
@@ -21,13 +21,14 @@ execution produces (*after-mobile*) and D365 posting checks are counted under
 | IM | POI | 0 | 0 | 0 | 0 | — | 2 |
 | OF | Offline | 0 | 0 | 0 | 0 | — | 14 |
 | TK | Tank Mixing | 2 | 1 | 1 | 0 | 50.0% | 0 |
-| **TOTAL** | | **103** | **52** | **31** | **20** | **50.5%** | **59** |
+| **TOTAL** | | **103** | **53** | **31** | **19** | **51.5%** | **59** |
 
 ## Fully covered rows
 
 | ID | Scenario | Description | Spec |
 |---|---|---|---|
 | WO-16 | Create Planned Work Order with Adhoc block(By Resource) | Download PDF for Planned Work Order (By Resource) from Web | `tests/authenticated/attachments-pdf.spec.ts` |
+| WO-20 | Create Planned Work Order with Adhoc block(By Resource) | Verify WO Clones succesfully after hitting submit | `tests/authenticated/work-orders-clone.spec.ts` |
 | WI-14 | Create Planned Inspection WO with mulitple resources | Download PDF for Planned Inspection Work Order from Web | `tests/authenticated/attachments-pdf.spec.ts` |
 | MP-01 | Map | User can see Upcoming Work Order | `tests/authenticated/maps.spec.ts` |
 | MP-02 | Map | User can see Active Work Order | `tests/authenticated/maps.spec.ts` |
@@ -123,7 +124,6 @@ partial is usually cheaper than automating a new row.
 
 | ID | Scenario | Description |
 |---|---|---|
-| WO-20 | Create Planned Work Order with Adhoc block(By Resource) | Verify WO Clones succesfully after hitting submit |
 | WI-02 | Create Planned Inspection WO with mulitple resources | Verify WO Detail screen |
 | ST-01 | Settings on Web | Verify Assets |
 | ST-03 | Settings on Web | Verify Crop Stages |
