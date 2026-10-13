@@ -3,7 +3,7 @@
 - **ADO:** [#25969](https://dev.azure.com/AgriERPProduct/Vann%20Brothers/_workitems/edit/25969) — Enhancement, "Total acres option that divides it to all the selected resources" (state `New` on 2026-10-09)
 - **Work item copy:** `resources/work-items/25969-total-acres-distribute-equally.md` (description, dev note, product answers)
 - **Build under test:** iOS build that contains branch `bugfix/25969-total-acres-option-that-divides-it-to-all-the-sele`, commit `ad8056e5b`. Record the build number in the run log. The dev notes say the change "hasn't been built or run" yet, so confirm the commit is in the build before you start.
-- **Workbook:** `Work Orders Distribute Acres-ios.xlsx` (same cases, with Result column)
+- **Workbook:** `work-orders-distribute-acres-ios.xlsx` (same cases, with Result column)
 - **Spec:** _none, manual only_ (native iOS UI; Playwright does not cover it)
 - **Automation status:** Manual
 - **Source of truth:** product answers received 2026-10-09 (see [Product decisions](#product-decisions-2026-10-09)) override the developer's handover notes on #25969 where they differ. No PSD or mock-up is attached to the ticket. Mobile execution and role rules: `vannbrosphasetwo-knowledge` (SKILL.md role table, `references/work-orders.md`)
@@ -17,7 +17,7 @@ On the mobile **Pause Job** / **Save Progress** / **End Job** screen for a block
 - **Distribute equally**: a **Total Acres** field and the hint `Distributed equally across N selected users`. Each selected user's area fills in automatically to 2 decimals and is read-only. The shares recalculate when users are selected or unselected.
 - **Rounding** (per dev notes, *product to confirm*): round down to 2 decimals and give the leftover 0.01s to the last user(s), so the shares always add up to the total.
 - **Work order types:** all types **except Inspection** (product, 2026-10-09). So Planned, Tank Mix and Harvest WOs must show the switch. The dev notes say the harvesting end-job and percentage-progress screens were **not** changed, so those cases may fail: raise the gap on #25969.
-- **Shown only** with multiple resources on the block, and always opens in **Individual** (product, 2026-10-09). **Hidden** on the Materials tab, for rows/beds blocks, inspection WOs, single-resource blocks.
+- **Shown only** with multiple resources on the block, and always opens in **Individual** (product, 2026-10-09). **Hidden** on the Materials tab, for inspection WOs and single-resource blocks. All VBS blocks are area-based (no rows/beds blocks exist), so no rows/beds case is needed.
 - **No upper limit:** Total Acres may exceed the block's remaining area ("overdue allowed", product, 2026-10-09).
 - **Platforms:** iOS app (entry) and Farm web app (shows the saved values) only (confirmed with Wania, 2026-10-09).
 - **No D365 posting:** acreage is not posted to D365, so no D365 / journal checks are needed.
@@ -31,7 +31,6 @@ On the mobile **Pause Job** / **Save Progress** / **End Job** screen for a block
 | Mobile login | A **Supervisor** resource. Supervisors can start and end WOs for themselves and others. Check the resource group on web before filing a "switch missing" bug (a Farm Hand gets a different screen) |
 | WO A | Planned WO, `In Progress`, one **area-based (acres)** plot/block, Supervisor + **3 Farm Hands** started on the job |
 | WO B | Same as A but with **2 blocks** (for multi-block End Job) |
-| WO C | Planned WO with a **rows/beds** block and 2+ users (regression) |
 | WO D | WO with an area-based block and **1** user only (regression) |
 | WO E | Inspection WO with 2+ users (regression) |
 | WO F | Tank Mix WO, `In Progress`, area-based block, 2+ users |
@@ -101,7 +100,6 @@ Note the block's remaining area before each saving case. Totals above it are all
 
 | ID | Title | Pri | Steps | Expected result | Type |
 |---|---|---|---|---|---|
-| DIST-050 | Rows/beds block: hidden | P1 | WO C → Pause Job → Progress | No switch. Rows/beds entry as before | Regression |
 | DIST-051 | Single-resource block: hidden | P1 | WO D → Pause Job → Progress | No switch | Regression |
 | DIST-052 | Inspection WO: hidden | P1 | WO E → Pause/End Job | No switch (the only WO type excluded) | Regression |
 | DIST-053 | Harvest WO: shown | P1 | WO G → Pause Job / Save Progress / End Job → Progress | Switch shown, Individual default, distribution as DIST-012. Dev notes say the harvesting end-job screen wasn't changed: if missing, log against #25969 | Functional |

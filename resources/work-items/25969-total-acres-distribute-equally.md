@@ -57,15 +57,14 @@ iOS change on branch `bugfix/25969-total-acres-option-that-divides-it-to-all-the
 - Empty Total Acres: users get no area.
 - New labels have English fallbacks only; other languages still to add.
 - Not changed: harvesting end-job screen and percentage-progress (general WO) screen.
-- Dev notes also mention a "Finops app" regression check. Per Wania there is no such app; dropped.
 - Not yet built or run. Layout on a small device and with the keyboard open to be checked.
 
 ## Product answers (received by QA, 2026-10-09)
 
 1. **Work order types:** all except Inspection WO.
 2. **Display:** only when the block has multiple resources. Default view is always **Individual**.
-3. **Platforms (Wania, 2026-10-09):** iOS app and Farm web app only. There is no Finops app,
-   and acreage is not posted to D365.
+3. **Platforms (Wania, 2026-10-09):** iOS app and Farm web app only. Acreage is not
+   posted to D365.
 4. **Overdue allowed:** yes. QA reads this as Total Acres may exceed the block's remaining area;
    still to confirm whether overdue WOs (past End Date) were meant.
 
