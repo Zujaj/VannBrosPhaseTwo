@@ -9,6 +9,8 @@
 
 ## BC → D365 F&O: what changed
 
+Full Business Central detail (hierarchy, Master Tasks, Task Templates, crop-planning projects) and a BC → Phase 2 concept map: [`business-central.md`](./business-central.md).
+
 | Topic | Business Central (Phase 1) | D365 F&O (Phase 2) |
 |---|---|---|
 | Land hierarchy | Grower → Site → Location → Field held in ERP | ERP holds a flat **Plots & Fields** list synced from AgriERP; AgriERP keeps the full hierarchy (Grower → Site → Farm → Field/Plot) |

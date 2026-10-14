@@ -32,7 +32,8 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   check it before opening a PDF, and read PDFs by page range, never whole.
   `resources/video-transcripts/*.md` are AI-summarised training recordings. They rank below
   the manuals and the live app, and are distilled in the knowledge skill's
-  `references/d365-setup-and-integration.md`.
+  `references/d365-setup-and-integration.md` (D365 F&O) and `references/business-central.md`
+  (Phase 1 Business Central; no BC environment exists in this repo).
 - **`.claude/skills/`** — `vannbrosphasetwo-knowledge` (product facts; consult before authoring
   tests or docs), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
   `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`
@@ -54,6 +55,11 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
 - **Authenticated tests need a valid session.** If authed specs fail at login, run
   `pnpm auth:qa`. Never commit `.auth/` or other secrets. The hand-written `.auth/` files'
   formats and placeholder templates live in `playwright/auth-templates/`; never print a filled-in one.
+- **Run `playwright-cli` from `playwright/`, never the repo root** (a root run leaves a stray
+  `.playwright-cli/`). Drive the app in Firefox, and reuse what is already there before writing
+  anything new: `.auth/` sessions, `playwright.config.ts`, `fixtures/`, `tests/` page interactions,
+  `api/` client and `scripts/` seed/cleanup. Check `ARCHITECTURE.md` and existing specs for a helper
+  or locator first.
 - **Place specs by auth context:** public → `tests/public/`, logged-in →
   `tests/authenticated/`. Add shared URLs to `tests/constants/routes.ts`, not inline.
 - **Use the QA env and VBS tenant** for all flows; take exact UI labels, navigation paths,
