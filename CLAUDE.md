@@ -60,6 +60,12 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   anything new: `.auth/` sessions, `playwright.config.ts`, `fixtures/`, `tests/` page interactions,
   `api/` client and `scripts/` seed/cleanup. Check `ARCHITECTURE.md` and existing specs for a helper
   or locator first.
+- **Explore the live app with the `playwright-cli` skill, not with throwaway specs or scripts.**
+  Invoke the skill and drive Firefox step by step (`snapshot`, `click`, `eval`, `run-code`) to learn
+  labels, dialogs, toasts and request bodies *before* writing a spec. Never write a probe spec just to
+  `console.log` DOM state, and never use Python (or other ad-hoc scripts) to rewrite spec files, poll or
+  inspect the app; make spec changes with the Edit tool. Load Google Maps through Node-side
+  `route.fetch` in `run-code` (as `tests/helpers/googleMaps.ts` does), or the page stays blank.
 - **Place specs by auth context:** public → `tests/public/`, logged-in →
   `tests/authenticated/`. Add shared URLs to `tests/constants/routes.ts`, not inline.
 - **Use the QA env and VBS tenant** for all flows; take exact UI labels, navigation paths,

@@ -723,6 +723,52 @@ export class WorkOrdersPage extends BasePage {
     await this.waitForToastsGone(); // toasts can block the Save button in the confirm dialog
     await confirm.getByRole('button', { name: 'Save', exact: true }).click();
   }
+
+  /**
+   * Save the Create form as a Draft: `Save As` is a dropdown toggle whose menu offers `Queue` and
+   * `Draft` (verified live 2026-10-14). It stays disabled until the Supervisor is set, and the
+   * server refuses a form with no plot (`Must select an activity to create work order`). Draft
+   * raises the same `Create Work Order` confirm as Submit, whose Save commits it.
+   */
+  async saveAsDraftAndConfirm() {
+    await this.waitForLoaderGone();
+    await this.waitForToastsGone();
+    const saveAs = this.page.getByTitle('Save As', { exact: true });
+    await expect(saveAs).toBeEnabled();
+    await saveAs.click();
+    await this.page.locator('a.dropdown-item[title="Draft"]').click();
+
+    const confirm = this.page.getByRole('dialog');
+    await expect(confirm.getByText(/Are You Sure You Want To Save The Work Order/i)).toBeVisible();
+    await this.waitForToastsGone();
+    await confirm.getByRole('button', { name: 'Save', exact: true }).click();
+  }
+
+  /**
+   * Submit the Edit form and confirm. Edit mode raises `Update Work Order` (`Cancel` / `Update`)
+   * where Create raises `Create Work Order`; the toast is `Work Order updated successfully`.
+   */
+  async submitUpdateAndConfirm() {
+    await this.waitForLoaderGone();
+    await this.waitForToastsGone();
+    const submit = this.page.getByRole('button', { name: 'Submit' });
+    await expect(submit).toBeEnabled();
+    await submit.click();
+
+    const confirm = this.page.getByRole('dialog');
+    await expect(confirm.getByText(/Are You Sure You Want To Update The Work Order/i)).toBeVisible();
+    await this.waitForToastsGone();
+    await confirm.getByRole('button', { name: 'Update', exact: true }).click();
+  }
+
+  /**
+   * Open a list row's `Edit Work Order` form. Same loader hazard as the other row actions.
+   */
+  async editRow(row: Locator): Promise<void> {
+    await this.clickPastLoader(row.getByTitle('Edit Work Order'), () =>
+      expect(this.page.getByRole('heading', { name: /^Edit Work Order\b/i })).toBeVisible({ timeout: 8000 }),
+    );
+  }
 }
 
 /** Regex matching the success toast: `Work Order WO-XXXXX | <name> Saved Successfully`. */

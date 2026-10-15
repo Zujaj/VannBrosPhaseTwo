@@ -1276,3 +1276,38 @@ D365 company.
 Open question: are ids 668–677 and 604 test data inserted straight into the QA DB, or v1 dummies
 (Enh #25942)? If they are test data, the fix is data clean-up. Either way, the readiness check should
 not pass a resource D365 doesn't know.
+
+
+## 55. Planned WO: an unchanged Update intermittently saves Priority Medium instead of High — unresolved
+
+**Observed:** 2026-10-14, QA. **Type:** possible defect, not filed: the trigger is unknown.
+
+Editing a Draft and pressing Submit → `Update Work Order` → `Update` should leave the WO as it was.
+Three times the saved Priority dropped from `High` (`priority: 3`) to `Medium` (`2`) while the Edit form
+still showed `High`: a UI-created Draft (WO-159), an API-seeded WO recalled to Draft (WO-179), and one
+automated run. Five later attempts kept `3`, including one that submitted before the form had hydrated
+(the `PUT /api/workOrder/<id>` body carried `priority: 3`) and a 2.5-minute watch after saving, so it is
+neither a client race nor a delayed overwrite on that path.
+
+**Next:** capture the `PUT` body on a run that does drop the Priority; compare against one that doesn't.
+No spec asserts it, since an intermittent check is noise.
+
+
+## 56. Recall: the API needs the CURRENT status; the web Recall button refuses for the admin
+
+**Verified:** 2026-10-14, QA.
+
+- `POST /api/WorkOrder/Recall` takes `{ id, statusID }` where `statusID` is the WO's **current** status
+  (2, To Do). With `statusID: 1` the call answers `resultType: 0` and echoes `status: 1`, yet the WO stays
+  in To Do. Only a read of the status (`GET api/workOrder/<id>/Detail`) shows whether a recall happened,
+  which is the "reports Draft while actually To Do" defect named in WP-052, reproduced by passing the wrong
+  `statusID`. With `statusID: 2` the WO is Draft and stays so.
+- On a To Do WO's detail page the `Recall` button toasts `Work order not recalled` and sends **no request**
+  (admin `Crop Planner`, WO-160/161/163). That account has `Admin = Yes` but no User Role, and Recall is a
+  User Role permission (**Work Order: … Recall**). Not confirmed as the cause: no role holding Recall
+  exists to compare. Worth asking product whether an Admin without a role should recall, and whether the
+  button should be hidden or the toast name the missing permission.
+- A recalled Draft shows in the Draft list only after the list is reloaded. The grid keeps its last column
+  filter across a reload, so a second search in one test must clear it first (`ListPage.clearColumnSearch`).
+
+**Test:** `work-orders-planned-lifecycle.spec.ts` recalls through the API with the current status and reads it back.

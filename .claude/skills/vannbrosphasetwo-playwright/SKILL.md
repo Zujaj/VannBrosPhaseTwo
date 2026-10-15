@@ -73,6 +73,10 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
   Review. Used by `@mutating` `dummy-shifts-api.spec.ts`, which starts and corrects shifts through
   `api/DummyShift/*` as the supervisor (admin when no supervisor session). Each run leaves one `QA DRS …` WO
   in Review.
+- `node scripts/seed-planned-one.mts --name TEXT [--plots N]` — one To Do Planned WO through the API
+  (seconds, no UI); prints `{id, sequenceNo, name}` as JSON. Used by `work-orders-planned-lifecycle.spec.ts`,
+  which then recalls it with `POST api/WorkOrder/Recall` (`statusID` = the current status, 2) and reads the
+  status back, since a wrong `statusID` answers success without recalling (`FINDINGS.md` #56).
 - `pnpm wo:delete WO-1258 WO-1260 [--name TEXT] [--yes]` — delete work orders through the API
   (e.g. seed leftovers). A dry run unless `--yes` is given. Needs the API token.
 - `pnpm api:smoke [--count N] [--location N] [--season N]` — read-only check that the API token

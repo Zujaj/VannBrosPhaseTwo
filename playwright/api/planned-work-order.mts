@@ -94,7 +94,7 @@ async function collect(
 export async function buildPlannedBody(api: ApiClient, req: PlannedRequest) {
   const farm = byLabel(farms.items, req.farm ?? 'Vann Farm (VBSF)', 'farm');
   const task = byLabel(tasks.workOrder, req.task ?? 'Fertilization (1240)', 'task');
-  const supervisor = byLabel(resourcesFixture.items, req.supervisor ?? 'Agrierp 04 (04)', 'supervisor');
+  const supervisor = byLabel(resourcesFixture.items, req.supervisor ?? 'Agrierp 04 (000225)', 'supervisor');
   const priority = priorities.items.find((p) => p.name === (req.priority ?? 'High'));
   if (!priority) throw new Error(`priority "${req.priority}" is not in fixtures/priorities.json`);
   const w = dateWindow();

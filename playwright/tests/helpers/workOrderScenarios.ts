@@ -17,9 +17,9 @@ function uniqueName(prefix: string): string {
 const FARM = byLabel(testData.farms.items, 'Vann Farm (VBSF)').label;
 const HIGH_PRIORITY = byName(testData.priorities.items, 'High').name;
 // "Agrierp 02 (02)" dropped out of the live Supervisor and Select Resources lists after the
-// 2026-08-26 fixture snapshot. "Agrierp 04 (04)" is live (2026-09-11) and sits outside the first
+// 2026-08-26 fixture snapshot. "Agrierp 04 (000225)" is live (2026-09-11; label became "(000225)" by 2026-10-14) and sits outside the first
 // five Select Resources rows, so a bulk scenario never adds its own supervisor as a resource.
-const SUPERVISOR = byLabel(testData.resources.items, 'Agrierp 04 (04)').label;
+const SUPERVISOR = byLabel(testData.resources.items, 'Agrierp 04 (000225)').label;
 
 export function plannedScenario(overrides: Partial<WoScenario> = {}): WoScenario {
   return {

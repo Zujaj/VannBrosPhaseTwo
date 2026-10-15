@@ -12,7 +12,8 @@
   - **WO-PLAN-003 (TC-3)** — assert Submit is **disabled** on empty form (validation gate; no row created). Non-mutating.
   - **WO-PLAN-004 (TC-4)** — assert tank-mix params (Mix Method/Per/Unit) gated behind **Enable Tank Mixing** toggle. Non-mutating.
   - **WO-PLAN-007 (TC-7)** — bulk Planned WO with **30 plots, 5 resources, 5 assets** incl. Submit, tagged `@mutating` (workbook WP-093 30-plot tier, WP-033, WP-043, WP-046).
-  - **Manual (not automated):** TC-2 (Save as Draft). TC-5/TC-6 are precondition-gated + tenant-data-coupled — see their Automation notes.
+  - **TC-8 (lifecycle after authoring)** — in a second spec, `work-orders-planned-lifecycle.spec.ts` (`@mutating`, API-seeded): Save As Draft + Draft delete (WP-048, WP-060), Edit pre-populated (WP-053), recall and resubmit twice (WP-050/051/052), delete cancel and confirm on a To Do WO (WP-058/059), and non-mutating checks that Draft/To Do rows offer Delete and started rows don't (WP-056, WP-061). The TC-2 Save-as-Draft case is automated there.
+  - **Manual (not automated):** TC-5/TC-6 are precondition-gated + tenant-data-coupled — see their Automation notes. The web `Recall` button is not automated (FINDINGS #56).
 - **Source of truth:** `vannbrosphasetwo-knowledge/work-orders-planned.md` + live QA form.
 - **Last updated:** 2026-09-11
 
@@ -138,3 +139,21 @@
 | **Expected result** | Plot grid shows 30 rows and the footer reads **`30 Total Plots`** (**`30 Total Fields`** on the Block build — FINDINGS §2); Resources grid shows 5 rows with Resource Name / Resource Type / Company Name / No Of Resource; Assets grid shows 5 rows with Asset Name / Asset Type / Resource Group / No Of Resource; toast `Work Order WO-XXXXX \| <name> Saved Successfully` without timeout; save response time recorded |
 | **Type** | Functional / Performance |
 | **Automation** | Automated, `@mutating` — creates a real 30-plot WO each run. First verified run 2026-09-11 on Chromium: **WO-1214** (status To Do; the list shows 29 plot names because two plots are both named `338N`), test time 34 s. Live findings (playwright-cli, 2026-09-11): (a) each selection modal is a `.side-panel` aside; (b) **Select Plots is not paged** — all 99 plots on one scrolling list with an `N Plots Selected` counter and a `99 Total Records` footer, header has a select-all checkbox (avoid it); (c) **Select Resources / Select Assets page at 50 rows** (101 / 557 records) with no select-all, so counts above 50 need paging the spec does not do; (d) re-opening a panel keeps its earlier ticks; (e) once plots are added, the form's plot grid has its own per-row checkbox, so panel rows are scoped to the `.side-panel`. **Not asserted:** asset implements (WP-046) and WP-093's other tiers (10/50/75/100) and thresholds — the spec records the 30-plot save time as a test annotation only. |
+
+---
+
+## TC-8 — Lifecycle after authoring: Draft, Edit, Recall, Delete
+
+| Field | Content |
+|---|---|
+| **ID** | WO-PLAN-008 (workbook WP-048, WP-050, WP-051, WP-052, WP-053, WP-056, WP-058, WP-059, WP-060, WP-061) |
+| **Title** | A Planned WO can be saved as Draft, edited, recalled to Draft, resubmitted and deleted while it is Draft or To Do |
+| **Module** | Work Orders |
+| **Role** | Manager (Admin) |
+| **Platform** | Web (setup and read-back through the API) |
+| **Priority** | P1 |
+| **Preconditions** | Logged-in admin; Colusa / Crop Year 2026; a To Do Planned WO (the spec seeds one in seconds with `scripts/seed-planned-one.mts`) |
+| **Steps** | **Draft:** Create form with name, Priority, Farm, Task, one plot and Supervisor → `Save As` → `Draft` → confirm `Save`. **Edit:** Draft chip → row `Edit Work Order`. **Resubmit:** `Submit` → `Update Work Order` → `Update`. **Recall:** `POST /api/WorkOrder/Recall` with the WO's current `statusID` (2). **Delete:** To Do row `Delete Workorder` → `Cancel`, then again → `Yes`. |
+| **Expected result** | Draft toast `Work Order WO-n \| <name> saved successfully` and the row shows under the Draft chip; Edit opens with name, farm, task, supervisor and plot count filled (Farm and Task are disabled inputs, the farm without its code); Update toast `Work Order updated successfully` and the WO returns to To Do; after a recall the API reports Draft and the Draft list shows the row, twice in a row; `Cancel` keeps the row, `Yes` removes it; Draft and To Do rows offer Delete, In Progress / Review / Done rows don't |
+| **Type** | Functional |
+| **Automation** | Automated, `@mutating` (the Draft test creates a WO through the UI and deletes it; the rest are seeded through the API and deleted in `afterEach`). A full run takes about 1.5 minutes. **Not covered:** the web `Recall` button (it refuses for the admin and sends no request, FINDINGS #56); that an unchanged Update keeps the Priority (seen to drop High to Medium three times, not reproducible on demand, FINDINGS #55); delete blocked with dispatched inventory (WP-062) and cleanup of Planning/Maps (WP-065). |

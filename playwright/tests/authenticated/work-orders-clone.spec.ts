@@ -27,7 +27,7 @@ test.describe('Work order clone', () => {
     if (await leftover.count()) await workOrdersPage.deleteRow(leftover.first());
   });
 
-  test('@SMK:WO-20 @mutating a submitted clone saves as a new To Do work order, which can then be deleted', async ({
+  test('@SMK:WO-20 @TC-partial:WP-055 @mutating a submitted clone saves as a new To Do work order, which can then be deleted', async ({
     page,
     workOrdersPage,
     listPage,
