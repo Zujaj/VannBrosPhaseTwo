@@ -39,7 +39,7 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`
   (read-only Excel report of prod Sync Console errors, `pnpm prod:sync-errors`).
 - **`.claude/agents/`** — Playwright planner / generator / healer subagents, driven by the
-  `playwright-test` MCP server in root `.mcp.json`; starter prompts in `.claude/prompts/`.
+  `playwright-cli` skill (`.claude/skills/playwright-cli/`); starter prompts in `.claude/prompts/`.
   **Launch Claude Code from the repo root** for them to load.
 
 ## Commands
@@ -78,8 +78,8 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   regenerates `reference/*.md` and the tag index, so never hand-edit those.
 - Keep both packages' dependencies and lockfiles independent; install per package.
 - **Keep context lean:** iterate on one spec with `pnpm test:fast -g "<title>" --reporter=line`
-  rather than the MCP `test_run` tool; leave live-browser exploration (`browser_snapshot`) to the
-  Playwright subagents; never read `openapi.json`, `_schemas.md` or test reports whole — grep them.
+  rather than full `npx playwright test` runs; leave live-browser exploration (`playwright-cli snapshot`) to
+  the Playwright subagents; never read `openapi.json`, `_schemas.md` or test reports whole — grep them.
 
 ## Domain
 
