@@ -4,6 +4,7 @@ import { blockVarietyNames } from '../pages/work-orders.page';
 import { routes } from '../constants/routes';
 import { plannedScenario } from '../helpers/workOrderScenarios';
 import { upcoming } from '../helpers/upcoming';
+import { apiAs } from '../helpers/roleApi';
 
 /**
  * Variety Management — Product Specifications Document v1.0 (Aug 07, 2026),
@@ -15,11 +16,12 @@ import { upcoming } from '../helpers/upcoming';
  * QA has not shipped are also tagged `@upcoming` and parked by `upcoming()` — see
  * `helpers/upcoming.ts`.
  *
- * What QA serves (verified live 2026-09-24): the Create form's Variety multi-select, which sends
- * `cropVarietyIDs` to the plot picker; the list's Variety column and Set Filters entry; the
- * detail Plots grid's Variety column; Maps' Set Filters entry. What it lacks: any GP
- * field-to-variety data — every block `POST /api/activity/blocks` returns has `varieties: []`
- * (FINDINGS #33), so any variety empties the picker. Tests needing that data skip until it lands.
+ * What QA serves (verified live 2026-10-16): GP field-to-variety data on 68 of 100 Vann Farm
+ * plots (FINDINGS #33 update); the Create form's Variety multi-select, which sends
+ * `cropVarietyIDs` to the plot picker; the list's Variety column, search and Set Filters entry;
+ * the detail Plots grid's Variety column; Maps' Variety filter and the field aside's Varieties
+ * accordion; Planning's Plot Configuration Variety chips / `Multiple Varieties` tag. Known gap:
+ * swapping the variety leaves an unmapped plot on the form (FINDINGS #57, VM-08).
  *
  * None of these tests saves anything.
  */
@@ -110,10 +112,9 @@ test.describe('Create Work Order — Variety field (R1 FR-2)', () => {
     await workOrdersPage.closePlotPicker(picker);
   });
 
-  test('@PSD-variety @upcoming VM-04 GP sync delivers each plot\'s varieties (R1 FR-1)', async ({
+  test('@PSD-variety VM-04 GP sync delivers each plot\'s varieties (R1 FR-1)', async ({
     workOrdersPage,
   }) => {
-    upcoming('GP → AgriERP field-to-variety sync has not populated any QA plot');
     const blocks = await unfilteredBlocks(workOrdersPage);
     const withVarieties = blocks.filter((b) => b.varieties.length > 0);
     expect(
@@ -181,6 +182,7 @@ test.describe('Create Work Order — Variety field (R1 FR-2)', () => {
     const [variety] = [...mapped.keys()];
     const other = (await workOrdersPage.varietyOptions()).find((v) => v !== variety && !mapped.has(v));
     test.skip(!other, 'every variety maps to a plot, so none can stand in as "unmapped"');
+    test.fail(true, 'Known QA bug (FINDINGS #57): the plot stays on the form, its Variety cell blanked');
 
     await workOrdersPage.selectVarieties([variety]);
     const picker = await workOrdersPage.openPlotPicker();
@@ -205,15 +207,34 @@ test.describe('Work Orders list — Variety (R1 FR-5)', () => {
     await listPage.clearAllColumnFilters().catch(() => {});
   });
 
-  /** The first variety name shown in the grid; skips when no listed WO carries one. */
-  async function aListedVariety(listPage: import('../pages/list.page').ListPage): Promise<string> {
-    const values = (await listPage.columnValues('Variety')).filter((v) => v.trim());
-    test.skip(values.length === 0, 'no work order on the first page carries a Variety');
-    return values[0].split(',')[0].trim();
+  /**
+   * A variety some work order of the season carries, read from `GET /api/WorkOrder`. Only WOs
+   * created with a Variety chosen hold one (6 of 110 on 2026-10-16), and none of them need be on
+   * the list's first page, so the grid itself cannot be the source. Skips when no WO has one.
+   */
+  async function aListedVariety(): Promise<string> {
+    const api = await apiAs('admin');
+    try {
+      for (let page = 1; page <= 5; page++) {
+        const res = await api.get('/api/WorkOrder', {
+          params: { LocationID: 2, SeasonID: 13, Category: 1, Page: page, Limit: 50 },
+        });
+        const body = await res.json();
+        const rows: Array<{ varieties?: Array<{ cropVarietyName: string }> }> = body.data?.data ?? body.data ?? [];
+        const name = rows.find((r) => r.varieties?.length)?.varieties?.[0].cropVarietyName;
+        if (name) return name;
+        if (rows.length < 50) break;
+      }
+    } finally {
+      await api.dispose();
+    }
+    test.skip(true, 'no work order this season carries a Variety');
+    return '';
   }
 
   test('@PSD-variety VM-10 the list shows each work order\'s varieties', async ({ listPage }) => {
     await expect(listPage.header('Variety')).toHaveCount(1);
+    await listPage.searchColumn('Variety', await aListedVariety());
     const values = (await listPage.columnValues('Variety')).filter((v) => v.trim());
     expect(values.length, 'no listed work order shows a Variety').toBeGreaterThan(0);
     // Several varieties render as one comma-separated cell ("WOOD COLONY, NONPAREIL").
@@ -224,7 +245,7 @@ test.describe('Work Orders list — Variety (R1 FR-5)', () => {
     listPage,
     workOrdersPage,
   }) => {
-    const variety = await aListedVariety(listPage);
+    const variety = await aListedVariety();
     const before = await listPage.recordCount();
     try {
       await workOrdersPage.applyListFilter('Variety', variety);
@@ -244,7 +265,7 @@ test.describe('Work Orders list — Variety (R1 FR-5)', () => {
   });
 
   test('@PSD-variety VM-12 the Variety column search narrows the list', async ({ listPage }) => {
-    const variety = await aListedVariety(listPage);
+    const variety = await aListedVariety();
     await listPage.searchColumn('Variety', variety);
     await expect
       .poll(async () => {
@@ -259,7 +280,7 @@ test.describe('Work Orders list — Variety (R1 FR-5)', () => {
     listPage,
     workOrdersPage,
   }) => {
-    const variety = await aListedVariety(listPage);
+    const variety = await aListedVariety();
     await listPage.searchColumn('Variety', variety);
     await expect(listPage.rows.first()).toBeVisible();
     const woVarieties = (await listPage.columnValues('Variety'))[0].split(', ');
@@ -281,7 +302,7 @@ test.describe('Work Orders list — Variety (R1 FR-5)', () => {
     await expect.poll(async () => (await readCells()).some((c) => /skeleton/i.test(c)), { timeout: 30000 }).toBe(false);
     const cells = await readCells();
     const filled = cells.filter(Boolean);
-    test.skip(filled.length === 0, `detail shows no per-plot Variety; ${NO_GP_DATA}`);
+    test.skip(filled.length === 0, `detail shows no per-plot Variety (pre-sync WOs, FINDINGS #58)`);
     for (const cell of filled) {
       for (const v of cell.split(/,\s*/)) expect(woVarieties).toContain(v);
     }
@@ -303,29 +324,29 @@ test.describe('Maps — Variety (R1 FR-3)', () => {
     await expect(label.locator('xpath=following::button[1]')).toBeVisible();
   });
 
-  test('@PSD-variety @upcoming VM-21 a selected field lists its varieties with acreage', async ({
-    mapsPage,
-  }) => {
-    upcoming('the Maps field details aside has no "Varieties" section');
+  test('@PSD-variety VM-21 a selected field lists its varieties with acreage', async ({ mapsPage }) => {
     await mapsPage.open();
     await mapsPage.selectField();
-    // PSD figure (Map screen): "Varieties" then "<name> <n> acres" per mapped variety.
-    await expect(mapsPage.aside.getByText('Varieties', { exact: true })).toBeVisible();
-    await expect(mapsPage.aside.getByText(/\S+ [\d.]+ acres/).first()).toBeVisible();
+    // Live 2026-10-16: a collapsed "Varieties" accordion under Jobs; expanded, each variety is
+    // a name line then a "<n> ac" line (the PSD mock reads "acres").
+    const section = mapsPage.aside.getByRole('button', { name: /^Varieties/ });
+    await expect(section).toBeVisible();
+    await section.click();
+    await expect(mapsPage.aside.getByText(/^[\d.]+ ac$/).first()).toBeVisible();
   });
 });
 
 test.describe('Planning — Variety (R1 FR-4)', () => {
-  upcoming('Planning\'s Field Summary does not show Variety yet');
-
-  test('@PSD-variety @upcoming VM-25 the Field Summary shows the field\'s varieties', async ({
+  test('@PSD-variety VM-25 the Field Summary shows the field\'s varieties', async ({
     page,
     planningPage,
   }) => {
     await planningPage.open();
     await planningPage.selectFirstField();
     await planningPage.waitForBoardSettled();
+    // The Field Summary is the collapsed Plot Configuration accordion (live 2026-10-16).
     // Up to three names are listed; more than three collapse into a "Multiple Varieties" tag.
+    await planningPage.openPlotConfiguration();
     const summary = page.getByText('Variety', { exact: true }).first();
     await expect(summary).toBeVisible();
     const tag = page.getByText('Multiple Varieties', { exact: true });

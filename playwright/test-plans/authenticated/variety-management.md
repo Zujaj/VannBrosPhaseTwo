@@ -10,22 +10,26 @@
 - **Automation status:** **Verified live 2026-09-24 on Chromium and Firefox.** VM-01, 02, 03, 10, 11, 12,
   13 and 20 pass. VM-05..08 skip (no GP data, FINDINGS #33). VM-04, 21, 25 and 30 are parked
   `@upcoming`, and all four fail under `pnpm test:upcoming` as expected.
-- **Last updated:** 2026-10-12. GP data now syncs (FINDINGS #33 update): VM-05/06/07 pass, VM-08 fails (untriaged), VM-04 can leave `@upcoming`. In a full-file run VM-01..08/10 hit 15 s click timeouts, but VM-01 passes alone, so treat those as flakiness until healed.
+- **Last updated:** 2026-10-16, R1 re-verified live in Firefox. 17 of 19 pass: VM-04, 21 and 25 were
+  promoted out of `@upcoming`, and VM-08 passes as an expected failure (`test.fail`, FINDINGS #57).
+  VM-13's value half skips because the per-plot detail Variety is blank on pre-sync WOs (FINDINGS #58).
+  VM-30 (R2) still fails under `RUN_UPCOMING=1`, as expected. The list tests now take their variety from
+  `GET /api/WorkOrder`: only 6 of 110 WOs carry one, and none of the 6 are on page 1.
 
-## What QA has shipped (live 2026-09-24)
+## What QA has shipped (live 2026-10-16)
 
 | PSD area | On QA | Notes |
 |---|---|---|
-| R1 FR-1 GP → AgriERP Field/Variety/Acreage sync | ❌ data | Blocks API returns `varieties: []` for every plot (FINDINGS #33) |
-| R1 FR-2 WO creation: Variety multi-select, Field filtering | ✅ UI | Filtering works but has no mapped plots to return |
-| R1 FR-3 Maps: Variety on field, Variety filter | ◐ | `Set Filters → Variety` present; field aside has no Varieties |
-| R1 FR-4 Planning Field Summary | ❓ | Not observed; parked `@upcoming` |
+| R1 FR-1 GP → AgriERP Field/Variety/Acreage sync | ✅ | 68 of 100 Vann Farm plots carry varieties with per-variety `acreage`. 6 plots' variety acreage exceeds the field (FINDINGS #58) |
+| R1 FR-2 WO creation: Variety multi-select, Field filtering | ◐ | Filtering and union work. The summed acreage shows in the form's `Effective Area` input (130 NONPAREIL + WINTERS → 111.7). A variety change keeps unmapped plots (FINDINGS #57 = ADO #26452) |
+| R1 FR-3 Maps: Variety on field, Variety filter | ✅ | Field aside has a collapsed `Varieties` accordion, `<name>` / `<n> ac` rows; `Set Filters → Variety` and a `Variety` layer |
+| R1 FR-4 Planning Field Summary | ✅ | `Plot Configuration` accordion → `Variety` chips (≤3), `Multiple Varieties` tag (>3) whose hover lists all. Tree nodes tag `Multi` / the single name; activity rows show variety chips |
 | R1 FR-5 WO list: column, Advanced Filter, search | ✅ | |
-| R1 FR-6 WO detail: Variety column under Plots | ✅ | Values not verifiable without FR-1 data |
+| R1 FR-6 WO detail: Variety column under Plots | ◐ | Column present; cells blank on pre-sync WOs (WO-125). Needs a post-sync WO with a variety (#58) |
 | R1 FR-7 Mobile WO Field cards / Summary | n/a | Mobile app; manual |
 | R1 FR-8 Harvest Ticket creation by Variety | n/a | Mobile flow; web Harvest Central is covered by `harvest-central.spec.ts` |
 | R1 FR-9 / Integrations: D365 posting with Variety | n/a | D365; manual (see VM-40) |
-| R2 Settings → Plots mapping + acreage validation | ❌ | Plot grid unchanged |
+| R2 Settings → Plots mapping + acreage validation | ❌ | Reported deployed 2026-10-16, not observable. On the web build of 16:55 PKT, Settings → Plot still has 7 columns, no row action, and no opening row. `GET /api/PlotField` has no variety or acreage keys, and no deployed chunk contains mapping or acreage-validation strings. No ADO item for R2 found |
 
 Test data: `Vann Farm (VBSF)` / `Fertilization (1240)` (`plannedScenario()`), Site Colusa, Crop Year 2026.
 
@@ -36,19 +40,19 @@ Test data: `Vann Farm (VBSF)` / `Fertilization (1240)` (`plannedScenario()`), Si
 | VM-01 | R1 FR-2 | Variety is a multi-select | The field lists varieties; two can be selected at once and show as two chips; removing a chip leaves the other | ✅ automated |
 | VM-02 | R1 FR-2 | The plot picker is fetched for exactly the selected varieties | No variety sends `cropVarietyIDs: []`; one variety sends one id; adding a second sends both (union) | ✅ automated |
 | VM-03 | R1 FR-2 | A variety mapped to no plot of the farm empties the picker | `0 Total Records`, no selectable rows | ✅ automated |
-| VM-04 | R1 FR-1 | GP sync delivers each plot's varieties | At least one plot for the farm + task has `varieties` | `@upcoming`, fails today (FINDINGS #33) |
+| VM-04 | R1 FR-1 | GP sync delivers each plot's varieties | At least one plot for the farm + task has `varieties` | ✅ automated (promoted 2026-10-16) |
 | VM-05 | R1 FR-2 | Selecting a variety lists only the plots mapped to it | Picker holds exactly the plots mapped to that variety | ✅ automated, skips without FR-1 data |
 | VM-06 | R1 FR-2 | Two varieties list the union of their plots | Picker = union of both varieties' plots | ✅ automated, skips without FR-1 data |
 | VM-07 | R1 FR-2 | A field under two selected varieties sums their acreage | `totalApplicableAcreage` = sum of the two varieties' acreage | ✅ automated, skips without data. Per-variety acreage key unobserved; confirm on first run |
-| VM-08 | R1 FR-2 | Changing the variety drops a selected plot it no longer maps | Plot added under variety A disappears from the form's Select Plot grid when A is swapped for an unmapped variety | ✅ automated, skips without FR-1 data |
+| VM-08 | R1 FR-2 | Changing the variety drops a selected plot it no longer maps | Plot added under variety A disappears from the form's Select Plot grid when A is swapped for an unmapped variety | ✅ automated, `test.fail` for FINDINGS #57 |
 | VM-10 | R1 FR-5 | The list shows each WO's varieties | `Variety` column present; several varieties render comma-separated | ✅ automated |
 | VM-11 | R1 FR-5 | Set Filters → Variety lists only WOs with that variety | Every row's Variety contains the chosen one; count ≤ unfiltered | ✅ automated (resets the filter afterwards) |
 | VM-12 | R1 FR-5 | The Variety column search narrows the list | Every row's Variety contains the searched text | ✅ automated |
-| VM-13 | R1 FR-6 | Detail Plots grid carries a Variety column | Column present; each plot's Variety is one of the WO's | ✅ header automated; values skip without FR-1 data |
+| VM-13 | R1 FR-6 | Detail Plots grid carries a Variety column | Column present; each plot's Variety is one of the WO's | ✅ header automated; values skip on pre-sync WOs (#58) |
 | VM-20 | R1 FR-3 | Maps Set Filters offers Variety, and Maps Control a Variety layer | `Variety` filter present (disabled until a Crop is chosen); `Variety` layer listed in Maps Control | ✅ automated |
-| VM-21 | R1 FR-3 | A selected field lists its varieties with acreage | Aside shows `Varieties` then `<name> <n> acres` rows | `@upcoming` |
+| VM-21 | R1 FR-3 | A selected field lists its varieties with acreage | Aside's collapsed `Varieties` accordion expands to `<name>` / `<n> ac` rows | ✅ automated (promoted 2026-10-16) |
 | VM-22 | R1 FR-3 | Maps Variety filter shows only that variety's fields; Mobile Map matches Web | Only mapped fields render | Manual until FR-1 data exists; mobile half manual |
-| VM-25 | R1 FR-4 | Planning Field Summary shows the field's varieties | ≤3 names listed; >3 shows a `Multiple Varieties` tag whose hover lists all | `@upcoming` |
+| VM-25 | R1 FR-4 | Planning Field Summary shows the field's varieties | ≤3 names listed; >3 shows a `Multiple Varieties` tag whose hover lists all | ✅ automated via `Plot Configuration` (promoted 2026-10-16) |
 | VM-26 | R1 FR-7 | Mobile WO: Variety on each Field card; >2 → `+N` tag opening a bottom sheet; Summary tab lists varieties | As stated | Manual (mobile) |
 | VM-27 | R1 FR-8 / journey | Mobile Harvest Ticket: selecting Variety filters Fields; ticket keeps the Variety | As stated | Manual (mobile) |
 | VM-30 | R2 FR-1/2 | Settings → Plot opens a plot onto its variety mapping | Grid shows Farm / Field Name / Total Area; a plot opens to a Variety + Acreage mapping | `@upcoming` smoke; the PSD names no labels, so no deeper locators yet |

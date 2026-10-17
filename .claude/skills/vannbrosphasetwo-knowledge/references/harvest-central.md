@@ -30,6 +30,50 @@ The harvest **work order** that the crew runs is a separate object. See [`work-o
 
 **Automation notes:** a Playwright `check()` does not toggle `Split Load` ("did not change its state"); a DOM click does (`dispatchEvent('click')`). The detail grid's leading checkbox column has an empty header; `ListPage.columnValues` / `columnIndex` count raw header positions for this reason (fixed 2026-10-12).
 
+## Ticket drawer validations and attachments — live check 2026-10-17
+
+- **`Add New Ticket`** opens **`Create Harvest Ticket`**, which has the same fields as `Edit Harvest Ticket`. `Standard Quantity` defaults to `44000`. Saving calls `POST /api/harvestcentral/tickets?…&overrideExistingLastLoad=false`. Edit calls `PUT /tickets/{id}?overrideExistingLastLoad=…`. Neither shows a success toast.
+- **Server messages (400):**
+  - `Standard quantity must be greater than zero.`
+  - `Selected driver was not found.`
+  - `Selected trailer plate was not found.`
+  - `Select Front Only or Back Only for a Split Load.`
+  - `Split Load option must be Front Only (1) or Back Only (2).`
+  - `Harvest ticket <no> has not been captured on site yet; an actual quantity cannot be recorded.`
+  - Changing `fieldID` / `cropVarietyID` / `harvestCentralID` in a PUT is ignored.
+- **Second Last Load:** a modal `Override existing Last Load?` / `Current Last Load Ticket: <no>` / `Cancel` · `Confirm Override`. The earlier ticket goes back to `In Progress`.
+- **Delete:** the dialog reads `Delete harvest ticket` / `Are you sure you want to delete <no> ?` / `Cancel` · `Yes`.
+- **Attachments:** `Upload` takes several files at once. The client rejects other types with `<file>: File Type Not Allowed` (e.g. .exe, .zip) and files over 10 MB with `<file>: File Exceeds Max Size (10 MB)`; PDF, PNG and TXT are accepted. Mobile files live in Firebase storage under `harvest_central/` with thumbnails; `View Attachments` (side panel, `Images` filter) lists them with `Download`.
+- **Known gaps:**
+  - Web attachments never reach the ticket (FINDINGS #63).
+  - Manual Ticket # over 64 characters gives a 500 (#64).
+  - The same plate is accepted as Front and Rear (#65).
+  - The API accepts any attachment URL (#66).
+  - A Split Load ticket saves with no plate at all.
+
+## Contract-driven multi-field planning (ADO #26493) — live check 2026-10-16
+
+Ticket and release note: `resources/work-items/26493-multi-field-multi-variety-harvest-planning.md`. Mobile side: iOS 1.3.14 (27).
+
+- **Backend shipped:**
+  - Jobs `GrowerPortalCreateContractJob` (Sync Console service **165**) and `FireBaseCreateContractsJob` (**166**) are Active.
+  - `GET api/Metadata/GetFieldsForHarvesting` returns `[{farmId, farmCode, text, value}]`, where `value` = fieldID.
+  - `POST api/Metadata/GetVarietiesForHarvesting` takes `{ "fieldIds": [...] }` and returns `[{fieldID, fieldCode, fieldName, farmID, farmCode, varieties: [{cropVarietyID, cropVarietyName, cropVarietyCode, color, acreage}]}]`, i.e. growing ∩ contracted varieties.
+  - `POST api/harvestcentral/tickets/plan` now takes `{ seasonID, hullingLocation, quantity, standardQuantity, fields: [{ id, fieldName, code, varieties: [cropVarietyID] }] }`.
+  - Refusals (400): an old single `fieldID` / `cropVarietyID` body or `fields: []` → `At least one field is required.`; an unknown plot → `Selected field was not found.`; an unknown variety → `Selected crop variety was not found.`; quantity 0 → `Quantity must be at least 1.`
+- **Web (deployed 2026-10-16, 16:55 PKT):** the panel heading is still **`Plan Harvest Tickets`**.
+  - **`Field *`** and **`Variety *`** are `ng-multiselect-dropdown`s (`Select All`, `Search`, chips with `x`).
+  - Field lists `GetFieldsForHarvesting` (69 plots).
+  - Variety reads `No data available` until a plot is picked, then shows the union of the picked plots' harvestable varieties.
+  - `Create N Planned Tickets` plans N per plot × variety pair. The label does not show the total.
+  - No project-per-plot control yet.
+- **Contract scope:**
+  - Code legend: first letter `V` = VFO (GP `contractCategory` 1), `Y` = YHS (category 2); dev legend VSM = VFO, YSS = YHS; suffix = crop year, `-N` = addendum.
+  - Vann Brothers (GP 260): active `VSM-0EY10-26` (+ `-1`, `-2`) and `YSA-A4VMW-26` (+ `-2`), covering 51 plots; closed 2025 `VSM-07673-25`, `YSS-168E7-25`. Plots only on closed contracts (280, 286, 287, 301) are not offered.
+  - The sync pulls every GP grower's contracts and matches plots by name, so 18 non-Vann plots are also harvestable (FINDINGS #60). Some come from Vann-family growers: 150–152 Vann-Peterson (262; the dev's sample codes `VSM-Z8B1Y-26`, `YSA-66PIJ-26`), 340–342 Vann Family Two (261), 160 Carando/Vann Ranch (28). The rest come from unrelated growers.
+  - Look up a contract's grower read-only on GP: `GET growersportal-qa-api.azurewebsites.net/api/SubContract?Page=1&Limit=50&contractCategory=<1|2>&Search=<code>`.
+- **Swagger** is empty on QA, so the new models cannot be read from the contract (FINDINGS #61).
+
 ## Grower's Portal (GP) — where field varieties come from
 
 GP QA: `https://growersportal-qa-web.azurewebsites.net/`. Credentials are in `playwright/.auth/growersportal_credentials.json` (`QA` key); the saved session is `playwright/.auth/gp_superadmin.json`. **GP is read-only for us.**
@@ -230,7 +274,7 @@ Ticket creation is permission-based. Without the permission, the `Create New Har
 
 ## Not yet established
 
-- When the list's plan panel gets the v2 design: `Plan Incoming Loads`, Farm, `Enter Quantity *`, multi-variety. The backend plan model still takes a single variety.
+- When the web plan panel ships the v2 / #26493 design (`Plan Incoming Loads`, multi-field, multi-variety, project per plot). The backend already takes `fields: [...]` (2026-10-16).
 - The `Fleet` column, the QR **Download**, and the mobile v2 capture flow (not checked; web only).
 - Whether a ticket binds to a specific harvest WO. PSD Business Cases say "linked … later", but describe no control for it.
 

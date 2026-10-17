@@ -1,0 +1,1151 @@
+{
+  "_meta": {
+    "capturedOn": "2026-10-16",
+    "source": "https://agrierp-vann-qa.folio3.site",
+    "endpoint": "GET /api/Metadata/GetFieldsForHarvesting + POST /api/Metadata/GetVarietiesForHarvesting {fieldIds}",
+    "count": 51,
+    "seasonId": 13,
+    "note": "ADO #26493: only fields with an active GP contract under Vann Grower belong in the Harvest Central Field selection list. varieties = growing ∩ contracted. nonVannPlots are offered on QA today only because other growers' contracts sync too (FINDINGS #60) and must NOT appear.",
+    "codeLegend": "First letter = handler/huller: V = VFO (GP contractCategory 1), Y = YHS (contractCategory 2). Dev legend: VSM = VFO, YSS = YHS. Suffix = crop year; -N = addendum.",
+    "vannContracts": {
+      "growerId": 260,
+      "active2026": ["VSM-0EY10-26", "YSA-A4VMW-26"],
+      "closed2025": ["VSM-07673-25", "YSS-168E7-25"]
+    }
+  },
+  "items": [
+    {
+      "fieldId": 2,
+      "plot": "130",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 74.5
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 37.2
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 37.2
+        }
+      ]
+    },
+    {
+      "fieldId": 3,
+      "plot": "131",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 33.75
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 33.75
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 67.5
+        }
+      ]
+    },
+    {
+      "fieldId": 9,
+      "plot": "181",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 7.35
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 15.11
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 7.63
+        }
+      ]
+    },
+    {
+      "fieldId": 24,
+      "plot": "288",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 25.13
+        },
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 25.1
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 76.76
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 26.4
+        }
+      ]
+    },
+    {
+      "fieldId": 25,
+      "plot": "289",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 23.53
+        },
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 7.87
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 7.66
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 7.83
+        }
+      ]
+    },
+    {
+      "fieldId": 26,
+      "plot": "290",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 135.71
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 45.24
+        },
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 45.62
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 44.77
+        }
+      ]
+    },
+    {
+      "fieldId": 28,
+      "plot": "293",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 10.56
+        },
+        {
+          "cropVarietyId": 37,
+          "name": "MARCONA",
+          "acreage": 0.57
+        },
+        {
+          "cropVarietyId": 38,
+          "name": "SWEETHEART",
+          "acreage": 0.28
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 10.11
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 30.57
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 10.11
+        }
+      ]
+    },
+    {
+      "fieldId": 30,
+      "plot": "297",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 45.76
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 14.29
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 30.61
+        }
+      ]
+    },
+    {
+      "fieldId": 31,
+      "plot": "298",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 19.94
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 41.11
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 61.68
+        }
+      ]
+    },
+    {
+      "fieldId": 32,
+      "plot": "299",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 8.34
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 24.26
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 7.89
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 7.8
+        }
+      ]
+    },
+    {
+      "fieldId": 33,
+      "plot": "300",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 50.34
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 150.2
+        },
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 50.38
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 50.13
+        }
+      ]
+    },
+    {
+      "fieldId": 35,
+      "plot": "302",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 49.73
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 147.98
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 49.67
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 49.26
+        }
+      ]
+    },
+    {
+      "fieldId": 36,
+      "plot": "303",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 28,
+          "name": "PADRE",
+          "acreage": 43.86
+        },
+        {
+          "cropVarietyId": 27,
+          "name": "BUTTE",
+          "acreage": 46.63
+        }
+      ]
+    },
+    {
+      "fieldId": 37,
+      "plot": "304",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 106.45
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 34.66
+        },
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 36.05
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 36.13
+        }
+      ]
+    },
+    {
+      "fieldId": 38,
+      "plot": "305",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 23.95
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 70.72
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 23.93
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 22.81
+        }
+      ]
+    },
+    {
+      "fieldId": 39,
+      "plot": "306",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 51,
+          "name": "BUTTE/PADRE",
+          "acreage": 168.69
+        }
+      ]
+    },
+    {
+      "fieldId": 40,
+      "plot": "307",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 51,
+          "name": "BUTTE/PADRE",
+          "acreage": 59.59
+        }
+      ]
+    },
+    {
+      "fieldId": 41,
+      "plot": "308",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 45.69
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 22.7
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 68.23
+        }
+      ]
+    },
+    {
+      "fieldId": 42,
+      "plot": "309",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 51,
+          "name": "BUTTE/PADRE",
+          "acreage": 50.4
+        }
+      ]
+    },
+    {
+      "fieldId": 43,
+      "plot": "310",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 51,
+          "name": "BUTTE/PADRE",
+          "acreage": 75.43
+        }
+      ]
+    },
+    {
+      "fieldId": 44,
+      "plot": "311",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 51,
+          "name": "BUTTE/PADRE",
+          "acreage": 58.71
+        }
+      ]
+    },
+    {
+      "fieldId": 45,
+      "plot": "312",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 51,
+          "name": "BUTTE/PADRE",
+          "acreage": 81.24
+        }
+      ]
+    },
+    {
+      "fieldId": 46,
+      "plot": "313",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 42.14
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 56.03
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 14.28
+        }
+      ]
+    },
+    {
+      "fieldId": 47,
+      "plot": "314",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 28.19
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 9.86
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 38.07
+        }
+      ]
+    },
+    {
+      "fieldId": 48,
+      "plot": "315",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 11.06
+        },
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 5.34
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 5.25
+        }
+      ]
+    },
+    {
+      "fieldId": 49,
+      "plot": "316",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 12.63
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 25.32
+        },
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 12.37
+        }
+      ]
+    },
+    {
+      "fieldId": 50,
+      "plot": "317",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 78.55
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 51.62
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 25.59
+        }
+      ]
+    },
+    {
+      "fieldId": 51,
+      "plot": "318",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 49.56
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 24.1
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 74.9
+        }
+      ]
+    },
+    {
+      "fieldId": 52,
+      "plot": "319",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 20.81
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 21.38
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 42.68
+        }
+      ]
+    },
+    {
+      "fieldId": 53,
+      "plot": "320",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 31,
+          "name": "CARMEL",
+          "acreage": 3.01
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 59.98
+        },
+        {
+          "cropVarietyId": 22,
+          "name": "MONTEREY",
+          "acreage": 28.77
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 29.03
+        }
+      ]
+    },
+    {
+      "fieldId": 54,
+      "plot": "321",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 106.02
+        },
+        {
+          "cropVarietyId": 34,
+          "name": "FRITZ",
+          "acreage": 24.56
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 79.13
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 208.76
+        }
+      ]
+    },
+    {
+      "fieldId": 55,
+      "plot": "322",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 20.22
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 41.21
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 20.49
+        }
+      ]
+    },
+    {
+      "fieldId": 56,
+      "plot": "323",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 79.61
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 80
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 160.41
+        }
+      ]
+    },
+    {
+      "fieldId": 57,
+      "plot": "324",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 19.61
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 19.09
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 38.68
+        }
+      ]
+    },
+    {
+      "fieldId": 58,
+      "plot": "325",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 86.24
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 182.88
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 86.31
+        }
+      ]
+    },
+    {
+      "fieldId": 59,
+      "plot": "326",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 171.81
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 169.58
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 340.27
+        }
+      ]
+    },
+    {
+      "fieldId": 60,
+      "plot": "327",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 38.4
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 77.78
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 38.41
+        }
+      ]
+    },
+    {
+      "fieldId": 61,
+      "plot": "328",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 34
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 67.48
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 33.15
+        }
+      ]
+    },
+    {
+      "fieldId": 62,
+      "plot": "329",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 26,
+          "name": "BENNETT-HICKMAN/NONPAREIL",
+          "acreage": 60.54
+        }
+      ]
+    },
+    {
+      "fieldId": 63,
+      "plot": "330",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 66.07
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 32.67
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 32.86
+        }
+      ]
+    },
+    {
+      "fieldId": 64,
+      "plot": "331",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 73.66
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 73.64
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 148.51
+        }
+      ]
+    },
+    {
+      "fieldId": 65,
+      "plot": "332",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 33.7
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 66.69
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 33.92
+        }
+      ]
+    },
+    {
+      "fieldId": 66,
+      "plot": "333",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 35,
+          "name": "INDEPENDENCE",
+          "acreage": 122.24
+        }
+      ]
+    },
+    {
+      "fieldId": 68,
+      "plot": "334",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 15.5
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 15.19
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 31.48
+        }
+      ]
+    },
+    {
+      "fieldId": 69,
+      "plot": "335",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 29.56
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 59.28
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 30.64
+        }
+      ]
+    },
+    {
+      "fieldId": 70,
+      "plot": "335.5",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 9.14
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 18.6
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 9.14
+        }
+      ]
+    },
+    {
+      "fieldId": 71,
+      "plot": "336",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 31.61
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 31.56
+        },
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 62.72
+        }
+      ]
+    },
+    {
+      "fieldId": 72,
+      "plot": "337",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 35.03
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 17.94
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 18.02
+        }
+      ]
+    },
+    {
+      "fieldId": 73,
+      "plot": "337.5",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 174.26
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 87.43
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 88.01
+        }
+      ]
+    },
+    {
+      "fieldId": 74,
+      "plot": "338",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 46,
+          "name": "NONPAREIL",
+          "acreage": 182.65
+        },
+        {
+          "cropVarietyId": 43,
+          "name": "WINTERS",
+          "acreage": 91.84
+        },
+        {
+          "cropVarietyId": 42,
+          "name": "WOOD COLONY",
+          "acreage": 90.78
+        }
+      ]
+    },
+    {
+      "fieldId": 75,
+      "plot": "339",
+      "farmCode": "VBSF",
+      "varieties": [
+        {
+          "cropVarietyId": 26,
+          "name": "BENNETT-HICKMAN/NONPAREIL",
+          "acreage": 180.52
+        }
+      ]
+    }
+  ],
+  "nonVannPlots": [
+    "150",
+    "151",
+    "152",
+    "160",
+    "180",
+    "201",
+    "215",
+    "218",
+    "219",
+    "282",
+    "283",
+    "284",
+    "285",
+    "340",
+    "341",
+    "342",
+    "Almonds Splits & Meats",
+    "Shop"
+  ],
+  "nonVannPlotOwners": {
+    "150": "Vann-Peterson Farms Partnership (262): VSM-Z8B1Y-26, YSA-66PIJ-26 (dev samples; 2025: VSM-A9611-25, YSS-40D5B-25)",
+    "151": "Vann-Peterson Farms Partnership (262): VSM-Z8B1Y-26, YSA-66PIJ-26",
+    "152": "Vann-Peterson Farms Partnership (262): VSM-Z8B1Y-26, YSA-66PIJ-26",
+    "160": "Carando/Vann Ranch LLC (28): VSM-IWZ9K-26, YSA-3A3O1-26",
+    "180": "Cortina Brothers LLC (40): VSM-XT9T1-26, YSA-K9XE5-26",
+    "201": "Almendras del Sol (6): VSM-SO5KS-26, YSA-H9GSQ-26",
+    "215": "Almendras del Sol (6): VSM-SO5KS-26, YSA-H9GSQ-26",
+    "218": "East Camp Farming Company (61): VSM-85RMG-26, YSA-RRQG3-26",
+    "219": "East Camp Farming Company (61): VSM-85RMG-26, YSA-RRQG3-26",
+    "282": "Salt Creek Orchards Group LLC (202): VSM-VCJ7R-26, YSA-7NC34-26",
+    "283": "Salt Creek Orchards Group LLC (202): VSM-VCJ7R-26, YSA-7NC34-26",
+    "284": "Salt Creek Orchards Group LLC (202): VSM-VCJ7R-26, YSA-7NC34-26",
+    "285": "Salt Creek Orchards Group LLC (202): VSM-VCJ7R-26, YSA-7NC34-26",
+    "340": "Vann Family Two LLC (261): VSM-G1B6F-26, YSA-QOS05-26",
+    "341": "Vann Family Two LLC (261): VSM-G1B6F-26, YSA-QOS05-26",
+    "342": "Vann Family Two LLC (261): VSM-G1B6F-26, YSA-QOS05-26",
+    "Almonds Splits & Meats": "no contract",
+    "Shop": "several growers (Gli-Co, Nevada and Lynnette Smith, Dhillon Brothers)"
+  },
+  "closedContractOnlyPlots": ["280", "286", "287", "301"]
+}

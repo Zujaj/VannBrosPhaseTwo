@@ -1311,3 +1311,198 @@ No spec asserts it, since an intermittent check is noise.
   filter across a reload, so a second search in one test must clear it first (`ListPage.clearColumnSearch`).
 
 **Test:** `work-orders-planned-lifecycle.spec.ts` recalls through the API with the current status and reads it back.
+
+## 57. Variety Management R1: changing the Variety keeps a plot the new selection does not map
+
+**Verified:** 2026-10-16, live in Firefox, Vann Farm (VBSF) / Fertilization (1240), Colusa, Crop Year 2026.
+
+The PSD's R1 FR-2 says: "If the Variety selection changes, any previously selected Field that is not
+mapped to the updated Variety selection must be removed." QA keeps it.
+
+1. Create New Work Order (Planned), Farm `Vann Farm (VBSF)`, Task `Fertilization (1240)`.
+2. Variety `BUTTE/PADRE`. `+` (Add Plot) lists 8 plots (`cropVarietyIDs: [51]`); tick `151 (PRJ_000003)`, Save.
+   The Select Plot grid shows 151 with Variety `BUTTE/PADRE`.
+3. Remove the `BUTTE/PADRE` chip and pick `ALDRICH`, a variety no Vann Farm plot maps to (the picker
+   then answers `No blocks found`, `cropVarietyIDs: [23]`).
+4. **Actual:** 151 stays in the Select Plot grid with an empty Variety cell (checked again 15 s later).
+   **Expected:** 151 is removed.
+
+Nothing was submitted, so whether Submit would save `ALDRICH` with plot 151 is unknown. Screenshot of
+step 4: taken during the session (not committed).
+
+**Already filed:** ADO **#26452** (New, 2026-09-30) covers this defect and the save-side consequence. Its
+repro, run with the plots added before a variety was chosen, saved WO-1392 with **zero plots** behind a green
+`Success` toast. Do not file a duplicate; add the 2026-10-16 repro to #26452 if needed.
+
+**Test:** `variety-management.spec.ts` VM-08 asserts the PSD behaviour and carries `test.fail()`.
+
+## 58. Variety Management R1: GP acreage above the field area; pre-sync WOs; placeholder varieties
+
+**Verified:** 2026-10-16, QA, `POST /api/activity/blocks` (Vann Farm, Crop Year 2026) and the web UI.
+
+- **Applicable acreage is shown, in `Effective Area` (corrected 17:30).** R1 FR-2: when several selected
+  varieties map to one field, "the Variety Acreage will be summed and displayed as the total applicable
+  acreage".
+  - On the Create form, 130 with `NONPAREIL` + `WINTERS` puts **111.7** (74.5 + 37.2) in the Select Plot
+    grid's `Effective Area` input. `Plot Area` and `Operational Area` stay 148.90 ac.
+  - The value lives in an `<input>`, so reading the cell's text shows it blank. An earlier note here
+    said "never shown"; that came from that misread.
+  - The Select Plots panel shows only Plot Area / Operational Area (= `cropArea`).
+- **GP acreage exceeds the field on 6 plots:** 293, 285, 338, 332, Shop, 306. 306 is the extreme:
+  `BUTTE/PADRE` 168.69 ac on a 91.33 ac field, and its `cropArea` (so its Operational Area) is
+  168.69 too. The PSD's only acreage check is R2's; for GP-synced data, it says nothing (see #33).
+- **Detail per-plot Variety is empty on pre-sync WOs.** WO-125 (NONPAREIL, BUTTE/PADRE) shows the
+  `Variety` column under Plots but every cell is blank, including 130 and 328, which map to
+  NONPAREIL. Those WOs predate the 2026-10-12 sync, so a WO created with a variety after it is
+  needed before calling FR-6 a defect. VM-13 skips on this.
+- **Variety list offers placeholders.** WO-120 was saved with every option (Select All), including
+  `MISSING` (three times), `Variety inactive test`, `Test variety sync`. Ask product whether
+  inactive/placeholder varieties belong in the picker.
+
+## 59. Harvest Central (#26493): the backend plan format changed, the web did not, so web planning fails
+
+> **Resolved 2026-10-16, about 17:40.** The web build deployed at 16:55 PKT ships the multi-select panel.
+> - Field is an `ng-multiselect-dropdown` fed by `GetFieldsForHarvesting`.
+> - Variety shows `No data available` until a plot is chosen, then calls `GetVarietiesForHarvesting`
+>   `{"fieldIDs":[…],"cropYear":"2026"}`.
+> - The plan body is `{seasonID, hullingLocation, quantity, standardQuantity, fields: [{id, fieldName, code,
+>   varieties: [cropVarietyID]}]}`, one entry per plot with only that plot's varieties. The plot key is `id`, not `fieldID`.
+> - Open points: the heading is still `Plan Harvest Tickets`. `Create N Planned Tickets` shows the per-pair
+>   N, not the total. There is no project-per-plot control (release note item 3).
+>
+> The text below records the state before that deploy.
+
+**Verified:** 2026-10-16, QA, Firefox + API. No ticket was created: the web request was intercepted and aborted, and every API probe used invalid or unknown ids.
+
+- `POST /api/harvestcentral/tickets/plan` now expects a list of fields: `{ fields: [{ fieldID, … }], seasonID, quantity }`.
+  - `{}` gives 400 `Quantity must be at least 1.`
+  - `fields: []` gives 400 `At least one field is required.`
+  - An unknown `fieldID` gives 400 `Selected field was not found.`
+- The web panel (`Harvest Central` → `Plan Harvest Tickets`, Field `130`, Variety `MONTEREY`, quantity 1 → `Create 1 Planned Tickets`) still sends the **old** body: `{"fieldID":2,"cropVarietyID":22,"seasonID":13,"quantity":1}`.
+  - The backend answers that shape with 400 `At least one field is required.`, so **planning loads from the web cannot succeed on QA** until the web change ships. The release note calls this out as high risk.
+- The panel is otherwise unchanged from 2026-10-12:
+  - Heading `Plan Harvest Tickets`.
+  - **Field** is a single pick from all 110 plots, including 132, which has no varieties and no contract.
+  - **Variety** is a single pick from all 44 varieties.
+  - Neither picker calls `GetFieldsForHarvesting` / `GetVarietiesForHarvesting`.
+- Not checked: the detail page's `Plan Harvest Tickets` (Field and Variety locked). It posts to the same endpoint, so it is presumably affected the same way.
+
+## 60. Harvest contracts (#26493): contract plots are matched by name across ALL growers, not just Vann
+
+**Verified:** 2026-10-16, QA Sync Console logs (job 165, 9,654 entries), `GET /api/Metadata/GetFieldsForHarvesting`, `POST /api/Metadata/GetVarietiesForHarvesting`, and GP QA (read-only) for grower 260.
+
+- `GrowerPortalCreateContractJob` (service 165, Active) synced 4,825 `contract / plot / variety` lines from **602 contracts and 652 plot names**, i.e. every GP grower (e.g. `VSM-4NZT2-26` / plot `H61`). `FireBaseCreateContractsJob` (166) then pushed 4,826 records to the Vann mobile tenant.
+- **Contract codes.** The first letter is the handler or huller: `V…` = **VFO** (GP `contractCategory` 1) and `Y…` = **YHS** (category 2). The dev's legend is VSM = VFO and YSS = YHS. The year suffix is the crop year, and `-N` is an addendum.
+- **Vann Brothers (GP grower 260)** has 4 sub-contracts:
+  - 2026, Active: `VSM-0EY10-26` (VFO, master `VMM-C9DD2-25`, addenda `-1`, `-2`) and `YSA-A4VMW-26` (YHS, addendum `-2`).
+  - 2025, Closed: `VSM-07673-25` and `YSS-168E7-25`.
+  - The active contracts cover **51 plots**, all harvestable. ✅
+- **Only active contracts count.** ✅ GP Vann fields `280, 286, 287, 301` appear only on the closed 2025 contracts and are **not** offered.
+- `GetFieldsForHarvesting` returns **69** fields. The 18 extra are `150, 151, 152, 160, 180, 201, 215, 218, 219, 282, 283, 284, 285, 340, 341, 342, Almonds Splits & Meats, Shop`.
+  - Each is named only on **other GP growers'** active 2026 contracts. Owners from GP (read-only `SubContract?Search=<code>`):
+
+    | Plots | Active 2026 contracts | GP grower |
+    |---|---|---|
+    | 150, 151, 152 | `VSM-Z8B1Y-26`, `YSA-66PIJ-26` | Vann-Peterson Farms Partnership (262) |
+    | 340, 341, 342 | `VSM-G1B6F-26`, `YSA-QOS05-26` | Vann Family Two LLC (261) |
+    | 160 | `VSM-IWZ9K-26`, `YSA-3A3O1-26` | Carando/Vann Ranch LLC (28) |
+    | 180 | `VSM-XT9T1-26`, `YSA-K9XE5-26` | Cortina Brothers LLC (40) |
+    | 201, 215 | `VSM-SO5KS-26`, `YSA-H9GSQ-26` | Almendras del Sol (6) |
+    | 218, 219 | `VSM-85RMG-26`, `YSA-RRQG3-26` | East Camp Farming Company (61) |
+    | 282, 283, 284, 285 | `VSM-VCJ7R-26`, `YSA-7NC34-26` | Salt Creek Orchards Group LLC (202) |
+    | Shop | `VSM-FP7OC-26`, `VSM-JKT4V-26`, `VSM-XCFD1-26`, `VSA-9HAAQ-26`, `YSA-…` | Gli-Co, Nevada and Lynnette Smith, Dhillon Brothers, … |
+    | Almonds Splits & Meats | **none** | — |
+
+  - The dev shared `VSM-A9611-25`, `YSS-40D5B-25`, `VSM-Z8B1Y-26` and `YSA-66PIJ-26` as sample codes (2026-10-16). All four are **Vann-Peterson (262)**: the 2025 pair is Closed and the 2026 pair is Active. They cover plots 150, 151 and 152 only.
+  - The ticket says "Only Fields that have an active contract in GP **under Vann Grower**". Vann-Peterson (262), Vann Family Two (261) and Carando/Vann Ranch (28) may count as Vann growers. The other six growers do not look related to Vann.
+  - `Almonds Splits & Meats` is on no contract at all and is offered with **no** varieties.
+- Variety filtering on the 51 contracted plots behaves as described. It returns growing ∩ contracted, e.g. 306 is contracted for BUTTE, PADRE and BUTTE/PADRE, grows BUTTE/PADRE, and offers BUTTE/PADRE.
+- Questions for the dev:
+  - Which GP growers count as "Vann Grower": only 260, or also 261, 262 and 28?
+  - Should the contract sync (and the Firebase push) be limited to those growers?
+  - Is a contract plot matched to an AgriERP plot by name only?
+  - Why is `Almonds Splits & Meats` offered with no contract?
+
+## 61. #26493 rollout: empty Swagger, a job error, stale fetch markers, inactive GP field jobs
+
+**Verified:** 2026-10-16, QA.
+
+- `https://agrierp-vann-api-qa.folio3.site/swagger/v1/swagger.json` returns **200 with an empty body**, so `vannbrosphasetwo-vann-api-qa/scripts/refresh.sh` fails (`Unexpected end of JSON input`). The two new endpoints and the new plan model cannot be read from the contract. This usually means Swagger generation throws on a new model.
+  - **Not an auth problem.** The result is the same anonymously, with the admin's fresh session token (which gets 200 from `api/WorkOrder` at the same moment), with `Accept: application/json`, with compression, and with a browser user agent. `/swagger/index.html` is empty too.
+  - `playwright/.auth/qa_refresh_token.txt` held an **expired** JWT at 16:50. `api/client.mts` falls back to `.auth/admin.json` when that happens, so the API probes above used a valid token.
+  - The auth gateway's `/swagger/v1/swagger.json` serves 169 KB, but it is the gateway's own OpenAPI 3.0.1 spec (58 paths, no overlap with the 479-path AgriERP API), so it is no substitute.
+- Job 165's latest run (16:22) logged `Error while executing Job — Index was outside the bounds of the array (System.IndexOutOfRangeException)`.
+- Sync Console → Service Status shows 165 and 166 **Active**, but both fetch markers are still `DateTime:10/12/2026 05:18`, although the jobs logged work on 10-16.
+- The older GP feeds `Grower Portal Fields (In)` (153, last 10/09) and `Grower Portal Crop Varieties (In)` (154, last 09/16) are **Inactive**. The release note says the new lists read the same variety data, so GP field/variety changes may stop reaching AgriERP.
+
+## 62. Harvest planning (#26493): `tickets/plan` accepts pairs that are not contracted and not growing
+
+**Verified:** 2026-10-16, QA API, admin (`Crop Planner`). Counts were read from `GET /api/HarvestCentral` before and after each call.
+
+The UI only offers valid pairs (HMF-21/22). The backend does not enforce them. The ticket's rules ("must not
+generate invalid Field and Variety combinations"; "only Fields with valid GP contracts") are UI-deep.
+
+| Request `fields` | Plot / variety | Result |
+|---|---|---|
+| `[{id: 2, varieties: [23]}]` | 130 / ALDRICH: not grown on 130, not on Vann's contract | **200**, ticket `HT-130-L0GYD-26` (id 53) added to the old `130/ALDRICH` row |
+| `[{id: 124, varieties: [22]}]` | 132 / MONTEREY: no contract, no varieties, absent from `GetFieldsForHarvesting` | **200**, **new row** `132/MONTEREY` + ticket `HT-132-HJRPK-26` (id 54) |
+
+What the backend does refuse:
+- An unknown plot (`Selected field was not found.`) or an unknown variety (`Selected crop variety was not found.`).
+- A repeated variety or repeated plot entry (`Field '130' lists the same variety more than once.`).
+- An empty list, or quantity 0.
+- All-or-nothing holds: a valid pair together with an unknown variety leaves every count unchanged.
+
+**Cleanup:** tickets 53 and 54 were deleted (`DELETE /api/HarvestCentral/tickets/{id}`). The **`132/MONTEREY` row
+stays with 0 tickets**: the API offers no delete for a Harvest Central row.
+
+**Related legacy data:** `130/ALDRICH`, `150/ALDRICH` and `180/BOOTH` were planned before #26493 and are equally invalid pairs.
+
+**Test:** `harvest-multi-field.md` HMF-15 / HMF-18 (manual; automating them would create tickets while the bug stands).
+
+## 63. Harvest Central tickets (#26493): attachments added on web are never saved to the ticket
+
+**Verified:** 2026-10-17, QA, Firefox, admin (`Crop Planner`), row `306/BUTTE/PADRE` (`/harvest-central/7`), test tickets since deleted.
+
+- **Create** (`Add New Ticket` → `Create Harvest Ticket`): the PNG and PDF show in the drawer under `Attachments`. On `Save Harvest Ticket` the web sends `POST /api/harvestcentral/tickets` **without an `attachments` key** and uploads nothing. The ticket (`HT-306-EM5MG-26`) saved with `attachments: []`.
+- **Edit** (`Edit Harvest Ticket`): the web sends `PUT /tickets/{id}` first (again no `attachments`), **then** uploads the files to Firebase storage (`Harvest_Central/<guid>.png|.pdf`, 200). Nothing links them to the ticket afterwards, so the files are orphaned in the bucket and the ticket keeps `attachments: []`.
+- With a TXT file and a 0-byte PNG, the edit save shows the toast **`Attachment Upload Failed`**, although both Firebase uploads returned 200 and the ticket had already been saved.
+- `View Attachments` for such a ticket opens an empty panel, with no "no attachments" message.
+- **Mobile works.** `HT-130-EY6SB-26`, captured on iOS, carries 2 JPGs (`harvest_central/…jpeg` with thumbnails), and `View Attachments` lists them with `Download`.
+- Note the different prefixes: mobile uploads to `harvest_central/`, web to `Harvest_Central/`.
+
+**Expected:** files added on web are uploaded first and then saved on the ticket, as on mobile (PSD: "ticket data and attachments go to AgriWMS").
+
+## 64. Harvest Central tickets: Manual Ticket # longer than 64 characters gives HTTP 500 and a raw DB error
+
+**Verified:** 2026-10-17, QA, web drawer and `PUT /api/HarvestCentral/tickets/{id}`.
+
+- The `Manual Ticket #` input has no `maxlength`; 300 characters can be typed and Save stays enabled.
+- The server accepts up to **64** characters (found by binary search). From 65 it returns **500** `An error occurred while saving the entity changes. See the inner exception for details.String or binary data would be truncated.`
+- The web shows that text in an `Error` toast.
+
+**Expected:** a `maxlength` of 64 on the input and a 400 validation message from the server.
+
+## 65. Harvest Central tickets: the same trailer plate is accepted as both Front and Rear
+
+**Verified:** 2026-10-17, QA, web drawer and API.
+
+- With `TRL-100` picked for both `Front Trailer Plate *` and `Rear Trailer Plate *`, `Save Harvest Ticket` is enabled. The ticket saved with `frontTrailerPlateID` = `rearTrailerPlateID` = 3 (`HT-306-3WSMT-26`).
+- One physical trailer cannot be the front and the rear trailer of the same load.
+
+**Expected:** the Rear picker excludes the Front plate (or the reverse), and the server refuses equal ids.
+
+## 66. Harvest Central tickets API: `attachments` accepts any external URL
+
+**Verified:** 2026-10-17, QA, `PUT /api/HarvestCentral/tickets/{id}`.
+
+- `attachments: [{ id: 0, attachmentURL: "https://example.com/x.png", extension: "png", name: "x.png" }]` returned 200 and stored the attachment. The URL is not restricted to the app's Firebase bucket.
+- Omitting `attachments` keeps the existing ones; sending `[]` clears them.
+- Other ticket validations hold:
+  - 400 `Selected driver was not found.` / `Selected trailer plate was not found.`
+  - 400 `Select Front Only or Back Only for a Split Load.` / `Split Load option must be Front Only (1) or Back Only (2).`
+  - 400 `Standard quantity must be greater than zero.`
+  - 400 `Harvest ticket … has not been captured on site yet; an actual quantity cannot be recorded.`
+  - Changing `fieldID`, `cropVarietyID` or `harvestCentralID` in the PUT does not move the ticket.
+
+**Risk:** any API client can attach links to arbitrary hosts, and those links then sync onwards. Restrict attachment URLs to the storage bucket.
