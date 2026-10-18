@@ -39,6 +39,12 @@ Use this table per test case unless the user wants another format:
 
 For a quick checklist or smoke suite, a compact list of `Step → Expected` lines is fine.
 
+## Filing an ADO bug
+
+Use `.github/ISSUE_TEMPLATE/ado_bug_report.md` to draft the fields before filing in Azure
+DevOps (environment, build, severity/priority, repro steps table, expected/actual,
+screenshot table).
+
 ## Output location
 
 Write test plans as human-readable markdown under **`playwright/test-plans/`**, mirroring the Playwright spec tree so each plan traces 1:1 to its automated spec. Keep the runner dir (`playwright/tests/`) pure `.spec.ts` — never put plans there.
