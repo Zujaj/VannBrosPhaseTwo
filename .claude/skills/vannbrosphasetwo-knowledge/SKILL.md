@@ -16,7 +16,8 @@ description: >-
   say "VannBrosPhaseTwo" but is clearly asking about these screens, flows, exact UI
   labels, navigation paths, entity statuses, or role permissions. The other
   vannbrosphasetwo-* skills (vannbrosphasetwo-docs, vannbrosphasetwo-playwright, vannbrosphasetwo-test-cases) all
-  build on the facts captured here.
+  build on the facts captured here. YHS processor apps (AgriWMS receiving, AgriQuality,
+  AgriProduction) live in the separate vannbrosphasetwo-yhs skill.
 ---
 
 # VannBrosPhaseTwo Knowledge Base
@@ -55,6 +56,7 @@ This SKILL.md is the index. Read the matching reference file in `references/` fo
 | **Hour Log Adjustment** — operator raises hour change requests on mobile; manager Approves / Adjusts / Rejects in the **Hour Log Change Requests** drawer (Resources table → `to review` chip); overlap **Create Adjustment** prompt; validations; API | `references/hour-log-adjustment.md` |
 | **D365 F&O back-office setup** (AgriERP Parameters, item groups, resources, lot vs non-lot items, FIFO, projects / Crop Year / WBS ad-hoc tasks) and the **end-to-end WO lifecycle across Farm App → Inventory App dispatch → D365 postings & returns** (from training recordings; lower authority) | `references/d365-setup-and-integration.md` |
 | **Dynamics 365 Business Central (BC, Phase 1 predecessor)** — Grower → Growing Site/Area/Plot hierarchy, Master Tasks, Planning Lines, Task Templates, crop-planning projects/budget; BC → Phase 2 concept map; BC test guidance (no BC env in this repo; unverified, lowest authority) | `references/business-central.md` |
+| **YHS** (Yolo Hulling and Shelling) — AgriWMS Receiving (field tickets, scale, stockpiles, weight certificate), AgriQuality, AgriProduction, the YHS FRD, and how YHS Receiving syncs with Harvest Central tickets | **`vannbrosphasetwo-yhs` skill** (start with its `references/harvest-central-integration.md`) |
 
 ## Roles (the conceptual model)
 
@@ -100,6 +102,7 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Any WO ty
 | QA | `https://agrierp-vann-qa.folio3.site` | `agrierp-authgateway-qa-api.folio3.site`, `agrierp-vann-api-qa.folio3.site` | Automated specs and QA verification (`Ready for QA`). |
 | UAT | `https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` | `agrierp-auth-gateway-uat-app-service-d7bfhgewhag2gfdq.eastus2-01.azurewebsites.net` | Manual check of bugs in **Deployed on UAT**; the smoke suite via `TARGET_ENV=uat` (`pnpm test:smoke:uat`). |
 | Production | `https://vann-farms.agrierp.com` | `authgateway.agrierp.com` | Read-only (sync-console error report). |
+| YHS AgriWMS QA | `https://vann-wms-qa.agrierp.com` | same QA auth gateway (`/api/v1/…`) | YHS receiving; 6-digit PIN login. See `vannbrosphasetwo-yhs`. |
 
 UAT notes, confirmed live 2026-10-08:
 - UAT is an Azure App Service host. It doesn't follow the `folio3.site` pattern, so names like `agrierp-vann-uat.folio3.site` don't resolve.

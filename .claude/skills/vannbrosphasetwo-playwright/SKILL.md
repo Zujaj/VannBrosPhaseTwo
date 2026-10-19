@@ -52,6 +52,9 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
   header Season selector; UAT's account defaults to the near-empty Crop Year 2027 (0 material templates).
 - `pnpm auth:qa` — (re)generate sessions. `AUTH_ROLES=supervisor,farmhand pnpm auth:qa`
   bootstraps extra actors (one interactive SSO prompt each); default is `admin`.
+- `pnpm auth:wms` — YHS AgriWMS QA session (`.auth/wms-superadmin.json`, project `wms-setup`,
+  `tests/wms/wms.setup.ts`). Clicks the stored PIN into the keypad. With no PIN, or a PIN that doesn't
+  work, a human finishes in the headed window within 5 min. Details: `vannbrosphasetwo-yhs` skill.
 - `pnpm seed:planned` / `seed:harvest` / `seed:tickets` — create real test data on QA:
   `pnpm seed:planned --count 5 --plots 10 --materials 2 --resources 3 --assets 2`,
   `pnpm seed:tickets --tickets 25 --pair "130:LIVINGSTON"` (harvest WOs have no materials).

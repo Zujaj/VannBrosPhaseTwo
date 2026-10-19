@@ -225,6 +225,11 @@ Ticket creation is permission-based. Without the permission, the `Create New Har
 - **AgriWMS sync:**
   - On submit, ticket data and attachments go to AgriWMS. Edits and deletes are sent too.
   - AgriWMS returns the status (`Received`, `Completed`), its attachments (weight certificate) and the actual weight/quantity.
+  - **YHS side:** see the `vannbrosphasetwo-yhs` skill, `references/harvest-central-integration.md`. It covers the
+    `WMSIntegration` contract, the Farm App ↔ WMS field mapping, cross-system statuses and E2E steps.
+    Live 2026-10-19: tickets carry `hullingLocation: "YHS"`, `wmsSyncStatus`, `actualQuantity` / `actualQuantityReceivedAt`
+    (null until YHS weighs the load), `isPosted`, `postingStatus` and `journalId`. The WMS QA
+    **Create Field Ticket** form mirrors this ticket's fields.
 - **Grower Portal (GP):** supplies varieties. Grower and Field data are synchronized from it.
 - **Ticket number:** auto-generated and unique, built from **Field unique number + random number + Crop Year**. The random part is unique per Field + Crop Year.
   - Example **`HT-321-HB12-26`**.

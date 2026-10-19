@@ -52,6 +52,17 @@ export default defineConfig({
         headless: process.env.AUTH_HEADLESS === '1',
       },
     },
+    // YHS AgriWMS session (`pnpm auth:wms`, .auth/wms-superadmin.json). PIN login, not SSO;
+    // headed by default for the same reason as `setup`: a human finishes it when the scripted
+    // PIN entry can't. No WMS specs depend on it yet.
+    {
+      name: 'wms-setup',
+      testMatch: /wms\/wms\.setup\.ts/,
+      use: {
+        ...devices['Desktop Firefox'],
+        headless: process.env.AUTH_HEADLESS === '1',
+      },
+    },
     // The regression workbook's `Test Data & Env` sheet scopes the web suite to a
     // "Chromium based Browser", and its Compatibility cases (CC-001..) name Chrome/Edge —
     // so Chromium is the primary engine. Firefox is kept as the second engine rather than

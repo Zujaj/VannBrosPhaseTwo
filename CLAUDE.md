@@ -34,8 +34,12 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   the manuals and the live app, and are distilled in the knowledge skill's
   `references/d365-setup-and-integration.md` (D365 F&O) and `references/business-central.md`
   (Phase 1 Business Central; no BC environment exists in this repo).
+- **`resources/yhs/`** — YHS (Yolo Hulling and Shelling) processor specs: AgriWMS, AgriQuality,
+  AgriProduction PDFs and the Phase 3 YHS FRD. The `AgriWMS … .md` there is actually the AgriProduction
+  spec; read AgriWMS from its PDF. Distilled in the `vannbrosphasetwo-yhs` skill.
 - **`.claude/skills/`** — `vannbrosphasetwo-knowledge` (product facts; consult before authoring
-  tests or docs), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
+  tests or docs), `-yhs` (YHS AgriWMS receiving / quality / production and its Harvest Central link;
+  WMS QA `https://vann-wms-qa.agrierp.com`), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
   `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`
   (read-only Excel report of prod Sync Console errors, `pnpm prod:sync-errors`).
 - **`.claude/agents/`** — Playwright planner / generator / healer subagents, driven by the
@@ -46,7 +50,8 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
 
 - `playwright/`: `pnpm test:fast` (daily loop, Firefox, no retries) · `pnpm test:clean`
   (before a UAT cycle, skips `@mutating`) · `pnpm auth:qa` (refresh sessions) ·
-  `pnpm test:smoke:uat` (smoke suite on UAT, after `pnpm auth:uat`) ·
+  `pnpm test:smoke:uat` (smoke suite on UAT, after `pnpm auth:uat`) · `pnpm auth:wms` (YHS AgriWMS
+  QA session; scripted PIN, human fallback) ·
   `pnpm typecheck`. Full list in the `vannbrosphasetwo-playwright` skill.
 - `documentation/`: `pnpm start` · `pnpm build` · `pnpm serve:build` · `pnpm pdf`.
 

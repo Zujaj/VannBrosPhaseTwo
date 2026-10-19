@@ -1471,6 +1471,8 @@ stays with 0 tickets**: the API offers no delete for a Harvest Central row.
 - **Mobile works.** `HT-130-EY6SB-26`, captured on iOS, carries 2 JPGs (`harvest_central/…jpeg` with thumbnails), and `View Attachments` lists them with `Download`.
 - Note the different prefixes: mobile uploads to `harvest_central/`, web to `Harvest_Central/`.
 
+**Re-verified 2026-10-19** (`HT-306-DOTSB-26`, id 561, deleted afterwards): still failing on create and edit. Changes since 10-17: create now uploads the files to Firebase *after* the POST (still unlinked), and `View Attachments` now shows `No Attachments Available`. A PNG + PDF edit showed no toast at all. Overlaps ADO #26023 (edit case only). ADO draft prepared, not filed. **Same day, the user's web tickets 562/563 did save their attachments (same build), so this may depend on the browser or on timing; see #67.**
+
 **Expected:** files added on web are uploaded first and then saved on the ticket, as on mobile (PSD: "ticket data and attachments go to AgriWMS").
 
 ## 64. Harvest Central tickets: Manual Ticket # longer than 64 characters gives HTTP 500 and a raw DB error (ADO #26704)
@@ -1506,3 +1508,33 @@ stays with 0 tickets**: the API offers no delete for a Harvest Central row.
   - Changing `fieldID`, `cropVarietyID` or `harvestCentralID` in the PUT does not move the ticket.
 
 **Risk:** any API client can attach links to arbitrary hosts, and those links then sync onwards. Restrict attachment URLs to the storage bucket.
+
+## 67. Harvest Central tickets (#26493): attachments added on web do not show on iOS
+
+**Verified:** 2026-10-19, QA. User-created web tickets on `/harvest-central/7`: `HT-306-II2BB-26` (id 562, Firestore `C5WO0QWKR8J5K4WsB5WP`) and `HT-306-7BZ5Q-26` (id 563, `5NkinCkI0OkK1htEuGaS`), each with `scale-ticket` (pdf) and `ticket-photo` (png). The web shows them under `View Attachments`; iOS 1.3.14 (27) does not. Control: iOS ticket `HT-130-EY6SB-26` (id 51, `VzremzNBeWmnn1YgmO0K`).
+
+**The sync itself succeeds.** Sync Console, Firebase Sync:
+- `HARVEST CENTRAL TICKET (OUT)` (job 157): `Harvest Central ticket 'HT-306-…' record has been successfully synced.` The payload has `Attachments: null`.
+- `ATTACHMENTSJOB` (job 74): one Success message per web save, payload `Entity 119 / EntityType 87 / EntityID <ticket id>`, with `UUID`, `ParentFirebaseDocID` and `DocumentPath` all `null`. The iOS attachments have `UUID` and `ParentFirebaseDocID` = the ticket doc id and `DocumentPath harvest_central_ticket/<doc>/attachment`.
+- The docs do land in Firestore `harvest_central_ticket/<ticketDoc>/attachment` (562: 5 docs, 563: 2 docs).
+
+**The web-written attachment docs differ from the iOS ones** (Firestore, read-only check):
+
+| Field | iOS doc | Web doc |
+|---|---|---|
+| doc id | file GUID (= `docID`) | random Firestore id |
+| `parent_doc_id` | ticket doc id | **missing** |
+| `docID` | set | **missing** |
+| `created_at` | set | **missing** |
+| `pick_number`, `location_number` | `0` | `null` |
+| `notes` | `""` | `null` |
+| `device_type` | `1` | `3` |
+| `thumbnail_url` / `thumbnail_path` | `harvest_central/thumbnails/<id>_thumb.jpg` | the original file (PDF too) |
+| extra fields | — | `work_order_id`, `work_order_line_id`, `template_input_field_id`, `stability` |
+| storage prefix | `harvest_central/` | `Harvest_Central/` |
+
+Likely causes (to confirm with the iOS dev): a query on `parent_doc_id` or an `orderBy("created_at")` drops the web docs, since Firestore excludes documents missing the field; or decoding fails on `null` where iOS expects an int or string.
+
+**Removed attachments are never removed in Firestore.** Ticket 562 was edited twice, and `ATTACHMENTSJOB` sent `ActionType 2 / IsDeleted true` for 3 replaced files. Firestore still has all 5 docs with `state: 1`, while the API and web show 2. Once iOS shows web attachments, it will show the stale ones too.
+
+**Web saving is inconsistent (same build, no deploy since 2026-10-16 16:55 UTC).** The user's tickets were saved with attachments: the attachment rows were stamped 08:30:41, before the ticket was created at 08:31:02. My Firefox runs on 10-17 and 10-19 07:48 (ticket 561) sent the POST/PUT first and uploaded after, so nothing was linked (#63). It may depend on the browser or on timing; this needs a repeat in Chrome/Edge vs Firefox.

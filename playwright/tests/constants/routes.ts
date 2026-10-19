@@ -4,6 +4,28 @@ export const QA_HOST = 'agrierp-vann-qa.folio3.site';
 export const QA_API_BASE_URL = 'https://agrierp-vann-api-qa.folio3.site';
 
 /**
+ * YHS AgriWMS web app (vannbrosphasetwo-yhs skill). QA only, whatever TARGET_ENV says: there is
+ * no UAT WMS in this repo. It signs in through the QA auth gateway, like the Farm App.
+ */
+export const WMS_QA_BASE_URL = 'https://vann-wms-qa.agrierp.com';
+export const WMS_QA_HOST = new URL(WMS_QA_BASE_URL).host;
+
+/** AgriWMS left-nav routes, verified live 2026-10-19. */
+export const wmsRoutes = {
+  login: '/login',
+  receiving: '/receiving',
+  inventory: '/inventory',
+  shipments: '/shipments',
+  locations: '/locations',
+  truckCheckIn: '/truck-check-in',
+  emptyBins: '/empty-bins',
+  bulkLoadWeighing: '/bulk-load-weighing',
+  handlerBinIds: '/handler-bin-ids',
+} as const;
+
+export const wmsUrl = (route: string): string => `${WMS_QA_BASE_URL}${route}`;
+
+/**
  * Which environment the run targets. QA unless `TARGET_ENV=uat` is set explicitly — UAT is
  * opt-in for smoke runs (`pnpm test:smoke:uat`); every other script stays on QA. Production is
  * deliberately not a target.
