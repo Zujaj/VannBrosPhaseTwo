@@ -1473,7 +1473,7 @@ stays with 0 tickets**: the API offers no delete for a Harvest Central row.
 
 **Expected:** files added on web are uploaded first and then saved on the ticket, as on mobile (PSD: "ticket data and attachments go to AgriWMS").
 
-## 64. Harvest Central tickets: Manual Ticket # longer than 64 characters gives HTTP 500 and a raw DB error
+## 64. Harvest Central tickets: Manual Ticket # longer than 64 characters gives HTTP 500 and a raw DB error (ADO #26704)
 
 **Verified:** 2026-10-17, QA, web drawer and `PUT /api/HarvestCentral/tickets/{id}`.
 
