@@ -103,6 +103,7 @@ Flow: `Draft → Queue → To Do → In Progress → Review → Done`. Any WO ty
 | UAT | `https://agrierp-vannbros-web-uat-effee3bwh0amc8ee.westus2-01.azurewebsites.net` | `agrierp-auth-gateway-uat-app-service-d7bfhgewhag2gfdq.eastus2-01.azurewebsites.net` | Manual check of bugs in **Deployed on UAT**; the smoke suite via `TARGET_ENV=uat` (`pnpm test:smoke:uat`). |
 | Production | `https://vann-farms.agrierp.com` | `authgateway.agrierp.com` | Read-only (sync-console error report). |
 | YHS AgriWMS QA | `https://vann-wms-qa.agrierp.com` | same QA auth gateway (`/api/v1/…`) | YHS receiving; 6-digit PIN login. See `vannbrosphasetwo-yhs`. |
+| Burq.io QA (sync) | `https://vannbros-qa.burqio.site` | `/api/v1/DataPacket/…` (same origin) | iPaaS moving Farm App ↔ WMS ↔ D365 data; read-only. Email + password + emailed 2FA. See `vannbros-burq`. |
 
 UAT notes, confirmed live 2026-10-08:
 - UAT is an Azure App Service host. It doesn't follow the `folio3.site` pattern, so names like `agrierp-vann-uat.folio3.site` don't resolve.

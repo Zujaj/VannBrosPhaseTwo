@@ -1538,3 +1538,25 @@ Likely causes (to confirm with the iOS dev): a query on `parent_doc_id` or an `o
 **Removed attachments are never removed in Firestore.** Ticket 562 was edited twice, and `ATTACHMENTSJOB` sent `ActionType 2 / IsDeleted true` for 3 replaced files. Firestore still has all 5 docs with `state: 1`, while the API and web show 2. Once iOS shows web attachments, it will show the stale ones too.
 
 **Web saving is inconsistent (same build, no deploy since 2026-10-16 16:55 UTC).** The user's tickets were saved with attachments: the attachment rows were stamped 08:30:41, before the ticket was created at 08:31:02. My Firefox runs on 10-17 and 10-19 07:48 (ticket 561) sent the POST/PUT first and uploaded after, so nothing was linked (#63). It may depend on the browser or on timing; this needs a repeat in Chrome/Edge vs Firefox.
+
+## 68. Harvest Central → YHS WMS sync: wrong Carrier, Driver, Truck and Trailers on WMS tickets (ADO #26706)
+
+**Verified:** 2026-10-19, QA. Sources: Farm App `harvestcentral/ticket/19`, WMS `GET /api/v1/field-tickets/{id}`, and Burq packets on `YHS_AGRIERP` / `YHS_HarvestTickets_AGRIERP`. Ticket match: `HT-290-JJZIQ-26` (977) → WMS 6073 (packet 4711); `HT-290-40N8N-26` (696) → WMS 6077 (packet 4717).
+
+- The Burq GET payload, which is the Farm App's own `WMSIntegration` feed, already holds the wrong refs: 977 sends fleet 104 / driver 8 / truck 12 / trailers 17, 16, and 696 sends 44 / 87 / 175 / 3280. WMS stores them as given (Prado Trucking, Barajas, 9F68512 … instead of Valley Farm Transport, Chavez, 9F33028 …).
+- The offset is constant per entity: driver +2, truck +5, fleet +21, trailer +10. The correct WMS records exist under other ids (Valley Farm Transport 82, Emerald Farms 22, 9F33028 → 6, 9D46925 → 169, trailer 1099 → 3154). Chavez, Garcia, TRL-103 and TRL-104 are not in WMS at all.
+- The WMS rows are from the 2026-06-30 seed (`SEED_DRV_20260630`, `SEED_20260630`). Burq's Drivers/Fleet flows have moved only 33 drivers and 2 fleets, so the bad cross-refs are seed or migration data.
+
+## 69. Harvest Central: a YHS ticket without Fleet silently fails the WMS sync (ADO #26707)
+
+**Verified:** 2026-10-19. `HT-290-SC57Y-26` (711, no fleet) → Burq packet 4714 Error `'Fleet External Ref Id' must not be empty.` Nothing was posted. The Farm App keeps `wmsSyncStatus 1` and shows no warning. Same error on 576 (packet 4710).
+
+## 70. Harvest Central → YHS WMS sync: Manual Ticket # is not carried to WMS (ADO #26708)
+
+**Verified:** 2026-10-19. The GET payloads in packets 4711 and 4717 carry `manualTicketNumber` `RT1` / `Man01`, but WMS 6073 and 6077 have `ticketNumber: null`. Burq doesn't log the POST body, so whether Burq or WMS drops it is unknown. The WMS ticket also has no `HT-…` reference.
+
+## 71. Manual Ticket # limit: 64 in the Farm App vs 50 in WMS (ADO #26709, related #26704)
+
+**Verified:** 2026-10-19. Packet 4710 (576, `HT-150-5CEAA-26`, 61 characters) failed with `The length of 'Manual Ticket Number' must be 50 characters or fewer. You entered 61 characters.` Even once #26704 enforces 64, values of 51–64 characters will save and then fail to sync.
+
+**Not filed:** packets 4692–4695 (ticket 562) failed with `WMS ticket reference '6068' is already linked to harvest ticket 'HT-130-VTXV0-26'.` This needs a look at how 562 got ref 6068 before filing. Attachments are also not part of any `YHS_AGRIERP` dataflow; WMS tickets show 0 attachments.

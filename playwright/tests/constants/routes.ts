@@ -26,6 +26,23 @@ export const wmsRoutes = {
 export const wmsUrl = (route: string): string => `${WMS_QA_BASE_URL}${route}`;
 
 /**
+ * Burq.io integration platform (vannbros-burq skill): the iPaaS that syncs Farm App data with
+ * YHS AgriWMS and D365. QA only and read-only; its UI is a Blazor WebAssembly app.
+ */
+export const BURQ_QA_BASE_URL = 'https://vannbros-qa.burqio.site';
+export const BURQ_QA_HOST = new URL(BURQ_QA_BASE_URL).host;
+
+/** Burq routes, verified live 2026-10-19. Login is `/`, then the emailed code at `/loginwith2fa`. */
+export const burqRoutes = {
+  login: '/',
+  twoFactor: '/loginwith2fa',
+  workspace: '/workspace',
+  transactions: '/transactions',
+} as const;
+
+export const burqUrl = (route: string): string => `${BURQ_QA_BASE_URL}${route}`;
+
+/**
  * Which environment the run targets. QA unless `TARGET_ENV=uat` is set explicitly — UAT is
  * opt-in for smoke runs (`pnpm test:smoke:uat`); every other script stays on QA. Production is
  * deliberately not a target.

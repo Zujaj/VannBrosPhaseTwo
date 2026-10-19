@@ -22,6 +22,8 @@ Field notes:
 - **`heading`** is the section label the account sat under in the source `creds.txt`. It is informational only; `pnpm creds:import` uses it to place `QA Admin user` / `Farm Hand` accounts. It must never hold a password. Before the 2026-10-12 importer fix, a password line leaked into the following accounts' `heading`.
 - **Grower's Portal role names** contain spaces, so keep them quoted exactly as above.
 
+| `burq_credentials.json` | [`burq_credentials.example.json`](./burq_credentials.example.json) | `{ <env>: { url, email, password } }`; env is `QA` | `tests/helpers/burqAuth.ts` → `pnpm auth:burq` (fills email/password; a human types the emailed 2FA code). See the `vannbros-burq` skill | `BURQ_EMAIL` / `BURQ_PASSWORD` |
+
 ## Token files (plain text, no template)
 
 One line holding just the bearer token (a JWT); a `Bearer ` prefix is fine. Where noted, a JSON object is also accepted.
@@ -44,3 +46,4 @@ Playwright `storageState` files (`{ cookies, origins }`), written by `pnpm auth:
 | `uat-admin.json` | `pnpm auth:uat` |
 | `gp_superadmin.json` | `playwright-cli state-save` after a manual Grower's Portal login |
 | `wms-superadmin.json` | `pnpm auth:wms` (`tests/wms/wms.setup.ts`): YHS AgriWMS QA, session in localStorage |
+| `burq-qa.json` (+ `burq-qa.session-storage.json`) | `pnpm auth:burq` (`tests/burq/burq.setup.ts`): Burq.io QA, `authToken` / `refreshToken` in localStorage |

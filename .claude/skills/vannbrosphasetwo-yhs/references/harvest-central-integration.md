@@ -39,8 +39,14 @@ weight comes back. The Farm App side is in the knowledge skill's `references/har
 | WMS → Farm App | `POST …/harvest-tickets/{ticketId}/attachment`, `DELETE …/attachment/{attachmentId}` | `WMSAttachmentPushAPIModel` | Weight certificate and other YHS documents |
 | WMS → Farm App (master data) | `POST /api/WMSIntegration/fleets`, `/drivers`, `/trucks`, `/trailer-plates` | `{ refId, name/code…, isActive }` | WMS owns Carriers / Drivers / Trucks / Trailers (PSD: "exist only in WMS"); the Farm App's pickers are fed from here |
 
-Exactly which side calls which endpoint, and how often, is inferred from the names. Confirm it with dev or from
-request logs before you write assertions on timing.
+**Confirmed live (2026-10-19): the caller is Burq.io, not WMS.** Burq's `YHS_AGRIERP` workspace polls every minute.
+- `YHS_HarvestTickets_AGRIERP` does GET harvest-tickets → POST the WMS field ticket → mark-as-synced.
+- `YHS_TicketsWeight_AGRIERP` sends the weight back.
+- `YHS_Drivers/Fleet/Trucks/Trailers_AGRIERP` push WMS master data, with each WMS id as the Farm `…ExternalRefId`.
+
+Each attempt is a data packet whose GET payload and error text you can read. Use it to tell whether a bad value came from the
+Farm App or from WMS. See the **`vannbros-burq` skill**, which also lists the known sync errors: wrong seeded external refs, an
+empty fleet ref blocking sync, and the 50-character manual-ticket limit.
 
 ## Field mapping (live Farm App ↔ live WMS form)
 

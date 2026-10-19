@@ -40,6 +40,7 @@ The **FRD** (`references/frd-yhs.md`) is the signed As-Is → To-Be requirements
 | Pre-clean, production runs, chutes, bins, turnout, D365 batch orders | `references/agriproduction.md` |
 | Business requirements and process per stage (receiving → fumigation → quality → picking → pre-clean → hulling → shelling → labels → storage → USDA → shipments) | `references/frd-yhs.md` |
 | Farm App side of harvest tickets (planning, capture, drawer, posting) | `vannbrosphasetwo-knowledge` → `references/harvest-central.md` |
+| **Sync logs between Farm App and WMS** (why a ticket did or didn't sync, what payload was sent, external ref ids) | **`vannbros-burq` skill** (Burq.io Transactions, `YHS_AGRIERP` workspace) |
 
 ## Authority order
 
@@ -67,9 +68,13 @@ are byte-identical copies of the three top-level PDFs.
   state. For `playwright-cli`, `state-load .auth/wms-superadmin.json` then `goto` a WMS route.
 - WMS URLs: `WMS_QA_BASE_URL`, `wmsRoutes` and `wmsUrl()` in `playwright/tests/constants/routes.ts`. They're QA only;
   `TARGET_ENV` does not apply.
-- **Known blocker (2026-10-19):** that user is not in the WMS database, so every `/api/v1/*` call returns 404
-  `User with email 'superuser@test.com' not found in the system`. Screens render, but lists are empty and dropdowns don't load.
-  Ask dev to provision the user (or for a provisioned PIN) before doing data-level QA.
+- **Unprovisioned PIN:** if the PIN's user is not in the WMS database, every `/api/v1/*` call returns 404
+  `User with email '…' not found in the system`. Screens render, but lists stay empty. The original Superadmin PIN
+  (`superuser@test.com`) hit this; since 2026-10-19 the creds file holds a provisioned PIN with full data access.
+- **Data checks:** the WMS ticket carries no `HT-…` reference. Match a field ticket to its Harvest Central ticket by
+  field/variety and timestamps: the Farm ticket's `modifiedAt` (with `modifiedBy 0`, mark-as-synced) ≈ WMS `createdAt`.
+  Resolve WMS drivers/trucks/carriers/trailers (`/api/v1/{drivers,trucks,carriers,trailers}/{id}`) by plate or name; their
+  ids differ from the Farm App's.
 - API: `https://agrierp-authgateway-qa-api.folio3.site/api/v1/…` (`field-tickets`, `locations`, `shipments`,
   `master-data/growers/dropdown`), the same gateway as the Farm App.
 - Drive it with the `playwright-cli` skill in **Firefox**, run from `playwright/`. Treat WMS QA as **read-only** unless

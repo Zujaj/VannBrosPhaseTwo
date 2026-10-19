@@ -63,6 +63,13 @@ export default defineConfig({
         headless: process.env.AUTH_HEADLESS === '1',
       },
     },
+    // Burq.io QA session (`pnpm auth:burq`, .auth/burq-qa.json). Always headed: login needs a
+    // code emailed to the account, which only a human can type.
+    {
+      name: 'burq-setup',
+      testMatch: /burq\/burq\.setup\.ts/,
+      use: { ...devices['Desktop Firefox'], headless: false },
+    },
     // The regression workbook's `Test Data & Env` sheet scopes the web suite to a
     // "Chromium based Browser", and its Compatibility cases (CC-001..) name Chrome/Edge —
     // so Chromium is the primary engine. Firefox is kept as the second engine rather than
