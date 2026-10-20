@@ -19,4 +19,4 @@ row IDs rather than repeating the coverage tables.
 | Date | Environment | Suite | Result |
 |---|---|---|---|
 | 2026-10-12 | UAT | Smoke (`pnpm test:smoke:uat`, plus WO-20) | [69 pass · 3 flaky · 2 fail of 103 web rows](./runs/2026-10-12-uat-smoke.md) |
-| 2026-10-16 | QA | ADO #26493 harvest planning (`harvest-multi-field.spec.ts`, plus manual) | [16 automated: 14 pass · 2 expected fail; 9 manual: 7 pass · 2 fail; +10-17 tickets/attachments: 16 cases, 10 pass · 5 fail · 1 observation](./runs/2026-10-16-qa-ado-26493.md) |
+| 2026-10-16 | QA | ADO #26493 harvest planning (`harvest-multi-field.spec.ts`, plus manual) | [16 automated: 14 pass · 2 expected fail; 9 manual: 7 pass · 2 fail; +10-17 tickets/attachments: 16 cases, 10 pass · 5 fail · 1 observation; +10-19 rerun, rules 1–5: 3 pass · 1 fail (#60) · 1 web pass / API fail (#62)](./runs/2026-10-16-qa-ado-26493.md) |
