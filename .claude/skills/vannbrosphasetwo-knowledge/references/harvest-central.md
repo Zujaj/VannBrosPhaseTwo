@@ -219,6 +219,7 @@ Ticket creation is permission-based. Without the permission, the `Create New Har
 
 - **Validate at posting, not at save.** A ticket missing required posting data saves, but posting is blocked until the data is complete.
 - **Posting needs a project link.** Unlinked tickets cannot be posted. Once YHS has completed the ticket and it has posted to ERP, a posted status shows in AgriERP. ERP posts the actual weight (FC document).
+  - **Checking a post (team KT, 2026-10-20):** in **Sync Console**, the FinOps Sync service `Harvest Central Ticket (FinOps Posting)` (155) logs `Harvest ticket 'HT-…' posted to FinOps (journal VBS-000111)`. Open that journal in D365 under **Inventory management > Journal entries > Items**. The full walkthrough Farm App → Burq → WMS weighing → post → D365 is in the `vannbrosphasetwo-yhs` skill, `references/harvest-central-integration.md`.
 - **Edit / delete only before YHS Completed.** Edits, plate or driver corrections and voids before completion sync to YHS. After `Completed`, the ticket is read-only and cannot be deleted.
 - **Actual Weight is read-only.** It comes from YHS and cannot be edited in AgriERP.
 - **Fleet auto-fill:** picking a Truck fetches its Fleet. The Fleet is sent to YHS on submit.

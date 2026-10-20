@@ -58,6 +58,7 @@ Navigation: `Product Information Management > Released Products` (create product
 - Batches belong to one item; opening stock uses manually created batches. Receiving lot items in the Inventory App enforces a batch.
 - Item model group uses **FIFO**. **Usage unit** (field application) vs **base unit** (inventory) with a conversion factor.
 - **Budgeted quantity = rate per acre × operational area (acres).**
+- **Crop varieties (team KT, 2026-10-20):** `Product information management > Released products` → filter `Item number` = `90000` → select it → **Product** ribbon → **Product master** tab → **Released product variants**. Each variety is listed as a variant, usually shown in the **Configuration** column.
 
 ## Projects & WBS
 

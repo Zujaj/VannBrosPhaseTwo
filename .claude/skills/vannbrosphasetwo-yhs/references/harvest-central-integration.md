@@ -87,7 +87,28 @@ empty fleet ref blocking sync, and the 50-character manual-ticket limit.
 The enum values behind `wmsSyncStatus`, `status`, `ticketState` and `postingStatus` are **not mapped yet**. Ticket 550 has
 `status 1`, `wmsSyncStatus 1`, `postingStatus 1` and `ticketState 2`.
 
-## How to verify end to end (once the WMS user is provisioned)
+## End-to-end QA walkthrough (team KT, 2026-10-20)
+
+This is how the team checks a ticket from the Farm App through WMS to D365. It comes from a knowledge-transfer note and has **not yet been run by us end to end**.
+
+1. **Create** the ticket in Harvest Central (AgriFarm web or iOS). Burq syncs it to WMS.
+2. **Burq:** open `Transactions` and filter workspace `YHS_AGRIERP`, dataflow `YHS_HarvestTickets_AGRIERP`. On success the **Detail** cell reads
+   `The Harvest ticket HT-xxx-yyyyy-dd synced to WMS (entityId: N)`. See the `vannbros-burq` skill.
+3. **WMS:** sign in at `https://vann-wms-qa.agrierp.com` as Superadmin (PIN in `.auth/`, configuration `YHS`; `pnpm auth:wms`).
+   Then open `/receiving/N`, where **N is the Burq `entityId`**. Check the ticket's status, items and any sync differences against the mapping above.
+4. **Weigh:** enter `Gross Weight` and `Captured Tare Weight`. Tare must be lower than gross. WMS calculates `Net Weight` = Gross − Tare.
+5. **Assign:** click **`Validate and Assign`** and pick a stockpile location.
+   - Note: the AgriWMS PSD shows `Capture Tare` only *after* validation (`agriwms.md`). The KT note enters tare before `Validate and Assign`.
+     Follow whatever the live screen allows.
+6. **Farm App:** Actual Weight changes from `Awaiting From YHS` to the WMS Net Weight. The weight comes back through Burq `YHS_TicketsWeight_AGRIERP`.
+7. **Post:** select the ticket in Harvest Central and click **`Post Ticket`**. Its status becomes `Posted`. The ticket needs a linked project.
+8. **Sync Console:** the FinOps Sync service `Harvest Central Ticket (FinOps Posting)` (service 155) logs
+   `Harvest ticket 'HT-xxx-yyyyy-dd' posted to FinOps (journal VBS-000111)`. Note the journal number.
+9. **D365 F&O:** go to **Inventory management > Journal entries > Items** and open that journal. Confirm the movement journal lines match the posted ticket.
+
+Steps 4, 5 and 7 change shared QA data and cannot be undone. Use only tickets you created.
+
+### Older checklist (before the KT)
 
 1. Farm App QA: capture a ticket for a YHS field (web `Add New Ticket` or mobile). Note `HT-…` and the API `id`.
 2. Read `GET /api/harvestcentral/{headerId}` and check that `wmsSyncStatus` changes once WMS has pulled the ticket.
