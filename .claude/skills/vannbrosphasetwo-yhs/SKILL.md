@@ -6,12 +6,14 @@ description: >-
   Loads / field tickets, gross-tare-net scale weighing, stockpile assignment and stockpile
   ticket, field validation by QR, weight certificate, inventory, locations/stockpiles/tanks,
   truck check-in, shipments, empty bins, bulk trailer weighing, handler bin IDs),
-  AgriQuality (quality templates, attributes, quality orders), AgriProduction (pre-clean
+  AgriAdmin (Fleet Master: the carriers, drivers, trucks and trailers behind WMS and the Farm App
+  transport pickers), AgriQuality (quality templates, attributes, quality orders), AgriProduction (pre-clean
   jobs, production runs, chutes, bin tags, turnout), and the Vann Phase 3 YHS FRD (D365 F&SC
   receiving, fumigation, hulling, shelling, USDA, shipments). Also covers how YHS Receiving
   links to AgriERP Harvest Central harvest tickets (WMSIntegration sync, actual weight,
   Awaiting YHS). Use whenever a task mentions YHS, AgriWMS, WMS, vann-wms-qa, receiving,
-  field ticket, stockpile, weight certificate, huller, pre-clean, AgriQuality or
+  field ticket, stockpile, weight certificate, huller, pre-clean, AgriAdmin, vann-admin-qa,
+  fleet master, carrier / driver / truck / trailer master data, AgriQuality or
   AgriProduction, even if "YHS" is not named. Farm App facts (work orders, Harvest Central
   screens) stay in vannbrosphasetwo-knowledge.
 ---
@@ -35,6 +37,7 @@ The **FRD** (`references/frd-yhs.md`) is the signed As-Is → To-Be requirements
 | If the task is about… | Read |
 |---|---|
 | **How YHS Receiving links to AgriERP Harvest Central**: ticket sync, `WMSIntegration` API, field mapping, actual weight, `Awaiting YHS`, cross-system statuses, E2E verification steps | `references/harvest-central-integration.md` |
+| **AgriAdmin** (`https://vann-admin-qa.agrierp.com`, `pnpm auth:agriadmin`): Fleet Master carriers / drivers / trucks / trailers, the ids WMS uses, their API, and the Farm App comparison (duplicates, wrong external refs) | `references/agriadmin.md` |
 | AgriWMS screens, labels, statuses, receiving journey, stockpile assignment, weighing, printing, inventory, locations, shipments, truck check-in, bins. **§0 has the live QA check and spec ↔ live drift** | `references/agriwms.md` |
 | Quality attributes / templates / orders, sampling, grading | `references/agriquality.md` |
 | Pre-clean, production runs, chutes, bins, turnout, D365 batch orders | `references/agriproduction.md` |
@@ -74,7 +77,8 @@ are byte-identical copies of the three top-level PDFs.
 - **Data checks:** the WMS ticket carries no `HT-…` reference. Match a field ticket to its Harvest Central ticket by
   field/variety and timestamps: the Farm ticket's `modifiedAt` (with `modifiedBy 0`, mark-as-synced) ≈ WMS `createdAt`.
   Resolve WMS drivers/trucks/carriers/trailers (`/api/v1/{drivers,trucks,carriers,trailers}/{id}`) by plate or name; their
-  ids differ from the Farm App's.
+  ids differ from the Farm App's. AgriAdmin's Fleet Master is the master for these records and uses the same ids
+  (`references/agriadmin.md`).
 - API: `https://agrierp-authgateway-qa-api.folio3.site/api/v1/…` (`field-tickets`, `locations`, `shipments`,
   `master-data/growers/dropdown`), the same gateway as the Farm App.
 - Drive it with the `playwright-cli` skill in **Firefox**, run from `playwright/`. Treat WMS QA as **read-only** unless

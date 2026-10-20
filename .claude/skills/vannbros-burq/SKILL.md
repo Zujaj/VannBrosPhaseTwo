@@ -189,6 +189,11 @@ doesn't use it; the token file and `burq.mjs` cover QA reads.
   - Packet 4717 (Farm 696, HT-290-40N8N-26 → WMS 6077) sent 44 / 87 / 175 / 3280, while the correct WMS ids are 22 / – / 169 / 3154.
   - The offsets are constant per entity. These records predate Burq: the WMS rows are `SEED_DRV_20260630` / `SEED_20260630`,
     and only 33 drivers and 2 fleets ever went through Burq. So the bad cross-refs come from the 2026-06-30 seed, not from the live flow.
+  - **Scope (2026-10-20, against AgriAdmin, the master for these ids):**
+    - The Farm App holds most records twice: a seed copy (low ids, fleets with `code: null`) and a Burq copy (high ids).
+    - The pickers choose the seed copy first. Of 28 distinct tickets that ever synced, 24 sent a wrong fleet and truck;
+      the 3 on Burq copies were right.
+    - Details: `vannbrosphasetwo-yhs` → `references/agriadmin.md`, FINDINGS #75.
 - **No fleet, no sync (ADO #26707).** Packet 4714 (Farm 711, HT-290-SC57Y-26) failed with `'Fleet External Ref Id' must not be empty.`
   The ticket stays `wmsSyncStatus 1`, and the Farm App shows no error.
 - **Manual ticket length (ADO #26709).** Packet 4710 (Farm 576) failed with `'Fleet External Ref Id' must not be empty.; The length of

@@ -39,7 +39,7 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   spec; read AgriWMS from its PDF. Distilled in the `vannbrosphasetwo-yhs` skill.
 - **`.claude/skills/`** — `vannbrosphasetwo-knowledge` (product facts; consult before authoring
   tests or docs), `-yhs` (YHS AgriWMS receiving / quality / production and its Harvest Central link;
-  WMS QA `https://vann-wms-qa.agrierp.com`), `vannbros-burq` (Burq.io sync logs between Farm App, WMS and D365, plus its
+  WMS QA `https://vann-wms-qa.agrierp.com`; AgriAdmin QA `https://vann-admin-qa.agrierp.com`, the read-only Fleet Master for carriers / drivers / trucks / trailers), `vannbros-burq` (Burq.io sync logs between Farm App, WMS and D365, plus its
   Swagger-generated API reference and read-only `burq.mjs` client; read-only; regenerate with its `scripts/refresh.sh`), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
   `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`
   (read-only Excel report of prod Sync Console errors, `pnpm prod:sync-errors`).
@@ -52,7 +52,7 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
 - `playwright/`: `pnpm test:fast` (daily loop, Firefox, no retries) · `pnpm test:clean`
   (before a UAT cycle, skips `@mutating`) · `pnpm auth:qa` (refresh sessions) ·
   `pnpm test:smoke:uat` (smoke suite on UAT, after `pnpm auth:uat`) · `pnpm auth:wms` (YHS AgriWMS
-  QA session; scripted PIN, human fallback) · `pnpm auth:burq` (Burq.io QA sync console; human types 2FA code) ·
+  QA session; scripted PIN, human fallback) · `pnpm auth:agriadmin` (YHS AgriAdmin QA, same PIN login) · `pnpm auth:burq` (Burq.io QA sync console; human types 2FA code) ·
   `pnpm typecheck`. Full list in the `vannbrosphasetwo-playwright` skill.
 - `documentation/`: `pnpm start` · `pnpm build` · `pnpm serve:build` · `pnpm pdf`.
 

@@ -10,6 +10,7 @@
     "auth:qa": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=setup",
     "auth:uat": "TARGET_ENV=uat PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=setup",
     "auth:wms": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=wms-setup",
+    "auth:agriadmin": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=agriadmin-setup",
     "auth:burq": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=burq-setup --retries=0",
     "test:public": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=chromium-guest --project=firefox-guest",
     "test:authed": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=chromium --project=firefox",

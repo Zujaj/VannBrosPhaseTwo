@@ -16,6 +16,7 @@ Never put a real value in this folder, and never print a filled-in file (no `cat
 | `production_farmappadmin_credentials.json` | [`production_farmappadmin_credentials.example.json`](./production_farmappadmin_credentials.example.json) | `{ email, password }`, the `farmappadmin` account | `tests/helpers/credentials.ts` (admin on UAT, `TARGET_ENV=uat`), `scripts/sync-console-errors.mts` (production, read-only) | `PROD_SYNC_EMAIL` / `PROD_SYNC_PASSWORD` (sync-console script only) |
 | `growersportal_credentials.json` | [`growersportal_credentials.example.json`](./growersportal_credentials.example.json) | `{ <env>: { <GP role>: { email, password } } }`; env is `QA`; roles `SuperAdmin`, `Super Admin View-only`, `GrowerAdmin`, `GrowerRep`, `Grower View-only` | No code yet. Used by hand to sign in to Grower's Portal QA (Microsoft login + MFA), which is **read-only** for us | — |
 | `yhs_wms_credentials.json` | [`yhs_wms_credentials.example.json`](./yhs_wms_credentials.example.json) | `{ <env>: { url, <role>: { pin, configuration } } }`; env is `QA`; role `Superadmin` | `tests/helpers/wmsAuth.ts` → `pnpm auth:wms` (scripted PIN entry; with no valid PIN a human finishes the login in the open window). Also used by hand with `playwright-cli`. See the `vannbrosphasetwo-yhs` skill | `YHS_WMS_PIN` |
+| `yhs_agri_admin_credentials.json` | [`yhs_agri_admin_credentials.example.json`](./yhs_agri_admin_credentials.example.json) | Same shape as `yhs_wms_credentials.json`: `{ QA: { url, Superadmin: { pin, configuration } } }` | `tests/helpers/agriAdminAuth.ts` → `pnpm auth:agriadmin` (scripted PIN entry, human fallback). YHS AgriAdmin QA (Fleet Master master data), **read-only**. See the `vannbrosphasetwo-yhs` skill, `references/agriadmin.md` | `YHS_AGRIADMIN_PIN` |
 
 Field notes:
 - **`credentials.json` role keys** must be names from `tests/constants/roles.json`. Any other key, and anything starting with `_`, is ignored. An entry is used only when both `username` and `password` are non-empty strings. A malformed file is ignored, and setup falls back to the human SSO login.
@@ -47,4 +48,5 @@ Playwright `storageState` files (`{ cookies, origins }`), written by `pnpm auth:
 | `uat-admin.json` | `pnpm auth:uat` |
 | `gp_superadmin.json` | `playwright-cli state-save` after a manual Grower's Portal login |
 | `wms-superadmin.json` | `pnpm auth:wms` (`tests/wms/wms.setup.ts`): YHS AgriWMS QA, session in localStorage |
+| `agriadmin-superadmin.json` | `pnpm auth:agriadmin` (`tests/agriadmin/agriadmin.setup.ts`): YHS AgriAdmin QA, session in localStorage (`agriadmin_session`) |
 | `burq-qa.json` (+ `burq-qa.session-storage.json`) | `pnpm auth:burq` (`tests/burq/burq.setup.ts`): Burq.io QA, `authToken` / `refreshToken` in localStorage |

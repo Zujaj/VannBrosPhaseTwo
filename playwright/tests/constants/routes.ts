@@ -26,6 +26,21 @@ export const wmsRoutes = {
 export const wmsUrl = (route: string): string => `${WMS_QA_BASE_URL}${route}`;
 
 /**
+ * YHS AgriAdmin web app (vannbrosphasetwo-yhs skill): master data for WMS (carriers, drivers,
+ * trucks, trailers). QA only and read-only here; same PIN login as AgriWMS.
+ */
+export const AGRIADMIN_QA_BASE_URL = 'https://vann-admin-qa.agrierp.com';
+export const AGRIADMIN_QA_HOST = new URL(AGRIADMIN_QA_BASE_URL).host;
+
+/** AgriAdmin routes, verified live 2026-10-20. */
+export const agriAdminRoutes = {
+  login: '/login',
+  fleetMaster: '/fleet-master',
+} as const;
+
+export const agriAdminUrl = (route: string): string => `${AGRIADMIN_QA_BASE_URL}${route}`;
+
+/**
  * Burq.io integration platform (vannbros-burq skill): the iPaaS that syncs Farm App data with
  * YHS AgriWMS and D365. QA only and read-only; its UI is a Blazor WebAssembly app.
  */

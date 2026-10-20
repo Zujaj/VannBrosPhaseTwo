@@ -1582,3 +1582,83 @@ Of the 51 contract fields, 43 get exactly their contract varieties from `POST Me
 **Rule 1 (same as #60):** all 51 contract fields are offered, along with 18 that are not on this contract. Field 285 is one of them, and its WMS ticket `FT-0300062` shows grower Salt Creek Orchards Group LLC.
 
 **Not filed.** Coverage: `coverage/runs/2026-10-16-qa-ado-26493.md` § Contract check 2026-10-20.
+
+## 73. Root cause of #69 (ADO #26707): a ticket's Fleet comes from its truck, and the web drawer has no Fleet field
+
+**Verified:** 2026-10-20, Harvest Central 27 (`311/BUTTE`). Five tickets created on 10-20 (1625, 1626, 1629, 1630, 1631) never reached WMS. Burq packets 6973, 8386, 13298, 13696 and 13796 failed with `'Fleet External Ref Id' must not be empty.` Each ticket had `fleetID: null`. `GET /api/Metadata/Trucks` returns `{value, text, fleetID}`, and their trucks (9618578, 9D69344, 9B48691, 9E53219, 9E25236) all have `fleetID: null`. Every ticket that synced uses a truck that has a fleet.
+
+- The web **Edit Harvest Ticket** drawer has no Fleet field, so the only way to fix such a ticket is to change its truck. Changing each truck to `9D46925` gave the tickets fleet 23 (Emerald Farms), and Burq synced all five within a minute (WMS 6128–6132).
+- The truck picker lists duplicate plates: `9D46925` is both truck 170 (seed fleet 23, no code) and truck 320 (fleet 89, code `Emerald Farms`). The picker takes the first, 170. Fleets are duplicated too (Emerald Farms 23/89, Mezger 48/114, Township 80/146, Bullseye 12/189), so a ticket can end up on the seed copy. This is related to #68 / ADO #26706.
+- The user sees no error, and the ticket waits as `wmsSyncStatus 1` until someone checks Burq.
+
+**Suggest:** require a truck with a fleet (or a Fleet field) on save, and de-duplicate the seed trucks and fleets. Not filed; it adds to ADO #26707.
+
+## 74. Harvest Central Post Ticket: no confirmation, and a posted ticket stays selected and blocks the next post
+
+**Verified:** 2026-10-20, Harvest Central 27, Firefox.
+
+1. Clicking **Post Ticket** sends `POST /api/harvestcentral/tickets/post {"ticketIds":[…]}` immediately, with no confirmation dialog, even though posting cannot be undone.
+2. After `HT-311-AIBVU-26` posted (journal VBS-000514), its row checkbox became disabled but the ticket stayed in the page's selection. Every later post without a reload resent its id. Each attempt got 400 `{"errorMessage":["Harvest Ticket (HT-311-AIBVU-26) is already posted."]}` and a dialog with that text, so **none of the newly selected tickets posted**.
+3. After a reload, the same tickets posted fine: `{"ticketIds":[1625,1628,1632,1633]}` → 200 `{"totalRecordsProcessed":4}`.
+
+**Expected:** a confirmation step, the selection cleared after a post, and an already-posted id skipped rather than failing the whole batch. Not filed.
+
+**Also seen in the same run (WMS):** WMS tickets for field 311 show grower **Vann Brothers**, and WMS recommends the existing 311/BUTTE pile `1000-04`. The weight returns to the Farm App on `Assigned` (`ticketState 3`, "Received"), and posting moves the ticket to `ticketState 4`, `postingStatus 2 → 3`. Posting took about 1 minute per batch.
+
+## 75. Harvest Central → WMS: Farm master data is duplicated, and the seed copies send wrong ids to WMS (extends ADO #26706)
+
+**Verified:** 2026-10-20, against **AgriAdmin QA** (`https://vann-admin-qa.agrierp.com/fleet-master`), the YHS master for carriers, drivers, trucks and trailers. AgriAdmin ids = WMS ids: WMS 6132 shows exactly the AgriAdmin records behind the ids Burq sent.
+
+**Names: OK.** All 105 carriers, 357 drivers, 472 trucks and 4,172 trailers in AgriAdmin (all active) exist in the Farm App's `Metadata/*` lists. Truck → carrier links agree for 515 Farm trucks. One differs: `9G07695` (Farm #264) has no fleet in the Farm App, but AgriAdmin says FEDORA FARMS.
+
+**Duplicates: not OK.** The Farm App lists most records twice under the same label:
+
+| Entity | Farm rows | Distinct names | Names listed twice |
+|---|---:|---:|---:|
+| Fleets | 198 | 111 | 86 |
+| Drivers | 666 | 554 | 112 |
+| Trucks | 773 | 474 | 299 |
+| Trailers | 8,058 | 4,209 | 3,849 |
+
+There are two copies of each record:
+
+- **Seed copy** from 2026-06-30, with low ids: fleets ≤ 88 (`code: null`), trucks ≤ 301, trailers ≤ 3878.
+- **Burq copy**, with high ids: fleets ≥ 89 (`code` = name), trucks ≥ 302, trailers ≥ 3891.
+
+The Farm App also has extra records that are not in AgriAdmin:
+
+- **6 fleets:** QA test carriers;
+- **197 drivers:** e.g. `Castillo, Jesus`, `Chavez, Antonio`, `Lopez, Hector`, `John`;
+- **2 trucks:** `TRK-0001234`, `9G86593`;
+- **37 trailers:** `TRL-100…`, `LP-1123`.
+
+None of these can map to a real WMS record.
+
+**Wrong ids to WMS: not OK.** Checked all 46 successful Burq packets (dataflow 110, 28 distinct tickets):
+
+- **Seed copy:** all 24 tickets sent a wrong fleet and truck.
+- **Burq copy:** all 3 tickets sent the right ones (1624, 1632, 1633).
+- **Totals per packet:** fleet 43 wrong / 3 right, truck 43 / 3, driver 27 / 19, front trailer 38 / 2.
+
+The Harvest Central pickers show both copies under the same label and take the first (seed) one. That's how the truck change on #73 landed on truck 170 rather than 320.
+
+**Example (HT-311-BI1PU-26, Farm 1631 → WMS 6132, posted as VBS-000522):**
+
+| | Farm ticket | Ref sent | WMS / AgriAdmin shows |
+|---|---|---|---|
+| Fleet | Emerald Farms (seed 23) | 44 | Manzano (Emerald Farms is #22) |
+| Driver | Bravo, Ricardo | 93 | Rybakov, Ivan Pavlovich |
+| Truck | 9D46925 (seed 170) | 175 | 9E49938 (9D46925 is #169) |
+| Front trailer | 4AY1373 | 233 | 4BW2834 |
+
+So all 9 tickets posted from Harvest Central 27 on 10-20 carry wrong transport data in WMS, except 1632 and 1633, whose fleet and truck are right.
+
+**Also:** 186 of 472 AgriAdmin trucks have no carrier. A ticket using one of them gets no fleet and never syncs (#73, ADO #26707).
+
+**Suggest:**
+
+- Remove the seed copies, or correct their external refs from AgriAdmin.
+- Remove the Farm-only test records.
+- Show one record per name in the pickers.
+
+**Not filed:** add as a comment to ADO #26706 once the user confirms. Reference: `vannbrosphasetwo-yhs` → `references/agriadmin.md`.

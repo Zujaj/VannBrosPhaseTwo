@@ -89,7 +89,7 @@ The enum values behind `wmsSyncStatus`, `status`, `ticketState` and `postingStat
 
 ## End-to-end QA walkthrough (team KT, 2026-10-20)
 
-This is how the team checks a ticket from the Farm App through WMS to D365. It comes from a knowledge-transfer note and has **not yet been run by us end to end**.
+This is how the team checks a ticket from the Farm App through WMS to D365. It comes from a knowledge-transfer note. First run end to end on 2026-10-20 (below).
 
 1. **Create** the ticket in Harvest Central (AgriFarm web or iOS). Burq syncs it to WMS.
 2. **Burq:** open `Transactions` and filter workspace `YHS_AGRIERP`, dataflow `YHS_HarvestTickets_AGRIERP`. On success the **Detail** cell reads
@@ -107,6 +107,19 @@ This is how the team checks a ticket from the Farm App through WMS to D365. It c
 9. **D365 F&O:** go to **Inventory management > Journal entries > Items** and open that journal. Confirm the movement journal lines match the posted ticket.
 
 Steps 4, 5 and 7 change shared QA data and cannot be undone. Use only tickets you created.
+
+**First full run (2026-10-20, Harvest Central 27 = 311/BUTTE, project `PRJ_000058`):** nine tickets went all the way through. The details:
+
+- **Burq sync.** A ticket syncs only if its truck has a fleet. The Farm ticket takes `fleetID` from `Metadata/Trucks`, and there is no Fleet field on the web drawer (FINDINGS #73).
+- **WMS weights.** Gross and tare are typed in through the pencil button next to `Gross Weight` / `Captured Tare Weight`, then committed with the check button (Enter does not commit). `Validate and Assign` → `✓ Select Recommended` offers the pile that already holds that grower/field/variety (`1000-04`).
+- **Farm App.** The weight comes back on WMS `Assigned`. Farm `ticketState` goes 2 → 3 and the list counts the ticket as "Received", with `actualQuantity` 44000.
+- **Post Ticket.** Posting sends `POST /api/harvestcentral/tickets/post {"ticketIds":[…]}` with no confirmation. Reload the page between posts (FINDINGS #74). `postingStatus` goes 2 → 3 within about a minute, and `journalId` is set.
+- **D365.** One `Movement` journal per ticket (`VBS-000514`…`VBS-000522`), each posted by `Admin` in company `vbs`. Each has one line:
+  - item `90000`, configuration `BUTTE`;
+  - site `01`, warehouse `0401`, location `YHS`;
+  - batch `BUTTE-311-2026`, quantity = net weight.
+
+  Read it with OData `GET /data/InventoryMovementJournalHeaders` / `InventoryMovementJournalEntries?cross-company=true&$filter=JournalNumber eq '…'`, read-only, using the FinOps token. The call is slow (about 2 min).
 
 ### Older checklist (before the KT)
 

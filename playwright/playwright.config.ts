@@ -63,6 +63,16 @@ export default defineConfig({
         headless: process.env.AUTH_HEADLESS === '1',
       },
     },
+    // YHS AgriAdmin session (`pnpm auth:agriadmin`, .auth/agriadmin-superadmin.json). Same PIN
+    // login as AgriWMS; used to read the YHS master data (fleet, drivers, trucks, trailers).
+    {
+      name: 'agriadmin-setup',
+      testMatch: /agriadmin\/agriadmin\.setup\.ts/,
+      use: {
+        ...devices['Desktop Firefox'],
+        headless: process.env.AUTH_HEADLESS === '1',
+      },
+    },
     // Burq.io QA session (`pnpm auth:burq`, .auth/burq-qa.json). Always headed: login needs a
     // code emailed to the account, which only a human can type.
     {

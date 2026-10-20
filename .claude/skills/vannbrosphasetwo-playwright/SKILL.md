@@ -55,6 +55,9 @@ Run inside `playwright/`. All test scripts set `PLAYWRIGHT_SKIP_VALIDATE_HOST_RE
 - `pnpm auth:wms` — YHS AgriWMS QA session (`.auth/wms-superadmin.json`, project `wms-setup`,
   `tests/wms/wms.setup.ts`). Clicks the stored PIN into the keypad. With no PIN, or a PIN that doesn't
   work, a human finishes in the headed window within 5 min. Details: `vannbrosphasetwo-yhs` skill.
+- `pnpm auth:agriadmin` — YHS AgriAdmin QA session (`.auth/agriadmin-superadmin.json`, project
+  `agriadmin-setup`, `tests/agriadmin/agriadmin.setup.ts`). Same PIN keypad and human fallback as `auth:wms`.
+  Fleet Master master data, read-only. Details: `vannbrosphasetwo-yhs` skill, `references/agriadmin.md`.
 - `pnpm auth:burq` — Burq.io QA session (`.auth/burq-qa.json`, project `burq-setup`,
   `tests/burq/burq.setup.ts`, always headed). Fills the stored email/password; a human types the
   emailed 2FA code within 5 min. Reuses a valid session silently. Details: `vannbros-burq` skill.
