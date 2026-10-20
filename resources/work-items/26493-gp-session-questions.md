@@ -17,7 +17,8 @@ Prepared 2026-10-20 for the session with the Grower's Portal team, to close test
 4. What counts as an "active" contract? We assumed status Active for the current crop year, and that closed 2025 contracts drop out. That's how it works today. Is that correct?
 5. If a contract is closed or changed in GP, how soon does planning reflect it? Which job carries the change?
 6. Are the old GP Fields and Varieties feeds meant to be off now?
-7. Can you give us one Vann contract we can change on GP QA? Add a plot, close it, and so on. Then we can check the rule end to end. We stay read-only on GP until you agree.
+7. Contract VSM-0EY10-26 lists BUTTE and PADRE separately on fields 306, 307, 309, 310, 311 and 312, but planning offers one combined `BUTTE/PADRE` instead. On 329 and 339 it offers `BENNETT-HICKMAN/NONPAREIL`. Planning is also missing 311's FRITZ and NONPAREIL, and the INDEPENDENCE on 329 and 339. Does GP store these as combined varieties, or is this our mapping? (Finding #72.)
+8. Can you give us one Vann contract we can change on GP QA? Add a plot, close it, and so on. Then we can check the rule end to end. We stay read-only on GP until you agree.
 
 ## Answers
 

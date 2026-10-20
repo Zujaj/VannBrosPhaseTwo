@@ -1562,3 +1562,23 @@ Likely causes (to confirm with the iOS dev): a query on `parent_doc_id` or an `o
 **Verified:** 2026-10-19. Packet 4710 (576, `HT-150-5CEAA-26`, 61 characters) failed with `The length of 'Manual Ticket Number' must be 50 characters or fewer. You entered 61 characters.` Even once #26704 enforces 64, values of 51–64 characters will save and then fail to sync.
 
 **Not filed:** packets 4692–4695 (ticket 562) failed with `WMS ticket reference '6068' is already linked to harvest ticket 'HT-130-VTXV0-26'.` This needs a look at how 562 got ref 6068 before filing. Attachments are also not part of any `YHS_AGRIERP` dataflow; WMS tickets show 0 attachments.
+
+## 72. Harvest planning (#26493): merged and missing varieties compared with GP contract VSM-0EY10-26
+
+**Verified:** 2026-10-20 13:35 UTC, QA API as admin (read-only). The source is the Vann Brothers contract `resources/gp_contract/VSM-0EY10-26.md` (51 fields, 159 field/variety pairs).
+
+Of the 51 contract fields, 43 get exactly their contract varieties from `POST Metadata/GetVarietiesForHarvesting`. The other 8 do not:
+
+- **306, 307, 309, 310, 312:** the contract has `BUTTE` and `PADRE`, but the app offers one combined variety, `BUTTE/PADRE` (cropVarietyID 51). Field 303 is mapped correctly to `BUTTE` #27 and `PADRE` #28.
+- **311:** the contract has `BUTTE, FRITZ, NONPAREIL, PADRE`, but the app offers only `BUTTE/PADRE`, so FRITZ and NONPAREIL cannot be planned.
+- **329, 339:** the contract has `BENNETT-HICKMAN, INDEPENDENCE, NONPAREIL`, but the app offers only `BENNETT-HICKMAN/NONPAREIL` (#26), so INDEPENDENCE cannot be planned. Field 333 offers `INDEPENDENCE` #35, so the variety does exist.
+
+**Impact:** this breaks rule 2 (varieties should come from the field's contract mapping) and rule 3 (the combined items are not contract combinations). Planning row 7 `306/BUTTE/PADRE` (6 tickets) was created from one of them. On WMS and D365, the ticket carries a variety that matches no single contract line.
+
+**Likely cause (unconfirmed):** the combined items look like D365 / GP pollinizer blocks being used as variety names, or a stale mapping from before R1. Ask the GP team (see `resources/work-items/26493-gp-session-questions.md`) whether GP holds these fields with combined varieties.
+
+**Also:** row 27 `311/BUTTE` (10 tickets, created 2026-10-20) exists although `BUTTE` alone is not offered for 311. Check how it was created before filing.
+
+**Rule 1 (same as #60):** all 51 contract fields are offered, along with 18 that are not on this contract. Field 285 is one of them, and its WMS ticket `FT-0300062` shows grower Salt Creek Orchards Group LLC.
+
+**Not filed.** Coverage: `coverage/runs/2026-10-16-qa-ado-26493.md` § Contract check 2026-10-20.
