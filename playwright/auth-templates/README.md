@@ -33,8 +33,9 @@ One line holding just the bearer token (a JWT); a `Bearer ` prefix is fine. Wher
 | `qa_refresh_token.txt` | Farm App QA API token | `api/client.mts` (also accepts `{ "token" \| "qa_refresh_token" \| "access_token": "…" }`) | `VANNBROSPHASETWO_API_TOKEN` (legacy `AGRIERP_API_TOKEN`); falls back to `printToken` in `admin.json` |
 | `qa_operator_token.txt` | Farm App QA token for the operator | `api/client.mts` (`ApiClient.asOperator`), `scripts/seed-hour-log.mts` | `VANNBROSPHASETWO_OPERATOR_TOKEN`; falls back to `operator.json` |
 | `qa_finops_token.txt` | D365 F&O bearer (its `aud` claim is the D365 host) | `.claude/skills/vannbrosphasetwo-finops-api/scripts/finops.mjs` (also accepts `{ "access_token" \| "token": "…" }`) | `FINOPS_API_TOKEN` |
+| `vannbros_qa_burq_token.txt` | Burq.io QA bearer (the console's localStorage `authToken`, lasts about a day) | `.claude/skills/vannbros-burq/scripts/burq.mjs` (read-only) | `BURQ_API_TOKEN` |
 
-They expire within hours. See the `vannbrosphasetwo-vann-api-qa` and `vannbrosphasetwo-finops-api` skills for how to get fresh ones.
+Most expire within hours. See the `vannbrosphasetwo-vann-api-qa`, `vannbrosphasetwo-finops-api` and `vannbros-burq` skills for how to get fresh ones.
 
 ## Generated files (not documented here)
 

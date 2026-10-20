@@ -39,8 +39,8 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
   spec; read AgriWMS from its PDF. Distilled in the `vannbrosphasetwo-yhs` skill.
 - **`.claude/skills/`** — `vannbrosphasetwo-knowledge` (product facts; consult before authoring
   tests or docs), `-yhs` (YHS AgriWMS receiving / quality / production and its Harvest Central link;
-  WMS QA `https://vann-wms-qa.agrierp.com`), `vannbros-burq` (Burq.io sync logs between Farm App, WMS and D365;
-  read-only), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
+  WMS QA `https://vann-wms-qa.agrierp.com`), `vannbros-burq` (Burq.io sync logs between Farm App, WMS and D365, plus its
+  Swagger-generated API reference and read-only `burq.mjs` client; read-only; regenerate with its `scripts/refresh.sh`), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
   `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`
   (read-only Excel report of prod Sync Console errors, `pnpm prod:sync-errors`).
 - **`.claude/agents/`** — Playwright planner / generator / healer subagents, driven by the
