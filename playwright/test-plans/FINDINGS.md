@@ -1561,6 +1561,13 @@ Likely causes (to confirm with the iOS dev): a query on `parent_doc_id` or an `o
 
 **Verified:** 2026-10-19. Packet 4710 (576, `HT-150-5CEAA-26`, 61 characters) failed with `The length of 'Manual Ticket Number' must be 50 characters or fewer. You entered 61 characters.` Even once #26704 enforces 64, values of 51–64 characters will save and then fail to sync.
 
+**Retest 2026-10-21 (Ready for QA): fixed.** The web edit drawer on Harvest Central 33, ticket 1669 `HT-342-ORKSZ-26`:
+
+- 51 and 65 characters: `PUT` returns **400** `Manual ticket number cannot be longer than 50 characters.`, shown in an `Error` toast. Before the fix, 65 characters gave a 500.
+- 50 characters: **200**, saved. Burq packet 16167 then shows `Success`, and the ticket synced to WMS 6143.
+- The input still has no `maxlength`, so a user can type past 50 and only finds out on Save.
+- **iOS is not covered.** Ticket 1694 `HT-342-IEYB6-26` was edited on iOS at 10:40 UTC with a 51-character Manual Ticket # (`MT50-…234Y`). The server saved it, and the web shows it. Burq packet 16168 then failed with `'Fleet External Ref Id' must not be empty.; The length of 'Manual Ticket Number' must be 50 characters or fewer. You entered 51 characters.` The fleet error is separate: truck 9618578 (AgriAdmin #402) has no carrier (#73 / ADO #26707). So the 50 limit holds only on the web `PUT /api/HarvestCentral/tickets/{id}`, not on the endpoint the iOS save uses.
+
 **Not filed:** packets 4692–4695 (ticket 562) failed with `WMS ticket reference '6068' is already linked to harvest ticket 'HT-130-VTXV0-26'.` This needs a look at how 562 got ref 6068 before filing. Attachments are also not part of any `YHS_AGRIERP` dataflow; WMS tickets show 0 attachments.
 
 ## 72. Harvest planning (#26493): merged and missing varieties compared with GP contract VSM-0EY10-26
