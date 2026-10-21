@@ -6,7 +6,7 @@
     "start": "docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
-    "clean": "rm -rf node_modules && pnpm install && docusaurus clear",
+    "clean": "node -e \"require('fs').rmSync('node_modules',{recursive:true,force:true})\" && pnpm install && docusaurus clear",
     "serve": "docusaurus clear && pnpm build && docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
@@ -52,7 +52,8 @@
     ]
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "pnpm@12.4.2"
 }

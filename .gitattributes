@@ -1,0 +1,24 @@
+# Normalise line endings so Windows and WSL/Linux checkouts match.
+* text=auto eol=lf
+
+*.sh text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mp4 binary
+*.mov binary
+*.xlsx binary
+*.docx binary
+*.pptx binary
+*.woff binary
+*.woff2 binary
+*.webp binary
+*.tif binary
+*.tiff binary
+*.xlsm binary

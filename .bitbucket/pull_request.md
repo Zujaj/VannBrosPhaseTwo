@@ -6,13 +6,13 @@
 
 ## Merge Order
 
-**#Parent-PR-number** ➡ **#Child-PR-number**
+**pull request #Parent-PR-number** ➡ **pull request #Child-PR-number**
 
-Mention the above in both the parent & child pull requests.
+In Bitbucket, a bare `#<n>` links to an issue, not a PR: write `pull request #<n>` or paste the PR URL. Mention the above in both the parent & child pull requests.
 
-## Assigned GitHub Issue
+## Related Work Item
 
-This PR is related to **#GitHub Issue Number**.
+This PR is related to ADO **#Work-Item-ID** (dev.azure.com/AgriERPProduct/Vann Brothers).
 
 ## Summary
 
@@ -41,7 +41,7 @@ Define the steps for the QA.
 
 - Include links, images, nested, numbered lists if necessary.
 
-  ![Sample Image](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
+  ![Sample Image](https://placehold.co/120x40.png)
 
 > Note: You can add qoutes as well by typing the `>` key and a `space`.
 

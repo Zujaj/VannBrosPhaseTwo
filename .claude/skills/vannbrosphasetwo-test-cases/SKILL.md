@@ -41,7 +41,7 @@ For a quick checklist or smoke suite, a compact list of `Step → Expected` line
 
 ## Filing an ADO bug
 
-Use `.github/ISSUE_TEMPLATE/ado_bug_report.md` to draft the fields before filing in Azure
+Use `.bitbucket/ado_bug_report.md` to draft the fields before filing in Azure
 DevOps (environment, build, severity/priority, repro steps table, expected/actual,
 screenshot table).
 

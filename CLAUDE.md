@@ -13,6 +13,11 @@ is otherwise for manually verifying ADO bugs in state *Deployed on UAT* (drive i
 with `playwright/.auth/production_farmappadmin_credentials.json`, never print it). Production
 `https://vann-farms.agrierp.com` is read-only. Environment table: `vannbrosphasetwo-knowledge` skill.
 
+**Hosting:** Bitbucket Cloud `https://bitbucket.org/folio3/vbagrierp`. CI is `bitbucket-pipelines.yml`;
+PR / bug templates are in `.bitbucket/`. There is no `gh` — open PRs in the Bitbucket UI.
+Teammates run Windows natively: keep scripts portable (`shellEmulator: true` in each package's
+`pnpm-workspace.yaml`, LF via `.gitattributes`), no bash-only `package.json` scripts.
+
 Loose monorepo of independent packages — **no root `package.json`**, no workspace tool.
 Each top-level directory is its own **pnpm** project (own `pnpm-lock.yaml`) — install and
 run inside it. Use `pnpm` everywhere; do not use `npm` or `yarn` (stray `package-lock.json`
@@ -40,7 +45,7 @@ or `yarn.lock` files should be removed). `.npmrc` sets `ignore-scripts=true` for
 - **`.claude/skills/`** — `vannbrosphasetwo-knowledge` (product facts; consult before authoring
   tests or docs), `-yhs` (YHS AgriWMS receiving / quality / production and its Harvest Central link;
   WMS QA `https://vann-wms-qa.agrierp.com`; AgriAdmin QA `https://vann-admin-qa.agrierp.com`, the read-only Fleet Master for carriers / drivers / trucks / trailers), `vannbros-burq` (Burq.io sync logs between Farm App, WMS and D365, plus its
-  Swagger-generated API reference and read-only `burq.mjs` client; read-only; regenerate with its `scripts/refresh.sh`), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
+  Swagger-generated API reference and read-only `burq.mjs` client; read-only; regenerate with `.claude/skills/vannbros-burq/scripts/refresh.sh`), `-docs`, `-playwright`, `-test-cases`, `-vann-api-qa` (Farm App REST API),
   `-finops-api` (D365 F&O `F3Agri*` services), and `production-sync-console-error-logger`
   (read-only Excel report of prod Sync Console errors, `pnpm prod:sync-errors`).
 - **`.claude/agents/`** — Playwright planner / generator / healer subagents, driven by the

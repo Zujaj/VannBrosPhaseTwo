@@ -24,7 +24,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
-          editUrl: 'https://github.com/vannbrosphasetwo/vannbrosphasetwo/tree/main/documentation/',
+          editUrl: 'https://bitbucket.org/folio3/vbagrierp/src/main/documentation/',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           routeBasePath: "/",
@@ -47,8 +47,8 @@ const config: Config = {
       
       items: [
         {
-          href: "https://github.com/vannbrosphasetwo/vannbrosphasetwo",
-          label: "GitHub",
+          href: "https://bitbucket.org/folio3/vbagrierp",
+          label: "Bitbucket",
           position: "right",
         },
       ],
@@ -70,8 +70,8 @@ const config: Config = {
           title: "Community",
           items: [
             {
-              label: "GitHub",
-              href: "https://github.com/vannbrosphasetwo/vannbrosphasetwo",
+              label: "Bitbucket",
+              href: "https://bitbucket.org/folio3/vbagrierp",
             },
           ],
         },

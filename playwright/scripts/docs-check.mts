@@ -34,7 +34,7 @@ for (const pkg of ['playwright', 'documentation']) {
 }
 
 // Where a backticked path is rooted: repo-level folders resolve from the repo root.
-const REPO_ROOTS = ['playwright/', 'documentation/', 'resources/', '.claude/', '.github/'];
+const REPO_ROOTS = ['playwright/', 'documentation/', 'resources/', '.claude/', '.bitbucket/'];
 // The suite's own folders (as the playwright docs write them) resolve from either package, since
 // the docs also say `scripts/generate-pdf.ts` for documentation/.
 const PKG_ROOTS = ['tests/', 'scripts/', 'test-plans/', 'api/'];

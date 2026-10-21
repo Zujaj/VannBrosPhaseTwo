@@ -54,5 +54,9 @@
     "fs-extra": "^11.3.5",
     "pdf-parse": "^2.4.5",
     "typescript": "^7.0.2"
-  }
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "packageManager": "pnpm@12.4.2"
 }

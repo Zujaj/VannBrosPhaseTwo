@@ -1,0 +1,99 @@
+# Bitbucket Pipelines - Playwright suite (port of the former .github/workflows/playwright.yml).
+#
+# Two steps, split by what they need.
+#
+#   verify  - typecheck, traceability and the guest specs. No credentials, runs on every PR.
+#   authed  - the authenticated suite. Needs QA credentials as secured Repository variables
+#             (Repository settings > Pipelines > Repository variables); skipped when they are
+#             absent.
+#
+# `auth.setup.ts` signs in unattended when a credential is present (app email -> "Choose
+# Environment" -> Azure AD -> /maps, ~45s headless), falling back to a human at the SSO prompt
+# when it hits MFA or an unrecognised screen. CI has no human, so `authed` runs only with
+# credentials and `AUTH_HEADLESS=1`.
+#
+# `@mutating` specs are EXCLUDED here (`pnpm test:clean`). They create real work orders on the
+# shared QA environment and have no teardown, so running them on every push would fill the
+# tenant that the manual regression cycle is executed against.
+#
+# The Playwright image ships Node and the browsers, so no `playwright install` step is needed.
+# Keep its tag in step with `@playwright/test` in playwright/pnpm-lock.yaml.
+
+image: mcr.microsoft.com/playwright:v1.62.1-noble
+
+definitions:
+  caches:
+    pnpm-playwright:
+      key:
+        files:
+          - playwright/pnpm-lock.yaml
+      path: $HOME/.local/share/pnpm/store
+
+  steps:
+    - step: &verify
+        name: verify
+        max-time: 20
+        caches:
+          - pnpm-playwright
+        condition:
+          changesets:
+            includePaths:
+              - "playwright/**"
+              - "bitbucket-pipelines.yml"
+              - "README.md"
+              - "CLAUDE.md"
+              - ".claude/skills/vannbrosphasetwo-playwright/**"
+        script:
+          - corepack enable
+          - cd playwright
+          - pnpm install --frozen-lockfile
+          - pnpm typecheck
+          # Fails when a spec's @TC tag matches no workbook case, or when one case is tagged both
+          # full and partial - i.e. when the traceability link to the regression suite is broken.
+          - pnpm coverage
+          - pnpm docs:check
+          - pnpm test:public
+        artifacts:
+          - playwright/playwright-report/**
+
+    - step: &authed
+        name: authed
+        max-time: 45
+        caches:
+          - pnpm-playwright
+        condition:
+          changesets:
+            includePaths:
+              - "playwright/**"
+              - "bitbucket-pipelines.yml"
+        script:
+          # `tests/helpers/credentials.ts` reads VANNBROSPHASETWO_<ROLE>_USER / _PASS, preferring
+          # them over the local .auth/credentials.json. Add more role pairs as repository
+          # variables as they are provisioned; Pipelines exports them automatically.
+          - |
+            if [ -z "${VANNBROSPHASETWO_ADMIN_USER:-}" ]; then
+              echo "VANNBROSPHASETWO_ADMIN_USER is not set - skipping the authenticated suite."
+              exit 0
+            fi
+          - corepack enable
+          - cd playwright
+          - pnpm install --frozen-lockfile
+          - AUTH_HEADLESS=1 pnpm test:clean --project=chromium
+        artifacts:
+          - playwright/playwright-report/**
+
+pipelines:
+  pull-requests:
+    "**":
+      - step: *verify
+
+  branches:
+    main:
+      - step: *verify
+      - step: *authed
+
+  custom:
+    # Run by hand from Pipelines > Run pipeline (replaces workflow_dispatch).
+    playwright:
+      - step: *verify
+      - step: *authed
