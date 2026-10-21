@@ -6,7 +6,8 @@ description: >-
   VannBrosPhaseTwo concepts, screens, or terminology — work orders (planned, tank-mix,
   inspection, harvest) and Harvest Central harvest tickets, template
   management (inspection/material/attribute templates),
-  users/roles/resources, plots/fields (Settings > Plot, Add Plot, FinOps sync),
+  users/roles/resources, plots/fields (Settings > Plot, Add Plot, FinOps sync), Farming
+  Setup (growers / sites / farms / crop years, plot cultivation, D365 project create/update),
   journal & posting review in Dynamics 365, D365 back-office setup (AgriERP Parameters,
   resources, lot vs non-lot items, FIFO, projects / Crop Year / WBS), Business Central
   (Phase 1 ERP: growers/growing sites/plots, master tasks, task templates), Inventory App
@@ -53,6 +54,7 @@ This SKILL.md is the index. Read the matching reference file in `references/` fo
 | Reviewing posted journals in D365 (item, expense, transfer, return-transfer, return-item); postings & inventory sync | `references/journals-postings.md` |
 | Observations / Points of Interest (POI); POI categories; communication center / chat | `references/observations-chat.md` |
 | Plots / fields — **Settings > Plot** list, the **Add Plot** form and its fields, plot ↔ FinOps sync (`PlotJobField`) | `references/plots-fields.md` |
+| **Farming Setup** (PSD v1.0, R1–R4; **not yet deployed**, R1 targeted) — Settings › Farming Setup: Growers / Sites / Farms / Crop Years (R1), Field Master + crop-year-wise Plot Cultivation and Copy Plots (R2), D365 Create Project (R3) and Project Update sync (R4); Farm Admin / Farm Operations Manager only; QA pre-R1 baseline and open questions | `references/farming-setup.md` |
 | **Hour Log Adjustment** — operator raises hour change requests on mobile; manager Approves / Adjusts / Rejects in the **Hour Log Change Requests** drawer (Resources table → `to review` chip); overlap **Create Adjustment** prompt; validations; API | `references/hour-log-adjustment.md` |
 | **D365 F&O back-office setup** (AgriERP Parameters, item groups, resources, lot vs non-lot items, FIFO, projects / Crop Year / WBS ad-hoc tasks) and the **end-to-end WO lifecycle across Farm App → Inventory App dispatch → D365 postings & returns** (from training recordings; lower authority) | `references/d365-setup-and-integration.md` |
 | **Dynamics 365 Business Central (BC, Phase 1 predecessor)** — Grower → Growing Site/Area/Plot hierarchy, Master Tasks, Planning Lines, Task Templates, crop-planning projects/budget; BC → Phase 2 concept map; BC test guidance (no BC env in this repo; unverified, lowest authority) | `references/business-central.md` |

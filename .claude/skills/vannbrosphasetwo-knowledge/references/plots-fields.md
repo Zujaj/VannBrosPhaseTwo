@@ -89,3 +89,9 @@ Settings > Plot list and Add Plot form captured from ADO
 [#26093](https://dev.azure.com/AgriERPProduct/Vann%20Brothers/_workitems/edit/26093) (2026-09-11,
 Colusa site). Full work-item record, acceptance criteria, and QA history:
 `resources/work-items/26093-create-field.md`.
+
+## Successor: Farming Setup
+
+The **Farming Setup** PSD (v1.0) replaces this page with a permanent Field Master plus
+crop-year-wise **Plot Cultivation** records under **Settings › Farming Setup** (release R2). See
+`farming-setup.md`; until R2 is live, this page remains the current behaviour.
