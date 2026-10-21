@@ -1662,3 +1662,16 @@ So all 9 tickets posted from Harvest Central 27 on 10-20 carry wrong transport d
 - Show one record per name in the pickers.
 
 **Not filed:** add as a comment to ADO #26706 once the user confirms. Reference: `vannbrosphasetwo-yhs` → `references/agriadmin.md`.
+
+## 76. AgriWMS stockpile list shows an occupied pile as empty, and assigning it fails with 409
+
+**Verified:** 2026-10-21, WMS 6135 (FT-0300087, 342 / WOOD COLONY, first load of this GFV), Firefox.
+
+1. `Validate and Assign` showed "No stockpile recommendation available" (expected for a first load) and the Available Stockpile list.
+2. The first pile, `1000-023`, showed Grower/Field/Variety `N/A`, Current Weight `0 lbs`, Loads `0`.
+3. Clicking its `Select` sent `assign-stockpile` → 409 `Cannot post inventory at a location that already contains inventory from a different batch.`
+4. The next pile, `1000-07`, assigned fine (200), and the other 7 loads were then recommended `1000-07`.
+
+**Expected:** the list hides, or marks, piles that already hold another batch's inventory. Not filed.
+
+**Same run:** 7 of 8 synced tickets carried at least one wrong carrier, truck or trailer id (#75; trailer `1UD7442` is AgriAdmin #18 but its seed copy sends #51 = `1Vh5715`). The 12 unsynced tickets all use trucks without a carrier in AgriAdmin (#73). Report: `playwright/coverage/runs/2026-10-21-qa-harvest-central-32-posting.md`.

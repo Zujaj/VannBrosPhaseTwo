@@ -121,6 +121,17 @@ Steps 4, 5 and 7 change shared QA data and cannot be undone. Use only tickets yo
 
   Read it with OData `GET /data/InventoryMovementJournalHeaders` / `InventoryMovementJournalEntries?cross-company=true&$filter=JournalNumber eq '…'`, read-only, using the FinOps token. The call is slow (about 2 min).
 
+**Second run (2026-10-21, Harvest Central 32 = 342/WOOD COLONY, project `PRJ_000019`):** 8 of 20 tickets synced (WMS 6135–6142)
+and were posted (`VBS-000531`…`VBS-000538`: Movement, item `90000`, configuration `WOOD COLONY`, site `01` / warehouse `0401` /
+location `YHS`, batch `WOOD COLONY-342-2026`, 44000 each, no project on the line). Report: `playwright/coverage/runs/2026-10-21-qa-harvest-central-32-posting.md`.
+
+- **First load of a GFV:** `Validate and Assign` shows "No stockpile recommendation available", so pick a pile from the list's `Select`
+  buttons. A pile listed as empty can still return 409 `Cannot post inventory at a location that already contains inventory from a
+  different batch.`; try the next one (FINDINGS #76). Later loads get the chosen pile (`1000-07`) recommended.
+- **No-fleet tickets:** the 12 that did not sync all use trucks with no carrier in AgriAdmin either (FINDINGS #73).
+- **Farm list:** 10 tickets per page; go to page 2 for later tickets. A direct `goto /harvest-central/{id}` sometimes renders blank; open
+  `/harvest-central` first.
+
 ### Older checklist (before the KT)
 
 1. Farm App QA: capture a ticket for a YHS field (web `Add New Ticket` or mobile). Note `HT-…` and the API `id`.
